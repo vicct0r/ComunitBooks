@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero -->
+<section class="bg-light text-dark py-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">Compartilhe e Descubra Livros</h1>
+        <p class="lead mt-3">Cadastre seus livros, defina critérios de empréstimo e encontre novas histórias para ler.</p>
+        <div class="mt-4">
+            <a href="#" class="btn btn-primary btn-lg me-2">📖 Explorar Livros</a>
+            <a href="#" class="btn btn-outline-dark btn-lg">➕ Cadastrar Livro</a>
+        </div>
+    </div>
+</section>
+
+<!-- Como Funciona -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Como funciona?</h2>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">1. Cadastre seus livros</h5>
+                        <p class="card-text">Adicione seus livros à plataforma e escolha onde e como eles podem ser emprestados.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mt-3 mt-md-0">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">2. Explore títulos</h5>
+                        <p class="card-text">Pesquise livros disponíveis perto de você e descubra novas leituras sem precisar comprar.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mt-3 mt-md-0">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">3. Reserve e leia</h5>
+                        <p class="card-text">Faça uma reserva, combine com o dono e aproveite a leitura respeitando as regras definidas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Destaques -->
+<section class="bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Livros em destaque</h2>
+        <div class="row">
+            {% for book in featured_books %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="#" class="card-img-top" alt="{{ book.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.title }}</h5>
+                        <p class="text-muted">por {{ book.author }}</p>
+                        <a href="#" class="btn btn-sm btn-primary">Ver mais</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center">Nenhum livro disponível ainda.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

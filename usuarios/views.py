@@ -1,3 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.views import generic
+from django.conf import settings
+from django.urls import reverse_lazy
 
-# Create your views here.
+from .models import CustomUser
+from .forms import UserCreationForm
+
+
+class UserSignupView(generic.CreateView):
+    template_name = 'usuarios/signup.html'
+    form_class = UserCreationForm
+    model = settings.AUTH_USER_MODEL
+    success_url = reverse_lazy('core:home')

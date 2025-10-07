@@ -35,7 +35,7 @@ class CustomUser(AbstractUser):
     username = None
     email = models.EmailField('Email', unique=True, max_length=100)
     is_verified = models.BooleanField(default=False)
-    telefone = models.CharField('Telefone', max_length=12)
+    telefone = models.CharField('Telefone', max_length=15)
     is_staff = models.BooleanField('Membro da Equipe', default=False)
     img = StdImageField(
                         'Imagem', 

@@ -12,3 +12,4 @@ class UserSignupView(generic.CreateView):
     form_class = CustomUserCreationForm
     model = settings.AUTH_USER_MODEL
     success_url = reverse_lazy('core:home')
+

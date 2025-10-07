@@ -1,74 +1,127 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}HomePage{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block content %}
-<!-- Hero -->
-<section class="bg-light text-dark py-5">
-    <div class="container text-center">
-        <h1 class="display-4 fw-bold">Compartilhe e Descubra Livros</h1>
-        <p class="lead mt-3">Cadastre seus livros, defina critérios de empréstimo e encontre novas histórias para ler.</p>
-        <div class="mt-4">
-            <a href="#" class="btn btn-primary btn-lg me-2">📖 Explorar Livros</a>
-            <a href="#" class="btn btn-outline-dark btn-lg">➕ Cadastrar Livro</a>
-        </div>
-    </div>
-</section>
-
-<!-- Como Funciona -->
-<section class="py-5">
+<!-- Hero Section Melhorada -->
+<section class="hero-section">
     <div class="container">
-        <h2 class="text-center mb-5">Como funciona?</h2>
-        <div class="row text-center">
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold">1. Cadastre seus livros</h5>
-                        <p class="card-text">Adicione seus livros à plataforma e escolha onde e como eles podem ser emprestados.</p>
+        <div class="row align-items-center min-vh-80">
+            <div class="col-lg-6">
+                <h1 class="hero-title">Compartilhe histórias, <span class="text-primary">conecte leitores</span></h1>
+                <p class="hero-subtitle">Uma comunidade onde livros ganham novas aventuras através do compartilhamento. Descubra, empreste e conecte-se.</p>
+                <div class="hero-buttons mt-4">
+                    <a href="#" class="btn btn-primary btn-lg me-3">📚 Explorar Acervo</a>
+                    <a href="#" class="btn btn-outline-light btn-lg">➕ Cadastrar Livro</a>
+                </div>
+                <div class="hero-stats mt-5">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="stat-number">+1K</div>
+                            <div class="stat-label">Livros</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-number">+500</div>
+                            <div class="stat-label">Leitores</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-number">+2K</div>
+                            <div class="stat-label">Empréstimos</div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mt-3 mt-md-0">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold">2. Explore títulos</h5>
-                        <p class="card-text">Pesquise livros disponíveis perto de você e descubra novas leituras sem precisar comprar.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mt-3 mt-md-0">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold">3. Reserve e leia</h5>
-                        <p class="card-text">Faça uma reserva, combine com o dono e aproveite a leitura respeitando as regras definidas.</p>
-                    </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-image">
+                    <img src="{% static 'images/hero-books.svg' %}" alt="Livros compartilhados" class="img-fluid">
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Destaques -->
-<section class="bg-light py-5">
+<!-- Nova Seção: Recursos -->
+<section class="features-section py-5">
     <div class="container">
-        <h2 class="text-center mb-5">Livros em destaque</h2>
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="feature-card text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <span class="display-4">🔍</span>
+                    </div>
+                    <h4 class="feature-title">Descubra Tesouros</h4>
+                    <p class="feature-text">Encontre livros raros, best-sellers e obras que você procurava na sua comunidade.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="feature-card text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <span class="display-4">🤝</span>
+                    </div>
+                    <h4 class="feature-title">Empréstimo Simples</h4>
+                    <p class="feature-text">Combine prazos e locais de forma prática. Sem burocracia, apenas leitura.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="feature-card text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <span class="display-4">⭐</span>
+                    </div>
+                    <h4 class="feature-title">Comunidade Ativa</h4>
+                    <p class="feature-text">Conecte-se com leitores próximos, comparthe resenhas e indicações.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Destaques Melhorado -->
+<section class="featured-books bg-light py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">Livros em Destaque</h2>
+            <p class="section-subtitle">Obras que estão circulando pela comunidade</p>
+        </div>
         <div class="row">
             {% for book in featured_books %}
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="#" class="card-img-top" alt="{{ book.title }}">
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="book-card card h-100 shadow-sm">
+                    <div class="book-cover">
+                        <img src="#" class="card-img-top" alt="{{ book.title }}">
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title">#</h5>
-                        <p class="text-muted">por #</p>
-                        <a href="#" class="btn btn-sm btn-primary">Ver mais</a>
+                        <h5 class="book-title">#</h5>
+                        <p class="book-author text-muted">por #</p>
+                        <div class="book-location">
+                            <small class="text-muted">📍 Disponível em: #</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="#" class="btn btn-primary btn-sm w-100">Ver Detalhes</a>
                     </div>
                 </div>
             </div>
             {% empty %}
-            <p class="text-center">Nenhum livro disponível ainda.</p>
+            <div class="col-12 text-center">
+                <div class="empty-state">
+                    <span class="display-1">📚</span>
+                    <h4 class="mt-3">Nenhum livro disponível ainda</h4>
+                    <p class="text-muted">Seja o primeiro a cadastrar um livro na comunidade!</p>
+                    <a href="#" class="btn btn-primary mt-2">Cadastrar Primeiro Livro</a>
+                </div>
+            </div>
             {% endfor %}
         </div>
+    </div>
+</section>
+
+<!-- Nova Seção: CTA -->
+<section class="cta-section py-5">
+    <div class="container text-center">
+        <h2 class="cta-title mb-4">Pronto para compartilhar suas histórias?</h2>
+        <p class="cta-text mb-4">Junte-se à comunidade de leitores que transformam páginas em conexões.</p>
+        <a href="#" class="btn btn-primary btn-lg">Começar Agora</a>
     </div>
 </section>
 {% endblock %}

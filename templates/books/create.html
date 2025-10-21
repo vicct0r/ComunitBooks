@@ -11,9 +11,10 @@
       <div class="card-body">
         <h4 class="card-title mb-3">Criar</h4>
 
-        <form method="post" novalidate>
+        <form method="post" action="." novalidate>
           {% csrf_token %}
-          {% crispy form %}
+          {{ form|crispy }}
+          <button type="submit" class="btn btn-primary mt-2">Create</button>
         </form>
 
       </div>

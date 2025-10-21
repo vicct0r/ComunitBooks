@@ -15,7 +15,7 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
     <div class="container">
-        <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'core:home' %}">
             <span class="fs-4 me-2">📚</span> BookShare
         </a>
 
@@ -29,7 +29,7 @@
                     <a class="nav-link px-3" href="#">Explorar</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-3" href="#">Cadastrar Livro</a>
+                    <a class="nav-link px-3" href="{% url 'user:signup' %}">Cadastrar Livro</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-3" href="#">Comunidade</a>
@@ -42,15 +42,17 @@
                         {% user_display user %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="#">Meu Perfil</a></li>
-                        <li><a class="dropdown-item" href="#">Meus Livros</a></li>
+                        <li><a class="dropdown-item" href="{% url 'user:profile' pk=user.id %}">Meu Perfil</a></li>
+                        <li><a class="dropdown-item" href="{% url 'books:find_user' pk=user.id %}">Meus Livros</a></li>
+                        <li><a class="dropdown-item" href="{% url 'account_email' %}">Gerenciar E-mail</a></li>
+                        <li><a class="dropdown-item" href="{% url 'account_change_password' %}">Alterar Senha</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="#">Sair</a></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'account_logout' %}">Sair</a></li>
                     </ul>
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="btn btn-outline-light btn-sm mx-1" href="#">Entrar</a>
+                    <a class="btn btn-outline-light btn-sm mx-1" href="{% url 'account_login' %}">Entrar</a>
                 </li>
                 <li class="nav-item">
                     <a class="btn btn-primary btn-sm mx-1" href="{% url 'user:signup' %}">Registrar</a>
@@ -61,19 +63,42 @@
     </div>
 </nav>
 
+<!-- No base.html, substitua o bloco de mensagens atual por este: -->
 {% if messages %}
-<div class="container mt-3">
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="container-fluid px-0">
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show message-global mb-0" role="alert">
+            <div class="container">
+                <div class="d-flex align-items-center">
+                    <div class="alert-icon me-3">
+                        {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <i class="fas fa-exclamation-circle"></i>
+                        {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {% elif message.tags == 'info' %}
+                        <i class="fas fa-info-circle"></i>
+                        {% else %}
+                        <i class="fas fa-bell"></i>
+                        {% endif %}
+                    </div>
+                    <div class="alert-content flex-grow-1">
+                        {{ message }}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 {% endif %}
 
-
-{% block content %}{% endblock %}
+<main class="flex-grow-1">
+    {% block content %}{% endblock %}
+</main>
 
 <footer class="bg-dark text-white text-center py-3 mt-5">
     <p class="mb-0">© 2025 BookShare. Compartilhe histórias, não apenas livros.</p>

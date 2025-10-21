@@ -1,127 +1,443 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Home - BookShare{% endblock %}
 
 {% block content %}
-<!-- Hero Section Melhorada -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center min-vh-80">
+<!-- Hero Section -->
+<section class="bg-primary text-white">
+    <div class="container py-5">
+        <div class="row align-items-center min-vh-100">
             <div class="col-lg-6">
-                <h1 class="hero-title">Compartilhe histórias, <span class="text-primary">conecte leitores</span></h1>
-                <p class="hero-subtitle">Uma comunidade onde livros ganham novas aventuras através do compartilhamento. Descubra, empreste e conecte-se.</p>
-                <div class="hero-buttons mt-4">
-                    <a href="#" class="btn btn-primary btn-lg me-3">📚 Explorar Acervo</a>
-                    <a href="#" class="btn btn-outline-light btn-lg">➕ Cadastrar Livro</a>
+                <span class="badge bg-light text-primary mb-3 px-3 py-2 fs-6">+2.500 leitores ativos</span>
+                <h1 class="display-3 fw-bold mb-4">
+                    Sua próxima <span class="text-warning">leitura</span> está aqui
+                </h1>
+                <p class="lead mb-4 opacity-75">
+                    Conecte-se com leitores da sua comunidade, descubra livros incríveis e compartilhe suas histórias favoritas.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mb-5">
+                    <a href="#" class="btn btn-warning btn-lg px-4 py-3 fw-semibold">
+                        <i class="fas fa-search me-2"></i>Explorar Acervo
+                    </a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'books:creation' %}" class="btn btn-outline-light btn-lg px-4 py-3 fw-semibold">
+                        <i class="fas fa-plus me-2"></i>Cadastrar Livro
+                    </a>
+                    {% else %}
+                    <a href="{% url 'user:signup' %}" class="btn btn-outline-light btn-lg px-4 py-3 fw-semibold">
+                        <i class="fas fa-rocket me-2"></i>Começar Agora
+                    </a>
+                    {% endif %}
                 </div>
-                <div class="hero-stats mt-5">
-                    <div class="row">
-                        <div class="col-4">
-                            <div class="stat-number">+1K</div>
-                            <div class="stat-label">Livros</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="stat-number">+500</div>
-                            <div class="stat-label">Leitores</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="stat-number">+2K</div>
-                            <div class="stat-label">Empréstimos</div>
-                        </div>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="h2 fw-bold text-warning">{{ total_books|default:"1.247" }}</div>
+                        <small class="opacity-75">LIVROS DISPONÍVEIS</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="h2 fw-bold text-warning">{{ active_users|default:"856" }}</div>
+                        <small class="opacity-75">LEITORES ATIVOS</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="h2 fw-bold text-warning">{{ total_loans|default:"3.421" }}</div>
+                        <small class="opacity-75">EMPRÉSTIMOS</small>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <div class="hero-image">
-                    <img src="{% static 'images/hero-books.svg' %}" alt="Livros compartilhados" class="img-fluid">
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <div class="row g-3">
+                        {% for i in "123456" %}
+                        <div class="col-4">
+                            <div class="card border-0 shadow-lg">
+                                <div class="card-body text-center p-4">
+                                    <div class="display-6 text-primary mb-3">📚</div>
+                                    <h6 class="fw-bold">Livro {{ forloop.counter }}</h6>
+                                    <small class="text-muted">Disponível</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Nova Seção: Recursos -->
-<section class="features-section py-5">
+<!-- Livros Recentes -->
+<section class="py-5 bg-light">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <div class="feature-card text-center p-4">
-                    <div class="feature-icon mb-3">
-                        <span class="display-4">🔍</span>
-                    </div>
-                    <h4 class="feature-title">Descubra Tesouros</h4>
-                    <p class="feature-text">Encontre livros raros, best-sellers e obras que você procurava na sua comunidade.</p>
-                </div>
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="display-5 fw-bold text-dark mb-2">
+                    <i class="fas fa-book-open text-primary me-3"></i>Recém Chegados
+                </h2>
+                <p class="lead text-muted mb-0">Livros cadastrados recentemente pela comunidade</p>
             </div>
-            <div class="col-lg-4 mb-4">
-                <div class="feature-card text-center p-4">
-                    <div class="feature-icon mb-3">
-                        <span class="display-4">🤝</span>
-                    </div>
-                    <h4 class="feature-title">Empréstimo Simples</h4>
-                    <p class="feature-text">Combine prazos e locais de forma prática. Sem burocracia, apenas leitura.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="feature-card text-center p-4">
-                    <div class="feature-icon mb-3">
-                        <span class="display-4">⭐</span>
-                    </div>
-                    <h4 class="feature-title">Comunidade Ativa</h4>
-                    <p class="feature-text">Conecte-se com leitores próximos, comparthe resenhas e indicações.</p>
-                </div>
-            </div>
+            <a href="#" class="btn btn-outline-primary btn-lg">
+                Ver Todos <i class="fas fa-arrow-right ms-2"></i>
+            </a>
         </div>
-    </div>
-</section>
 
-<!-- Destaques Melhorado -->
-<section class="featured-books bg-light py-5">
-    <div class="container">
-        <div class="section-header text-center mb-5">
-            <h2 class="section-title">Livros em Destaque</h2>
-            <p class="section-subtitle">Obras que estão circulando pela comunidade</p>
-        </div>
-        <div class="row">
-            {% for book in featured_books %}
-            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-                <div class="book-card card h-100 shadow-sm">
-                    <div class="book-cover">
-                        <img src="#" class="card-img-top" alt="{{ book.title }}">
+        {% if recent_books %}
+        <div class="row g-4">
+            {% for book in recent_books|slice:":6" %}
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                <div class="card h-100 shadow-sm border-0 position-relative">
+                    <div class="position-relative">
+                        {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-gradient text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-book fa-3x"></i>
+                        </div>
+                        {% endif %}
+                        <span class="position-absolute top-0 start-0 m-2 badge bg-success">Novo</span>
                     </div>
-                    <div class="card-body">
-                        <h5 class="book-title">#</h5>
-                        <p class="book-author text-muted">por #</p>
-                        <div class="book-location">
-                            <small class="text-muted">📍 Disponível em: #</small>
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title fw-bold text-dark">{{ book.title|truncatewords:4 }}</h6>
+                        {% if book.author %}
+                        <p class="card-text text-muted small mb-2">por {{ book.author|truncatewords:2 }}</p>
+                        {% endif %}
+                        <div class="mt-auto">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>
+                                {% if book.owner.get_full_name %}
+                                {{ book.owner.get_full_name }}
+                                {% else %}
+                                {{ book.owner.username }}
+                                {% endif %}
+                            </small>
                         </div>
                     </div>
-                    <div class="card-footer bg-transparent">
-                        <a href="#" class="btn btn-primary btn-sm w-100">Ver Detalhes</a>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center">
-                <div class="empty-state">
-                    <span class="display-1">📚</span>
-                    <h4 class="mt-3">Nenhum livro disponível ainda</h4>
-                    <p class="text-muted">Seja o primeiro a cadastrar um livro na comunidade!</p>
-                    <a href="#" class="btn btn-primary mt-2">Cadastrar Primeiro Livro</a>
+                    <a href="{{ book.get_absolute_url }}" class="stretched-link"></a>
                 </div>
             </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="display-1 text-muted mb-4">
+                <i class="fas fa-books"></i>
+            </div>
+            <h3 class="text-muted mb-3">Nenhum livro recente</h3>
+            <p class="text-muted mb-4">Seja o primeiro a cadastrar um livro na comunidade!</p>
+            <a href="{% url 'books:creation' %}" class="btn btn-primary btn-lg">Cadastrar Livro</a>
+        </div>
+        {% endif %}
     </div>
 </section>
 
-<!-- Nova Seção: CTA -->
-<section class="cta-section py-5">
-    <div class="container text-center">
-        <h2 class="cta-title mb-4">Pronto para compartilhar suas histórias?</h2>
-        <p class="cta-text mb-4">Junte-se à comunidade de leitores que transformam páginas em conexões.</p>
-        <a href="#" class="btn btn-primary btn-lg">Começar Agora</a>
+<!-- Livros Populares -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-dark mb-3">
+                <i class="fas fa-fire text-warning me-3"></i>Mais Populares
+            </h2>
+            <p class="lead text-muted">Livros mais solicitados pela comunidade esta semana</p>
+        </div>
+
+        {% if popular_books %}
+        <div class="row g-4">
+            {% for book in popular_books|slice:":4" %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-lg h-100 position-relative">
+                    <span class="position-absolute top-0 start-50 translate-middle badge bg-warning text-dark fs-6 px-3 py-2">
+                        #{{ forloop.counter }}
+                    </span>
+                    <div class="card-body text-center pt-5">
+                        {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" class="rounded mb-3" alt="{{ book.title }}" style="width: 120px; height: 160px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-gradient text-white rounded d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 160px;">
+                            <i class="fas fa-book-open fa-2x"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="card-title fw-bold">{{ book.title }}</h5>
+                        {% if book.author %}
+                        <p class="card-text text-muted">por {{ book.author }}</p>
+                        {% endif %}
+                        <div class="mb-3">
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-handshake me-1"></i>
+                                {{ book.request_count|default:"12" }} solicitações
+                            </span>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="fas fa-user-circle me-1"></i>
+                            {% if book.owner.get_full_name %}
+                            {{ book.owner.get_full_name }}
+                            {% else %}
+                            {{ book.owner.username }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a href="{{ book.get_absolute_url }}" class="btn btn-primary w-100">Ver Detalhes</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 </section>
+
+<!-- Categorias -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-dark mb-3">
+                <i class="fas fa-tags text-primary me-3"></i>Explorar por Categoria
+            </h2>
+            <p class="lead text-muted">Descubra livros das categorias mais populares</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3 col-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="card text-center border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body py-5">
+                            <div class="display-6 text-primary mb-3">📖</div>
+                            <h5 class="fw-bold text-dark">Ficção</h5>
+                            <p class="text-muted mb-0">{{ fiction_count|default:"324" }} livros</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="card text-center border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body py-5">
+                            <div class="display-6 text-danger mb-3">💖</div>
+                            <h5 class="fw-bold text-dark">Romance</h5>
+                            <p class="text-muted mb-0">{{ romance_count|default:"187" }} livros</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="card text-center border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body py-5">
+                            <div class="display-6 text-info mb-3">🚀</div>
+                            <h5 class="fw-bold text-dark">Ficção Científica</h5>
+                            <p class="text-muted mb-0">{{ scifi_count|default:"156" }} livros</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="card text-center border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body py-5">
+                            <div class="display-6 text-success mb-3">👤</div>
+                            <h5 class="fw-bold text-dark">Biografias</h5>
+                            <p class="text-muted mb-0">{{ bio_count|default:"89" }} livros</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Depoimentos -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-dark mb-3">
+                <i class="fas fa-comments text-warning me-3"></i>O que dizem nossos leitores
+            </h2>
+            <p class="lead text-muted">Experiências reais da comunidade BookShare</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-warning mb-3">
+                            <i class="fas fa-quote-left fa-2x opacity-25"></i>
+                        </div>
+                        <p class="card-text lead">"Encontrei edições raras que procurava há anos! A comunidade é incrível e acolhedora."</p>
+                        <div class="d-flex align-items-center mt-4">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <strong>M</strong>
+                            </div>
+                            <div>
+                                <strong class="d-block">Maria Silva</strong>
+                                <small class="text-muted">Membro há 1 ano</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-warning mb-3">
+                            <i class="fas fa-quote-left fa-2x opacity-25"></i>
+                        </div>
+                        <p class="card-text lead">"Já emprestei mais de 20 livros e conheci pessoas maravilhosas. Recomendo para todos os leitores!"</p>
+                        <div class="d-flex align-items-center mt-4">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <strong>P</strong>
+                            </div>
+                            <div>
+                                <strong class="d-block">Pedro Santos</strong>
+                                <small class="text-muted">Membro há 2 anos</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-warning mb-3">
+                            <i class="fas fa-quote-left fa-2x opacity-25"></i>
+                        </div>
+                        <p class="card-text lead">"Economizei centenas em livros novos. O compartilhamento transformou completamente minha rotina de leitura."</p>
+                        <div class="d-flex align-items-center mt-4">
+                            <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <strong>A</strong>
+                            </div>
+                            <div>
+                                <strong class="d-block">Ana Costa</strong>
+                                <small class="text-muted">Membro há 6 meses</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Final -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="text-center">
+            <h2 class="display-4 fw-bold mb-4">Pronto para transformar sua estante?</h2>
+            <p class="lead mb-5 opacity-75">
+                Junte-se a milhares de leitores que já descobriram o prazer de compartilhar histórias.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                {% if user.is_authenticated %}
+                <a href="{% url 'books:creation' %}" class="btn btn-warning btn-lg px-5 py-3 fw-semibold">
+                    <i class="fas fa-book me-2"></i>Cadastrar Meus Livros
+                </a>
+                <a href="#" class="btn btn-outline-light btn-lg px-5 py-3 fw-semibold">
+                    <i class="fas fa-search me-2"></i>Explorar Acervo
+                </a>
+                {% else %}
+                <a href="{% url 'user:signup' %}" class="btn btn-warning btn-lg px-5 py-3 fw-semibold">
+                    <i class="fas fa-rocket me-2"></i>Criar Minha Conta
+                </a>
+                <a href="#" class="btn btn-outline-light btn-lg px-5 py-3 fw-semibold">
+                    <i class="fas fa-search me-2"></i>Ver Livros Disponíveis
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Utilidades extras */
+.min-vh-100 {
+    min-height: 100vh;
+}
+
+.bg-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+}
+
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+}
+
+/* Ajustes específicos */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Garantir que as cores do tema sejam aplicadas */
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #7209b7;
+    --accent-color: #f72585;
+}
+
+.bg-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.btn-primary {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-warning {
+    background: #ffd166 !important;
+    border-color: #ffd166 !important;
+    color: #000 !important;
+}
+
+/* Responsividade extra */
+@media (max-width: 768px) {
+    .display-3 {
+        font-size: 2.5rem;
+    }
+    
+    .display-5 {
+        font-size: 2rem;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .display-3 {
+        font-size: 2rem;
+    }
+    
+    .display-5 {
+        font-size: 1.75rem;
+    }
+    
+    .hero-stats .col-4 {
+        margin-bottom: 1rem;
+    }
+}
+</style>
 {% endblock %}

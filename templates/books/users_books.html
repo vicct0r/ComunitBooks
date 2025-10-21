@@ -1,12 +1,303 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %} Books {% endblock %}
+{% block title %}Livros{% endblock %}
 
 {% block content %}
-    {% for book in books %}
-        <p><strong>Título: </strong>{{ book.title }}</p>
-        <p><strong>Autor: </strong>{{ book.author }}</p>
-        <p><strong>Dono: </strong>{{ book.owner }}</p>
-        <p><strong>Condição: </strong>{{ book.condition }}</p>
-    {% endfor %}
+<div class="container py-5">
+    <!-- Header da Página -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-5 fw-bold text-dark mb-2">Biblioteca</h1>
+                    <p class="lead text-muted">Descubra livros incríveis compartilhados pela comunidade</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary fs-6">{{ books|length }} livro{{ books|length|pluralize }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid de Livros -->
+    {% if books %}
+    <div class="row g-4">
+        {% for book in books %}
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+            <div class="book-card card h-100 shadow-sm border-0">
+                <!-- Imagem da Capa -->
+                <div class="book-cover-wrapper position-relative">
+                    {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" class="book-cover-img card-img-top"
+                        alt="Capa do livro {{ book.title }}" loading="lazy">
+                    {% else %}
+                    <div class="book-cover-placeholder">
+                        <div class="placeholder-icon">📚</div>
+                        <div class="placeholder-text">Sem imagem</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Badge de Status -->
+                    <div class="book-status-badge position-absolute top-0 end-0 m-2">
+                        {% if book.status == 'available' %}
+                        <span class="badge bg-success">Disponível</span>
+                        {% elif book.status == 'borrowed' %}
+                        <span class="badge bg-warning text-dark">Emprestado</span>
+                        {% elif book.status == 'reserved' %}
+                        <span class="badge bg-info">Reservado</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ book.status }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Badge de Condição -->
+                    <div class="book-condition-badge position-absolute top-0 start-0 m-2">
+                        {% if book.condition == 'new' %}
+                        <span class="badge bg-success">Novo</span>
+                        {% elif book.condition == 'good' %}
+                        <span class="badge bg-primary">Bom</span>
+                        {% elif book.condition == 'regular' %}
+                        <span class="badge bg-warning text-dark">Regular</span>
+                        {% elif book.condition == 'bad' %}
+                        <span class="badge bg-danger">Ruim</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ book.condition }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Corpo do Card -->
+                <div class="card-body d-flex flex-column">
+                    <!-- Título -->
+                    <h5 class="book-title card-title fw-bold text-dark mb-2 line-clamp-2">
+                        {{ book.title }}
+                    </h5>
+
+                    <!-- Autor -->
+                    {% if book.author %}
+                    <p class="book-author text-muted mb-2">
+                        <small>por <strong>{{ book.author }}</strong></small>
+                    </p>
+                    {% endif %}
+
+                    <!-- Dono -->
+                    <div class="book-owner mt-auto">
+                        <div class="d-flex align-items-center text-muted">
+                            <small>
+                                <i class="fas fa-user me-1"></i>
+                                {% if book.owner.get_full_name %}
+                                {{ book.owner.get_full_name }}
+                                {% else %}
+                                {{ book.owner.username }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer do Card -->
+                <div class="card-footer bg-transparent border-top-0 pt-0">
+                    <div class="d-grid">
+                        <a href="{{ book.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
+                            Ver Detalhes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginação (se aplicável) -->
+    {% if is_paginated %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <nav aria-label="Navegação de páginas">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Estado Vazio -->
+    <div class="row">
+        <div class="col-12">
+            <div class="empty-state text-center py-5">
+                <div class="empty-icon mb-4">
+                    <span class="display-1 text-muted">📚</span>
+                </div>
+                <h3 class="empty-title h4 text-muted mb-3">Nenhum livro encontrado</h3>
+                <p class="empty-text text-muted mb-4">
+                    Parece que ainda não há livros cadastrados na plataforma.
+                </p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'books:creation' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>
+                    Cadastrar Primeiro Livro
+                </a>
+                {% else %}
+                <a href="{% url 'user:login' %}" class="btn btn-primary btn-lg">
+                    Fazer Login para Cadastrar
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos Específicos para Books */
+    .book-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .book-cover-wrapper {
+        height: 200px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .book-cover-img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .book-card:hover .book-cover-img {
+        transform: scale(1.05);
+    }
+
+    .book-cover-placeholder {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .placeholder-icon {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .placeholder-text {
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+
+    .book-status-badge .badge,
+    .book-condition-badge .badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.35rem 0.6rem;
+    }
+
+    .book-title {
+        font-size: 1.1rem;
+        line-height: 1.4;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .book-author {
+        font-size: 0.9rem;
+    }
+
+    .book-owner {
+        font-size: 0.8rem;
+    }
+
+    /* Estados Vazios */
+    .empty-state {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .empty-icon {
+        opacity: 0.5;
+    }
+
+    /* Paginação */
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .pagination .page-link {
+        color: var(--primary-color);
+        border-radius: 8px;
+        margin: 0 2px;
+        border: 1px solid #dee2e6;
+    }
+
+    .pagination .page-link:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .book-cover-wrapper {
+            height: 180px;
+        }
+
+        .book-title {
+            font-size: 1rem;
+        }
+
+        .display-5 {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .book-cover-wrapper {
+            height: 160px;
+        }
+
+        .col-sm-6 {
+            flex: 0 0 auto;
+            width: 100%;
+        }
+    }
+</style>
 {% endblock %}

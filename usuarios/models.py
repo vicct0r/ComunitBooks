@@ -34,6 +34,7 @@ class UsuarioManager(BaseUserManager):
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField('Email', unique=True, max_length=100)
+    full_name = models.CharField(max_length=200, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     telefone = models.CharField('Telefone', max_length=15)
     is_staff = models.BooleanField('Membro da Equipe', default=False)

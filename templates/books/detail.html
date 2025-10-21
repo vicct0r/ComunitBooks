@@ -1,0 +1,486 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ book.title }} - BookShare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Coluna da Imagem -->
+        <div class="col-lg-5 col-md-6 mb-4">
+            <div class="book-detail-cover card border-0 shadow-lg">
+                {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" 
+                     class="book-detail-img card-img-top" 
+                     alt="Capa do livro {{ book.title }}"
+                     loading="eager">
+                {% else %}
+                <div class="book-detail-placeholder">
+                    <div class="placeholder-icon-large">📚</div>
+                    <div class="placeholder-text-large">Imagem não disponível</div>
+                </div>
+                {% endif %}
+                
+                <!-- Badges na Imagem -->
+                <div class="position-absolute top-0 start-0 m-3">
+                    <span class="badge {% if book.condition == 'new' %}bg-success{% elif book.condition == 'good' %}bg-primary{% elif book.condition == 'regular' %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
+                        {{ book.get_condition_display }}
+                    </span>
+                </div>
+                
+                <div class="position-absolute top-0 end-0 m-3">
+                    <span class="badge {% if book.status == 'available' %}bg-success{% elif book.status == 'borrowed' %}bg-warning text-dark{% else %}bg-info{% endif %} fs-6">
+                        {{ book.get_status_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna das Informações -->
+        <div class="col-lg-7 col-md-6">
+            <div class="book-detail-info">
+                <!-- Cabeçalho -->
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h1 class="book-detail-title display-5 fw-bold text-dark mb-2">
+                            {{ book.title }}
+                        </h1>
+                        {% if book.author %}
+                        <h2 class="book-detail-author h4 text-muted mb-3">
+                            por <strong>{{ book.author }}</strong>
+                        </h2>
+                        {% endif %}
+                    </div>
+                    {% if user == book.owner %}
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-edit me-2"></i>Editar Livro
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="#">
+                                    <i class="fas fa-trash me-2"></i>Excluir Livro
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Informações Principais -->
+                <div class="book-meta-info mb-4">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="info-item">
+                                <span class="info-label">Proprietário</span>
+                                <div class="info-value d-flex align-items-center">
+                                    <div class="owner-avatar me-2">
+                                        {{ book.owner.first_name|first|upper }}{{ book.owner.last_name|first|upper }}
+                                    </div>
+                                    <div>
+                                        <strong>
+                                            {% if book.owner.get_full_name %}
+                                            {{ book.owner.get_full_name }}
+                                            {% else %}
+                                            {{ book.owner.username }}
+                                            {% endif %}
+                                        </strong>
+                                        <br>
+                                        <small class="text-muted">Membro desde {{ book.owner.date_joined|date:"m/Y" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-6">
+                            <div class="info-item">
+                                <span class="info-label">Status</span>
+                                <div class="info-value">
+                                    <span class="badge {% if book.status == 'available' %}bg-success{% elif book.status == 'borrowed' %}bg-warning text-dark{% else %}bg-info{% endif %} fs-6">
+                                        {{ book.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-6">
+                            <div class="info-item">
+                                <span class="info-label">Condição</span>
+                                <div class="info-value">
+                                    <span class="badge {% if book.condition == 'new' %}bg-success{% elif book.condition == 'good' %}bg-primary{% elif book.condition == 'regular' %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
+                                        {{ book.get_condition_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-6">
+                            <div class="info-item">
+                                <span class="info-label">Cadastrado em</span>
+                                <div class="info-value">
+                                    <strong>{{ book.created|date:"d/m/Y" }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="book-actions mb-4">
+                    {% if user.is_authenticated and user != book.owner %}
+                        {% if book.status == 'available' %}
+                        <button class="btn btn-primary btn-lg me-3" data-bs-toggle="modal" data-bs-target="#requestModal">
+                            <i class="fas fa-handshake me-2"></i>Solicitar Empréstimo
+                        </button>
+                        {% elif book.status == 'borrowed' %}
+                        <button class="btn btn-outline-secondary btn-lg me-3" disabled>
+                            <i class="fas fa-clock me-2"></i>Indisponível
+                        </button>
+                        {% endif %}
+                        
+                        <button class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-heart me-2"></i>Favoritar
+                        </button>
+                    {% elif not user.is_authenticated %}
+                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Fazer Login para Solicitar
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Descrição (se houver) -->
+                {% if book.description %}
+                <div class="book-description mb-4">
+                    <h4 class="h5 fw-bold mb-3">Sobre este livro</h4>
+                    <div class="description-content">
+                        <p class="text-muted lead">{{ book.description }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Informações de Contato -->
+                <div class="book-contact-info card border-0 bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">📞 Entre em contato</h5>
+                        <div class="contact-options">
+                            {% if book.owner.email %}
+                            <div class="contact-item mb-2">
+                                <i class="fas fa-envelope me-2 text-primary"></i>
+                                <strong>E-mail: </strong> 
+                                <a href="mailto:{{ book.owner.email }}" class="text-decoration-none">
+                                    {{ book.owner.email }}
+                                </a>
+                            </div>
+                            {% endif %}
+                            
+                            {% if book.owner.telefone %}
+                            <div class="contact-item mb-2">
+                                <i class="fas fa-phone me-2 text-primary"></i>
+                                <strong>Telefone:</strong> {{ book.owner.telefone }}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                <strong>Localização:</strong> 
+                                <span class="text-muted">A combinar com o proprietário</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Livros Similares -->
+    {% if similar_books %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="h4 fw-bold mb-4">Livros similares</h3>
+            <div class="row g-3">
+                {% for similar in similar_books %}
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                    <div class="card similar-book-card h-100 border-0 shadow-sm">
+                        {% if similar.cover_image %}
+                        <img src="{{ similar.cover_image.url }}" 
+                             class="similar-book-img card-img-top" 
+                             alt="{{ similar.title }}"
+                             loading="lazy">
+                        {% else %}
+                        <div class="similar-book-placeholder">
+                            <div class="placeholder-icon-small">📚</div>
+                        </div>
+                        {% endif %}
+                        <div class="card-body p-2">
+                            <h6 class="similar-book-title card-title mb-1 line-clamp-2">
+                                {{ similar.title }}
+                            </h6>
+                            {% if similar.author %}
+                            <p class="similar-book-author text-muted mb-1">
+                                <small>{{ similar.author|truncatewords:3 }}</small>
+                            </p>
+                            {% endif %}
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-{% if similar.status == 'available' %}success{% else %}warning text-dark{% endif %} fs-7">
+                                    {{ similar.get_status_display }}
+                                </span>
+                                <a href="{{ similar.get_absolute_url }}" class="btn btn-sm btn-outline-primary">
+                                    Ver
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal de Solicitação de Empréstimo -->
+{% if user.is_authenticated and user != book.owner and book.status == 'available' %}
+<div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="requestModalLabel">Solicitar Empréstimo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Você está solicitando o empréstimo do livro:</p>
+                <h6 class="text-center mb-3">"{{ book.title }}"</h6>
+                <form method="post" action="{% url 'books:request_loan' book.slug %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Mensagem para o proprietário:</label>
+                        <textarea class="form-control" id="message" name="message" rows="4" 
+                                  placeholder="Olá! Gostaria de solicitar o empréstimo deste livro..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duração do empréstimo:</label>
+                        <select class="form-select" id="duration" name="duration">
+                            <option value="7">1 semana</option>
+                            <option value="14" selected>2 semanas</option>
+                            <option value="30">1 mês</option>
+                            <option value="custom">Personalizado</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Enviar Solicitação</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Estilos para a página de detalhes */
+.book-detail-cover {
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+}
+
+.book-detail-img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+}
+
+.book-detail-placeholder {
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.placeholder-icon-large {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.placeholder-text-large {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.book-detail-title {
+    line-height: 1.2;
+}
+
+.book-detail-author {
+    font-weight: 400;
+}
+
+/* Informações do livro */
+.book-meta-info {
+    background: var(--bg-white);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid #e9ecef;
+}
+
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-label {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1rem;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.owner-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* Ações */
+.book-actions {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Descrição */
+.book-description {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.description-content {
+    line-height: 1.7;
+}
+
+/* Informações de contato */
+.book-contact-info {
+    border-radius: var(--border-radius);
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+/* Livros similares */
+.similar-book-card {
+    transition: var(--transition);
+    border-radius: 12px;
+}
+
+.similar-book-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--box-shadow);
+}
+
+.similar-book-img {
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
+}
+
+.similar-book-placeholder {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.placeholder-icon-small {
+    font-size: 2rem;
+}
+
+.similar-book-title {
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+
+.similar-book-author {
+    font-size: 0.8rem;
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 16px;
+    border: none;
+}
+
+.modal-header {
+    border-bottom: 1px solid #e9ecef;
+    background: var(--bg-light);
+    border-radius: 16px 16px 0 0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .book-detail-img,
+    .book-detail-placeholder {
+        height: 400px;
+    }
+    
+    .book-detail-title {
+        font-size: 2rem;
+    }
+    
+    .book-actions .btn {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .book-actions .btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .book-detail-img,
+    .book-detail-placeholder {
+        height: 300px;
+    }
+    
+    .book-detail-title {
+        font-size: 1.75rem;
+    }
+    
+    .display-5 {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}

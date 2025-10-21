@@ -34,7 +34,7 @@ class Book(Base):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200, help_text="Título do livro")
     author = models.CharField(max_length=200, blank=True, null=True)
-    cover_image = StdImageField(upload_to="books/")
+    cover_image = StdImageField(upload_to="books/", blank=True, null=True)
     condition = models.CharField(choices=CONDITION_CHOICES, max_length=7, help_text="Condição do livro")
     status = models.CharField(choices=STATUS_CHOICES, max_length=12)
     slug = models.SlugField(null=True, unique=True)
@@ -43,7 +43,7 @@ class Book(Base):
         return self.title
     
     def get_absolute_url(self):
-        return reverse("book_detail", kwargs={"slug": self.slug})
+        return reverse("books:find_user_slug", kwargs={"slug": self.slug, "pk": self.owner.pk})
         
     def save(self, *args, **kwargs):
         if not self.slug:

@@ -34,6 +34,7 @@ INSTALLED_APPS = [
 
     'usuarios',
     'core',
+    'books'
 ]
 
 MIDDLEWARE = [

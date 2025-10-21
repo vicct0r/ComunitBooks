@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %} Books {% endblock %}
+
+{% block content %}
+    {% for book in books %}
+        <p><strong>Título: </strong>{{ book.title }}</p>
+        <p><strong>Autor: </strong>{{ book.author }}</p>
+        <p><strong>Dono: </strong>{{ book.owner }}</p>
+        <p><strong>Condição: </strong>{{ book.condition }}</p>
+    {% endfor %}
+{% endblock %}

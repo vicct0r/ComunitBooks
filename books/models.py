@@ -1,10 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
-from django.utils import timezone
-from datetime import timedelta
-
 from django.template.defaultfilters import slugify
+
 from stdimage import StdImageField
 
 
@@ -34,7 +32,19 @@ class Book(Base):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200, help_text="Título do livro")
     author = models.CharField(max_length=200, blank=True, null=True)
-    cover_image = StdImageField(upload_to="books/", blank=True, null=True)
+    cover_image = StdImageField(
+        upload_to="books/",
+        blank=True,
+        null=True,
+        variations={
+            'optimized': {  
+                'width': 400,
+                'height': 560,
+                'crop': False
+            }
+        },
+        delete_orphans=True
+    )
     condition = models.CharField(choices=CONDITION_CHOICES, max_length=7, help_text="Condição do livro")
     status = models.CharField(choices=STATUS_CHOICES, max_length=12)
     slug = models.SlugField(null=True, unique=True)
@@ -43,7 +53,7 @@ class Book(Base):
         return self.title
     
     def get_absolute_url(self):
-        return reverse("books:find_user_slug", kwargs={"slug": self.slug, "pk": self.owner.pk})
+        return reverse(viewname="books:detail", args=[self.pk, self.slug])
         
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -86,16 +96,4 @@ class Loan(models.Model):
     def lender(self):
         return self.book.owner
     
-    def approve(self):
-        if self.status == "PENDING":
-            self.status = "ACTIVE"
-            self.approved_date = timezone.now()
-            self.start_date = timezone.now().date()
-            self.due_date = self.start_date + timedelta(days=self.max_loan_period)
-            self.save()
-
-    def mark_returned(self):
-        if self.status in ['ACTIVE', 'OVERDUE']:
-            self.status = 'COMPLETED'
-            self.returned_date = timezone.now().date()
-            self.save()
+   

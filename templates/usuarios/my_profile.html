@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Perfil - {{ user.get_full_name }}{% endblock %}
+{% block title %}Perfil - {{ user.full_name }}{% endblock %}
 
 {% block content %}
 <div class="profile-container">
@@ -10,9 +11,17 @@
                 <div class="profile-card">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                            {% if user.img %}
+                                <img src="{{ user.img.thumb.url }}" 
+                                     alt="{{ user.full_name }}" 
+                                     class="profile-avatar-img">
+                            {% else %}
+                                <img src="{% static 'images/default_user.avif' %}" 
+                                     alt="{{ user.full_name }}" 
+                                     class="profile-avatar-img">
+                            {% endif %}
                         </div>
-                        <h2 class="profile-name">{{ user.get_full_name }}</h2>
+                        <h2 class="profile-name">{{ user.full_name }}</h2>
                         <p class="profile-email">{{ user.email }}</p>
                     </div>
                     
@@ -47,7 +56,7 @@
                             <a href="{% url 'account_email' %}" class="btn btn-outline-primary">
                                 📧 Gerenciar E-mail
                             </a>
-                            <a href="{% url 'books:find_user' pk=user.id %}" class="btn btn-primary">
+                            <a href="{% url 'books:user_library' pk=user.id %}" class="btn btn-primary">
                                 📚 Meus Livros
                             </a>
                         </div>
@@ -57,4 +66,33 @@
         </div>
     </div>
 </div>
+
+<style>
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    overflow: hidden;
+    border: 4px solid var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+</style>
 {% endblock %}

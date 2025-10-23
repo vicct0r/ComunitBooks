@@ -4,8 +4,8 @@ from . import views
 app_name = 'books'
 
 urlpatterns = [
-    path('register/', views.BookCreationCreateView.as_view(), name='creation'),
-    path('find/', views.UsersListView.as_view(), name='find'),
-    path('find/<int:pk>/', views.UsersListView.as_view(), name='find_user'),
-    path('find/<int:pk>/<slug:slug>/', views.BookDetailView.as_view(), name='find_user_slug'),
+    path('', views.UserBookListView.as_view(), name='list'),
+    path('add/', views.BookCreateView.as_view(), name='create'),
+    path('<int:pk>/<slug:slug>/', views.UserBookDetailView.as_view(), name='detail'),
+    path('library/user/<int:pk>/', views.UserBookListView.as_view(), name='user_library')
 ]

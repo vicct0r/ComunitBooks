@@ -15,10 +15,10 @@
                      alt="Capa do livro {{ book.title }}"
                      loading="eager">
                 {% else %}
-                <div class="book-detail-placeholder">
-                    <div class="placeholder-icon-large">📚</div>
-                    <div class="placeholder-text-large">Imagem não disponível</div>
-                </div>
+                <img src="{% static 'images/book_icon.png' %}" 
+                     class="book-detail-img card-img-top" 
+                     alt="Capa do livro {{ book.title }}"
+                     loading="eager">
                 {% endif %}
                 
                 <!-- Badges na Imagem -->
@@ -40,24 +40,24 @@
         <div class="col-lg-7 col-md-6">
             <div class="book-detail-info">
                 <!-- Cabeçalho -->
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="flex-grow-1">
                         <h1 class="book-detail-title display-5 fw-bold text-dark mb-2">
                             {{ book.title }}
                         </h1>
                         {% if book.author %}
                         <h2 class="book-detail-author h4 text-muted mb-3">
-                            por <strong>{{ book.author }}</strong>
+                            por <strong class="text-dark">{{ book.author }}</strong>
                         </h2>
                         {% endif %}
                     </div>
                     {% if user == book.owner %}
-                    <div class="dropdown">
+                    <div class="dropdown flex-shrink-0 ms-3">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
                                 data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a class="dropdown-item" href="#">
                                     <i class="fas fa-edit me-2"></i>Editar Livro
@@ -80,18 +80,27 @@
                             <div class="info-item">
                                 <span class="info-label">Proprietário</span>
                                 <div class="info-value d-flex align-items-center">
-                                    <div class="owner-avatar me-2">
-                                        {{ book.owner.first_name|first|upper }}{{ book.owner.last_name|first|upper }}
+                                    <div class="flex-shrink-0 me-3">
+                                        {% if book.owner.img %}
+                                            <img src="{{ book.owner.img.url }}" 
+                                                 alt="{{ book.owner.full_name }}" 
+                                                 class="rounded-circle"
+                                                 style="width: 45px; height: 45px; object-fit: cover;">
+                                        {% else %}
+                                            <img src="{% static 'images/default_user.avif' %}" 
+                                                 alt="{{ book.owner.full_name }}" 
+                                                   class="rounded-circle"
+                                                 style="width: 45px; height: 45px; object-fit: cover;">
+                                        {% endif %}
                                     </div>
-                                    <div>
-                                        <strong>
-                                            {% if book.owner.get_full_name %}
-                                            {{ book.owner.get_full_name }}
+                                    <div class="flex-grow-1">
+                                        <strong class="d-block">
+                                            {% if book.owner.full_name %}
+                                                {{ book.owner.full_name }}
                                             {% else %}
-                                            {{ book.owner.username }}
+                                                {{ book.owner.email }}
                                             {% endif %}
                                         </strong>
-                                        <br>
                                         <small class="text-muted">Membro desde {{ book.owner.date_joined|date:"m/Y" }}</small>
                                     </div>
                                 </div>
@@ -102,7 +111,7 @@
                             <div class="info-item">
                                 <span class="info-label">Status</span>
                                 <div class="info-value">
-                                    <span class="badge {% if book.status == 'available' %}bg-success{% elif book.status == 'borrowed' %}bg-warning text-dark{% else %}bg-info{% endif %} fs-6">
+                                    <span class="badge {% if book.status == 'available' %}bg-success{% elif book.status == 'borrowed' %}bg-warning text-dark{% else %}bg-info{% endif %} fs-6 px-3 py-2">
                                         {{ book.get_status_display }}
                                     </span>
                                 </div>
@@ -113,7 +122,7 @@
                             <div class="info-item">
                                 <span class="info-label">Condição</span>
                                 <div class="info-value">
-                                    <span class="badge {% if book.condition == 'new' %}bg-success{% elif book.condition == 'good' %}bg-primary{% elif book.condition == 'regular' %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
+                                    <span class="badge {% if book.condition == 'new' %}bg-success{% elif book.condition == 'good' %}bg-primary{% elif book.condition == 'regular' %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6 px-3 py-2">
                                         {{ book.get_condition_display }}
                                     </span>
                                 </div>
@@ -135,20 +144,20 @@
                 <div class="book-actions mb-4">
                     {% if user.is_authenticated and user != book.owner %}
                         {% if book.status == 'available' %}
-                        <button class="btn btn-primary btn-lg me-3" data-bs-toggle="modal" data-bs-target="#requestModal">
+                        <button class="btn btn-primary btn-lg me-3 px-4" data-bs-toggle="modal" data-bs-target="#requestModal">
                             <i class="fas fa-handshake me-2"></i>Solicitar Empréstimo
                         </button>
                         {% elif book.status == 'borrowed' %}
-                        <button class="btn btn-outline-secondary btn-lg me-3" disabled>
+                        <button class="btn btn-outline-secondary btn-lg me-3 px-4" disabled>
                             <i class="fas fa-clock me-2"></i>Indisponível
                         </button>
                         {% endif %}
                         
-                        <button class="btn btn-outline-primary btn-lg">
+                        <button class="btn btn-outline-primary btn-lg px-4">
                             <i class="fas fa-heart me-2"></i>Favoritar
                         </button>
                     {% elif not user.is_authenticated %}
-                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-lg">
+                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-lg px-4">
                         <i class="fas fa-sign-in-alt me-2"></i>Fazer Login para Solicitar
                     </a>
                     {% endif %}
@@ -157,9 +166,9 @@
                 <!-- Descrição (se houver) -->
                 {% if book.description %}
                 <div class="book-description mb-4">
-                    <h4 class="h5 fw-bold mb-3">Sobre este livro</h4>
+                    <h4 class="h5 fw-bold mb-3 text-dark">📖 Sobre este livro</h4>
                     <div class="description-content">
-                        <p class="text-muted lead">{{ book.description }}</p>
+                        <p class="text-muted lh-lg">{{ book.description }}</p>
                     </div>
                 </div>
                 {% endif %}
@@ -167,12 +176,12 @@
                 <!-- Informações de Contato -->
                 <div class="book-contact-info card border-0 bg-light">
                     <div class="card-body">
-                        <h5 class="card-title mb-3">📞 Entre em contato</h5>
+                        <h5 class="card-title mb-3 text-dark">📞 Entre em contato</h5>
                         <div class="contact-options">
                             {% if book.owner.email %}
                             <div class="contact-item mb-2">
                                 <i class="fas fa-envelope me-2 text-primary"></i>
-                                <strong>E-mail: </strong> 
+                                <strong class="text-dark">E-mail: </strong> 
                                 <a href="mailto:{{ book.owner.email }}" class="text-decoration-none">
                                     {{ book.owner.email }}
                                 </a>
@@ -182,13 +191,14 @@
                             {% if book.owner.telefone %}
                             <div class="contact-item mb-2">
                                 <i class="fas fa-phone me-2 text-primary"></i>
-                                <strong>Telefone:</strong> {{ book.owner.telefone }}
+                                <strong class="text-dark">Telefone:</strong> 
+                                <span class="text-muted">{{ book.owner.telefone }}</span>
                             </div>
                             {% endif %}
                             
                             <div class="contact-item">
                                 <i class="fas fa-map-marker-alt me-2 text-primary"></i>
-                                <strong>Localização:</strong> 
+                                <strong class="text-dark">Localização:</strong> 
                                 <span class="text-muted">A combinar com o proprietário</span>
                             </div>
                         </div>
@@ -202,42 +212,13 @@
     {% if similar_books %}
     <div class="row mt-5">
         <div class="col-12">
-            <h3 class="h4 fw-bold mb-4">Livros similares</h3>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="h4 fw-bold text-dark mb-0">📚 Livros similares</h3>
+                <a href="{% url 'books:explore' %}" class="btn btn-outline-primary btn-sm">
+                    Ver mais <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
             <div class="row g-3">
-                {% for similar in similar_books %}
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                    <div class="card similar-book-card h-100 border-0 shadow-sm">
-                        {% if similar.cover_image %}
-                        <img src="{{ similar.cover_image.url }}" 
-                             class="similar-book-img card-img-top" 
-                             alt="{{ similar.title }}"
-                             loading="lazy">
-                        {% else %}
-                        <div class="similar-book-placeholder">
-                            <div class="placeholder-icon-small">📚</div>
-                        </div>
-                        {% endif %}
-                        <div class="card-body p-2">
-                            <h6 class="similar-book-title card-title mb-1 line-clamp-2">
-                                {{ similar.title }}
-                            </h6>
-                            {% if similar.author %}
-                            <p class="similar-book-author text-muted mb-1">
-                                <small>{{ similar.author|truncatewords:3 }}</small>
-                            </p>
-                            {% endif %}
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-{% if similar.status == 'available' %}success{% else %}warning text-dark{% endif %} fs-7">
-                                    {{ similar.get_status_display }}
-                                </span>
-                                <a href="{{ similar.get_absolute_url }}" class="btn btn-sm btn-outline-primary">
-                                    Ver
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
             </div>
         </div>
     </div>
@@ -255,16 +236,17 @@
             </div>
             <div class="modal-body">
                 <p>Você está solicitando o empréstimo do livro:</p>
-                <h6 class="text-center mb-3">"{{ book.title }}"</h6>
-                <form method="post" action="{% url 'books:request_loan' book.slug %}">
+                <h6 class="text-center mb-3 text-primary">"{{ book.title }}"</h6>
+                <form method="post" action="#">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="message" class="form-label">Mensagem para o proprietário:</label>
+                        <label for="message" class="form-label fw-semibold">Mensagem para o proprietário:</label>
                         <textarea class="form-control" id="message" name="message" rows="4" 
-                                  placeholder="Olá! Gostaria de solicitar o empréstimo deste livro..."></textarea>
+                                  placeholder="Olá! Gostaria de solicitar o empréstimo deste livro..."
+                                  style="resize: none;"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="duration" class="form-label">Duração do empréstimo:</label>
+                        <label for="duration" class="form-label fw-semibold">Duração do empréstimo:</label>
                         <select class="form-select" id="duration" name="duration">
                             <option value="7">1 semana</option>
                             <option value="14" selected>2 semanas</option>
@@ -295,12 +277,12 @@
 
 .book-detail-img {
     width: 100%;
-    height: 500px;
+    height: 400px; /* Reduzido de 500px para 400px */
     object-fit: cover;
 }
 
 .book-detail-placeholder {
-    height: 500px;
+    height: 400px; /* Reduzido de 500px para 400px */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -310,12 +292,12 @@
 }
 
 .placeholder-icon-large {
-    font-size: 4rem;
+    font-size: 3.5rem; /* Reduzido de 4rem */
     margin-bottom: 1rem;
 }
 
 .placeholder-text-large {
-    font-size: 1.1rem;
+    font-size: 1rem;
     opacity: 0.9;
 }
 
@@ -353,19 +335,6 @@
     font-size: 1rem;
     color: var(--text-dark);
     font-weight: 500;
-}
-
-.owner-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 0.9rem;
 }
 
 /* Ações */
@@ -451,7 +420,7 @@
 @media (max-width: 768px) {
     .book-detail-img,
     .book-detail-placeholder {
-        height: 400px;
+        height: 350px; /* Ajustado para mobile */
     }
     
     .book-detail-title {
@@ -471,7 +440,7 @@
 @media (max-width: 576px) {
     .book-detail-img,
     .book-detail-placeholder {
-        height: 300px;
+        height: 280px; /* Ajustado para mobile pequeno */
     }
     
     .book-detail-title {
@@ -481,6 +450,18 @@
     .display-5 {
         font-size: 2rem;
     }
+}
+
+/* Melhorias de espaçamento */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.lh-lg {
+    line-height: 1.7;
 }
 </style>
 {% endblock %}

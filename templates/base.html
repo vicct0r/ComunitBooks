@@ -29,7 +29,7 @@
                     <a class="nav-link px-3" href="#">Explorar</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-3" href="{% url 'user:signup' %}">Cadastrar Livro</a>
+                    <a class="nav-link px-3" href="{% url 'books:create' %}">Cadastrar Livro</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-3" href="#">Comunidade</a>
@@ -43,7 +43,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item" href="{% url 'user:profile' pk=user.id %}">Meu Perfil</a></li>
-                        <li><a class="dropdown-item" href="{% url 'books:find_user' pk=user.id %}">Meus Livros</a></li>
+                        <li><a class="dropdown-item" href="{% url 'books:user_library' pk=user.id %}">Meus Livros</a></li>
                         <li><a class="dropdown-item" href="{% url 'account_email' %}">Gerenciar E-mail</a></li>
                         <li><a class="dropdown-item" href="{% url 'account_change_password' %}">Alterar Senha</a></li>
                         <li><hr class="dropdown-divider"></li>

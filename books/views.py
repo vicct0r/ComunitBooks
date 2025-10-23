@@ -1,11 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Book
 
-class BookCreationCreateView(LoginRequiredMixin, generic.CreateView):
+class BookCreateView(LoginRequiredMixin, generic.CreateView):
     template_name = 'books/create.html'
     model = Book
     fields = ['title', 'author', 'cover_image', 'condition', 'status']
@@ -16,11 +16,11 @@ class BookCreationCreateView(LoginRequiredMixin, generic.CreateView):
         obj.save()
         return super().form_valid(form)
 
-    def get_succesres_url(self):
-        return reverse('books:find_user', kwargs=self.request.user.id)
+    def get_success_url(self):
+        return reverse('books:user_library', kwargs={'pk': self.request.user.pk})
 
 
-class UsersListView(generic.ListView):
+class UserBookListView(generic.ListView):
     template_name = 'books/users_books.html'
     model = Book
     context_object_name = 'books'
@@ -32,7 +32,7 @@ class UsersListView(generic.ListView):
         return Book.objects.all()
 
 
-class BookDetailView(generic.DetailView):
+class UserBookDetailView(generic.DetailView):
     template_name = 'books/detail.html'
     model = Book
     context_object_name = 'book'

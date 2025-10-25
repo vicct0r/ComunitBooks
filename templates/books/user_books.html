@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Minha Biblioteca{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header da Página -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-5 fw-bold text-dark mb-2">Minha Biblioteca</h1>
+                    <p class="lead text-muted">Gerencie seus livros compartilhados</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-primary fs-6">{{ books|length }} livro{{ books|length|pluralize }}</span>
+                    <a href="{% url 'books:create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        Adicionar Livro
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros e Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body py-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex flex-wrap gap-3">
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    {{ available_count }} Disponível{{ available_count|pluralize }}
+                                </span>
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-exchange-alt me-1"></i>
+                                    {{ borrowed_count }} Emprestado{{ borrowed_count|pluralize }}
+                                </span>
+                                <span class="badge bg-info">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ reserved_count }} Reservado{{ reserved_count|pluralize }}
+                                </span>
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-eye-slash me-1"></i>
+                                    {{ hidden_count }} Oculto{{ hidden_count|pluralize }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-filter me-1"></i>
+                                    Filtrar
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="?status=">Todos</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="?status=available">Disponíveis</a></li>
+                                    <li><a class="dropdown-item" href="?status=borrowed">Emprestados</a></li>
+                                    <li><a class="dropdown-item" href="?status=reserved">Reservados</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="?hidden=true">Ocultos</a></li>
+                                    <li><a class="dropdown-item" href="?hidden=false">Visíveis</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid de Livros -->
+    {% if books %}
+    <div class="row g-4">
+        {% for book in books %}
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+            <div class="book-card card h-100 shadow-sm border-0 {% if book.is_hidden %}opacity-75{% endif %}">
+                <!-- Imagem da Capa -->
+                <div class="book-cover-wrapper position-relative">
+                    {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" class="book-cover-img card-img-top"
+                        alt="Capa do livro {{ book.title }}" loading="lazy">
+                    {% else %}
+                    <div class="book-cover-placeholder">
+                         <img src="{% static 'images/book_icon.png' %}" class="book-cover-img card-img-top"
+                        alt="Capa do livro {{ book.title }}" loading="lazy">
+                    </div>
+                    {% endif %}
+
+                    <!-- Badge de Status -->
+                    <div class="book-status-badge position-absolute top-0 end-0 m-2">
+                        {% if book.status == 'available' %}
+                        <span class="badge bg-success">Disponível</span>
+                        {% elif book.status == 'borrowed' %}
+                        <span class="badge bg-warning text-dark">Emprestado</span>
+                        {% elif book.status == 'reserved' %}
+                        <span class="badge bg-info">Reservado</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ book.status }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Badge de Condição -->
+                    <div class="book-condition-badge position-absolute top-0 start-0 m-2">
+                        {% if book.condition == 'new' %}
+                        <span class="badge bg-success">Novo</span>
+                        {% elif book.condition == 'good' %}
+                        <span class="badge bg-primary">Bom</span>
+                        {% elif book.condition == 'regular' %}
+                        <span class="badge bg-warning text-dark">Regular</span>
+                        {% elif book.condition == 'bad' %}
+                        <span class="badge bg-danger">Ruim</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ book.condition }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Badge de Visibilidade -->
+                    {% if book.is_hidden %}
+                    <div class="book-visibility-badge position-absolute bottom-0 start-0 m-2">
+                        <span class="badge bg-secondary">
+                            <i class="fas fa-eye-slash me-1"></i>
+                            Oculto
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Corpo do Card -->
+                <div class="card-body d-flex flex-column">
+                    <!-- Título -->
+                    <h5 class="book-title card-title fw-bold text-dark mb-2 line-clamp-2">
+                        {{ book.title }}
+                        {% if book.is_hidden %}
+                        <small class="text-muted">(Oculto)</small>
+                        {% endif %}
+                    </h5>
+
+                    <!-- Autor -->
+                    {% if book.author %}
+                    <p class="book-author text-muted mb-2">
+                        <small>por <strong>{{ book.author }}</strong></small>
+                    </p>
+                    {% endif %}
+
+                    <!-- Informações Adicionais -->
+                    <div class="book-meta mt-auto">
+                        <div class="d-flex justify-content-between align-items-center text-muted small">
+                            <span>
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ book.created_at|date:"d/m/Y" }}
+                            </span>
+                            {% if book.borrowed_until %}
+                            <span class="text-warning">
+                                <i class="fas fa-clock me-1"></i>
+                                Até {{ book.borrowed_until|date:"d/m/Y" }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer do Card -->
+                <div class="card-footer bg-transparent border-top-0 pt-0">
+                    <div class="d-flex gap-2">
+                        <a href="#" class="btn btn-outline-primary btn-sm flex-fill">
+                            <i class="fas fa-edit me-1"></i>
+                            Editar
+                        </a>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{ book.get_absolute_url }}">
+                                        <i class="fas fa-eye me-2"></i>
+                                        Ver Detalhes
+                                    </a>
+                                </li>
+                                <li>
+                                    <form method="post" action="#" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fas fa-eye{% if book.is_hidden %}-slash{% endif %} me-2"></i>
+                                            {% if book.is_hidden %}Mostrar{% else %}Ocultar{% endif %}
+                                        </button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="#" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item text-danger" 
+                                                onclick="return confirm('Tem certeza que deseja excluir este livro?')">
+                                            <i class="fas fa-trash me-2"></i>
+                                            Excluir
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginação (se aplicável) -->
+    {% if is_paginated %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <nav aria-label="Navegação de páginas">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.hidden %}&hidden={{ request.GET.hidden }}{% endif %}">Anterior</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.hidden %}&hidden={{ request.GET.hidden }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.hidden %}&hidden={{ request.GET.hidden }}{% endif %}">Próxima</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Estado Vazio -->
+    <div class="row">
+        <div class="col-12">
+            <div class="empty-state text-center py-5">
+                <div class="empty-icon mb-4">
+                    <span class="display-1 text-muted">📚</span>
+                </div>
+                <h3 class="empty-title h4 text-muted mb-3">Sua biblioteca está vazia</h3>
+                <p class="empty-text text-muted mb-4">
+                    Comece adicionando seus primeiros livros para compartilhar com a comunidade.
+                </p>
+                <a href="{% url 'books:create' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>
+                    Adicionar Primeiro Livro
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos Específicos para Minha Biblioteca */
+    .book-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .book-card.opacity-75 {
+        opacity: 0.75;
+    }
+
+    .book-card.opacity-75:hover {
+        opacity: 0.9;
+    }
+
+    .book-cover-wrapper {
+        height: 200px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .book-cover-img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .book-card:hover .book-cover-img {
+        transform: scale(1.05);
+    }
+
+    .book-cover-placeholder {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .book-status-badge .badge,
+    .book-condition-badge .badge,
+    .book-visibility-badge .badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.35rem 0.6rem;
+    }
+
+    .book-title {
+        font-size: 1.1rem;
+        line-height: 1.4;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .book-author {
+        font-size: 0.9rem;
+    }
+
+    .book-meta {
+        font-size: 0.8rem;
+    }
+
+    /* Estados Vazios */
+    .empty-state {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .empty-icon {
+        opacity: 0.5;
+    }
+
+    /* Paginação */
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .pagination .page-link {
+        color: var(--primary-color);
+        border-radius: 8px;
+        margin: 0 2px;
+        border: 1px solid #dee2e6;
+    }
+
+    .pagination .page-link:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    /* Botões de Ação */
+    .btn-group .dropdown-toggle::after {
+        margin-left: 0.5rem;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .book-cover-wrapper {
+            height: 180px;
+        }
+
+        .book-title {
+            font-size: 1rem;
+        }
+
+        .display-5 {
+            font-size: 2rem;
+        }
+
+        .card-footer .d-flex {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .card-footer .dropdown {
+            width: 100%;
+        }
+
+        .card-footer .dropdown-toggle {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .book-cover-wrapper {
+            height: 160px;
+        }
+
+        .col-sm-6 {
+            flex: 0 0 auto;
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

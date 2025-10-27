@@ -4,7 +4,8 @@ from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 
-from .models import Book
+from .models import Book, Category
+
 
 class BookCreateView(LoginRequiredMixin, generic.CreateView):
     template_name = 'books/create.html'

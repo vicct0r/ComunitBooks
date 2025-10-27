@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic
+from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 
@@ -26,6 +27,24 @@ class AllBookListView(generic.ListView):
     template_name = 'books/library.html'
     model = Book
     context_object_name = 'books'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        title = self.request.GET.get('title')
+        author = self.request.GET.get('author')
+        category = self.request.GET.get('category')
+        popularity = self.request.GET.get('popularity')
+        condition = self.request.GET.get('condition')
+        status = self.request.GET.get('status')
+
+        queryset = Book.objects.filter_by_params(
+            title=title,
+            author=author,
+            popularity=popularity,
+            condition=condition,
+            status=status
+        )
+        return queryset
 
 
 class UserBookListView(generic.ListView):

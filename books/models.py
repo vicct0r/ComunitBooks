@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
+from django.db.models import Q
 from django.template.defaultfilters import slugify
 
 from stdimage import StdImageField
@@ -30,6 +31,50 @@ class Category(Metadata):
 
     def __str__(self):
         return self.name
+
+
+class BookQuerySet(models.QuerySet):
+    def search(self, query=None):
+        if query is None or query == "":
+            return self.none()
+        lookups = Q(title__icontains=query) |\
+        Q(author__icontains=query) |\
+        Q(owner__full_name__icontains=query) |\
+        Q(slug__icontains=query)
+        return self.filter(lookups)
+    
+    def filter_by_params(self, title=None, author=None, owner=None, status=None, condition=None, popularity=None):
+        query = self.all()
+
+        if title:
+            query = query.filter(title__icontains=title)
+        
+        if author:
+            query = query.filter(author__icontains=author)
+
+        if owner:
+            query = query.filter(owner__full_name__icontains=owner)
+        
+        if status:
+            query = query.filter(status=status)
+        
+        if condition:
+            query = query.filter(condition=condition)
+        
+        if popularity:
+            return query.order_by('+acess_count')
+        return query
+
+
+class BookManager(models.Manager):
+    def get_queryset(self):
+        return BookQuerySet(self.model, using=self._db)
+    
+    def search(self, query=None):
+        return self.get_queryset().search(query)
+    
+    def filter_by_params(self, **kwargs):
+        return self.get_queryset().filter_by_params(**kwargs)
 
 
 class Book(Base, Metadata):
@@ -80,6 +125,8 @@ class Book(Base, Metadata):
         if not self.slug:
             self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
+    
+    objects = BookManager()
 
 
 class Loan(models.Model):

@@ -24,52 +24,124 @@
         </div>
     </div>
 
-    <!-- Filtros e Estatísticas -->
+    <!-- Barra de Pesquisa Avançada -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0">
-                <div class="card-body py-3">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <div class="d-flex flex-wrap gap-3">
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check-circle me-1"></i>
-                                    {{ available_count }} Disponível{{ available_count|pluralize }}
+                <div class="card-body">
+                    <form method="GET" action="" class="row g-3 align-items-end">
+                        <!-- Título -->
+                        <div class="col-md-4">
+                            <label for="title" class="form-label fw-semibold">Título do livro</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-book text-muted"></i>
                                 </span>
-                                <span class="badge bg-warning text-dark">
-                                    <i class="fas fa-exchange-alt me-1"></i>
-                                    {{ borrowed_count }} Emprestado{{ borrowed_count|pluralize }}
-                                </span>
-                                <span class="badge bg-info">
-                                    <i class="fas fa-clock me-1"></i>
-                                    {{ reserved_count }} Reservado{{ reserved_count|pluralize }}
-                                </span>
-                                <span class="badge bg-secondary">
-                                    <i class="fas fa-eye-slash me-1"></i>
-                                    {{ hidden_count }} Oculto{{ hidden_count|pluralize }}
-                                </span>
+                                <input type="text" class="form-control border-start-0" id="title" name="title" 
+                                       placeholder="Buscar por título..." 
+                                       value="{{ request.GET.title|default:'' }}">
                             </div>
                         </div>
-                        <div class="col-md-4 text-md-end">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" 
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-filter me-1"></i>
-                                    Filtrar
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="?status=">Todos</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="?status=available">Disponíveis</a></li>
-                                    <li><a class="dropdown-item" href="?status=borrowed">Emprestados</a></li>
-                                    <li><a class="dropdown-item" href="?status=reserved">Reservados</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="?hidden=true">Ocultos</a></li>
-                                    <li><a class="dropdown-item" href="?hidden=false">Visíveis</a></li>
-                                </ul>
+                        
+                        <!-- Autor -->
+                        <div class="col-md-4">
+                            <label for="author" class="form-label fw-semibold">Autor</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-user text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" id="author" name="author" 
+                                       placeholder="Buscar por autor..." 
+                                       value="{{ request.GET.author|default:'' }}">
                             </div>
                         </div>
-                    </div>
+
+                        <!-- Categoria -->
+                        <div class="col-md-4">
+                            <label for="category" class="form-label fw-semibold">Categoria</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">Todas as categorias</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" 
+                                        {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Filtros Adicionais - Linha 2 -->
+                        <div class="col-md-4">
+                            <label for="popularity" class="form-label fw-semibold">Ordenar por</label>
+                            <select class="form-select" id="popularity" name="popularity">
+                                <option value="newest" {% if request.GET.popularity == 'newest' %}selected{% endif %}>
+                                    Mais recentes
+                                </option>
+                                <option value="oldest" {% if request.GET.popularity == 'oldest' %}selected{% endif %}>
+                                    Mais antigos
+                                </option>
+                                <option value="title_asc" {% if request.GET.popularity == 'title_asc' %}selected{% endif %}>
+                                    Título (A-Z)
+                                </option>
+                                <option value="title_desc" {% if request.GET.popularity == 'title_desc' %}selected{% endif %}>
+                                    Título (Z-A)
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-4">
+                            <label for="status" class="form-label fw-semibold">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">Todos os status</option>
+                                <option value="AVAILABLE" {% if request.GET.status == 'AVAILABLE' %}selected{% endif %}>
+                                    Disponível
+                                </option>
+                                <option value="UNAVAILABLE" {% if request.GET.status == 'UNAVAILABLE' %}selected{% endif %}>
+                                    Indisponível
+                                </option>
+                                <option value="RESERVED" {% if request.GET.status == 'RESERVED' %}selected{% endif %}>
+                                    Reservado
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Condição -->
+                        <div class="col-md-4">
+                            <label for="condition" class="form-label fw-semibold">Condição</label>
+                            <select class="form-select" id="condition" name="condition">
+                                <option value="">Todas as condições</option>
+                                <option value="NEW" {% if request.GET.condition == 'NEW' %}selected{% endif %}>
+                                    Novo
+                                </option>
+                                <option value="GOOD" {% if request.GET.condition == 'GOOD' %}selected{% endif %}>
+                                    Boa
+                                </option>
+                                <option value="FAIR" {% if request.GET.condition == 'FAIR' %}selected{% endif %}>
+                                    Regular
+                                </option>
+                                <option value="DAMAGED" {% if request.GET.condition == 'DAMAGED' %}selected{% endif %}>
+                                    Danificado
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="col-12 mt-3">
+                            <div class="d-flex gap-2 justify-content-between align-items-center">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-2"></i>Buscar
+                                    </button>
+                                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.popularity or request.GET.status or request.GET.condition or request.GET.hidden %}
+                                    <a href="?" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Limpar Filtros
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -92,14 +164,14 @@
                         alt="Capa do livro {{ book.title }}" loading="lazy">
                     </div>
                     {% endif %}
-
+                    
                     <!-- Badge de Status -->
                     <div class="book-status-badge position-absolute top-0 end-0 m-2">
-                        {% if book.status == 'available' %}
+                        {% if book.status == 'AVAILABLE' %}
                         <span class="badge bg-success">Disponível</span>
-                        {% elif book.status == 'borrowed' %}
-                        <span class="badge bg-warning text-dark">Emprestado</span>
-                        {% elif book.status == 'reserved' %}
+                        {% elif book.status == 'UNAVAILABLE' %}
+                        <span class="badge bg-warning text-dark">Indisponível</span>
+                        {% elif book.status == 'RESERVED' %}
                         <span class="badge bg-info">Reservado</span>
                         {% else %}
                         <span class="badge bg-secondary">{{ book.status }}</span>
@@ -108,14 +180,14 @@
 
                     <!-- Badge de Condição -->
                     <div class="book-condition-badge position-absolute top-0 start-0 m-2">
-                        {% if book.condition == 'new' %}
+                        {% if book.condition == 'NEW' %}
                         <span class="badge bg-success">Novo</span>
-                        {% elif book.condition == 'good' %}
+                        {% elif book.condition == 'GOOD' %}
                         <span class="badge bg-primary">Bom</span>
-                        {% elif book.condition == 'regular' %}
+                        {% elif book.condition == 'FAIR' %}
                         <span class="badge bg-warning text-dark">Regular</span>
-                        {% elif book.condition == 'bad' %}
-                        <span class="badge bg-danger">Ruim</span>
+                        {% elif book.condition == 'DAMAGED' %}
+                        <span class="badge bg-danger">Danificado</span>
                         {% else %}
                         <span class="badge bg-secondary">{{ book.condition }}</span>
                         {% endif %}
@@ -147,6 +219,19 @@
                     <p class="book-author text-muted mb-2">
                         <small>por <strong>{{ book.author }}</strong></small>
                     </p>
+                    {% endif %}
+
+                    <!-- Categorias -->
+                    {% if book.category.all %}
+                    <div class="book-categories mb-3">
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for category in book.category.all %}
+                            <span class="badge bg-light text-dark border small">
+                                <i class="fas fa-tag me-1"></i>{{ category.name }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
                     {% endif %}
 
                     <!-- Informações Adicionais -->
@@ -214,7 +299,7 @@
         {% endfor %}
     </div>
 
-    <!-- Paginação (se aplicável) -->
+    <!-- Paginação -->
     {% if is_paginated %}
     <div class="row mt-5">
         <div class="col-12">
@@ -222,19 +307,19 @@
                 <ul class="pagination justify-content-center">
                     {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.hidden %}&hidden={{ request.GET.hidden }}{% endif %}">Anterior</a>
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.popularity %}&popularity={{ request.GET.popularity }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}{% if request.GET.hidden %}&hidden={{ request.GET.hidden }}{% endif %}">Anterior</a>
                     </li>
                     {% endif %}
 
                     {% for num in page_obj.paginator.page_range %}
                     <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                        <a class="page-link" href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.hidden %}&hidden={{ request.GET.hidden }}{% endif %}">{{ num }}</a>
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.popularity %}&popularity={{ request.GET.popularity }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}{% if request.GET.hidden %}&hidden={{ request.GET.hidden }}{% endif %}">{{ num }}</a>
                     </li>
                     {% endfor %}
 
                     {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.hidden %}&hidden={{ request.GET.hidden }}{% endif %}">Próxima</a>
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.popularity %}&popularity={{ request.GET.popularity }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}{% if request.GET.hidden %}&hidden={{ request.GET.hidden }}{% endif %}">Próxima</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -251,14 +336,30 @@
                 <div class="empty-icon mb-4">
                     <span class="display-1 text-muted">📚</span>
                 </div>
-                <h3 class="empty-title h4 text-muted mb-3">Sua biblioteca está vazia</h3>
+                <h3 class="empty-title h4 text-muted mb-3">
+                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.popularity or request.GET.status or request.GET.condition or request.GET.hidden %}
+                    Nenhum livro encontrado
+                    {% else %}
+                    Sua biblioteca está vazia
+                    {% endif %}
+                </h3>
                 <p class="empty-text text-muted mb-4">
+                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.popularity or request.GET.status or request.GET.condition or request.GET.hidden %}
+                    Não encontramos livros com os filtros aplicados.
+                    {% else %}
                     Comece adicionando seus primeiros livros para compartilhar com a comunidade.
+                    {% endif %}
                 </p>
-                <a href="{% url 'books:create' %}" class="btn btn-primary btn-lg">
-                    <i class="fas fa-plus me-2"></i>
-                    Adicionar Primeiro Livro
-                </a>
+                <div class="d-flex gap-2 justify-content-center">
+                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.popularity or request.GET.status or request.GET.condition or request.GET.hidden %}
+                    <a href="?" class="btn btn-outline-primary">
+                        <i class="fas fa-times me-2"></i>Limpar Filtros
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'books:create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Adicionar Livro
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -370,11 +471,6 @@
         background-color: var(--primary-color);
         border-color: var(--primary-color);
         color: white;
-    }
-
-    /* Botões de Ação */
-    .btn-group .dropdown-toggle::after {
-        margin-left: 0.5rem;
     }
 
     /* Responsividade */

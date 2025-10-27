@@ -40,10 +40,11 @@ class BookQuerySet(models.QuerySet):
         lookups = Q(title__icontains=query) |\
         Q(author__icontains=query) |\
         Q(owner__full_name__icontains=query) |\
-        Q(slug__icontains=query)
+        Q(slug__icontains=query) |\
+        Q(category__icontains=query)
         return self.filter(lookups)
     
-    def filter_by_params(self, title=None, author=None, owner=None, status=None, condition=None, popularity=None):
+    def filter_by_params(self, title=None, author=None, owner=None, status=None, condition=None, popularity=None, category=None):
         query = self.all()
 
         if title:
@@ -61,8 +62,18 @@ class BookQuerySet(models.QuerySet):
         if condition:
             query = query.filter(condition=condition)
         
+        if category:
+            query = query.filter(category=category)
+        
         if popularity:
-            return query.order_by('+acess_count')
+            if popularity == "newest":
+                query = query.order_by('-created')
+            elif popularity == "views":
+                query = query.order_by('-access_count')
+            elif popularity == "favorites":
+                query = query.order_by('-favorite_count')
+            elif popularity == "oldest":
+                query = query.order_by('created')        
         return query
 
 

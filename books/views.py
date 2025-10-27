@@ -27,6 +27,7 @@ class AllBookListView(generic.ListView):
     template_name = 'books/library.html'
     model = Book
     context_object_name = 'books'
+    paginate_by = 12
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -42,15 +43,22 @@ class AllBookListView(generic.ListView):
             author=author,
             popularity=popularity,
             condition=condition,
-            status=status
+            status=status,
+            category=category
         )
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 
 class UserBookListView(generic.ListView):
     template_name = 'books/user_books.html'
     model = Book
     context_object_name = 'books'
+    paginate_by = 12
 
     def get_queryset(self):
         return Book.objects.filter(owner=self.kwargs.get('pk'))
@@ -58,7 +66,29 @@ class UserBookListView(generic.ListView):
 
 class UserBookDetailView(generic.DetailView):
     template_name = 'books/detail.html'
-    model = Book
-    context_object_name = 'book'
+    context_object_name = 'books'
     lookup_field = 'slug'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        title = self.request.GET.get('title')
+        author = self.request.GET.get('author')
+        category = self.request.GET.get('category')
+        popularity = self.request.GET.get('popularity')
+        condition = self.request.GET.get('condition')
+        status = self.request.GET.get('status')
     
+        queryset = Book.objects.filter_by_params(
+            title=title,
+            author=author,
+            popularity=popularity,
+            condition=condition,
+            status=status,
+            category=category
+        )
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context

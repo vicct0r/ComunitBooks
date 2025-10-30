@@ -221,10 +221,6 @@
                             <i class="fas fa-user-clock me-2"></i>Reservado
                         </button>
                         {% endif %}
-                        
-                        <button class="btn btn-outline-primary btn-lg px-4">
-                            <i class="fas fa-heart me-2"></i>Favoritar
-                        </button>
                     {% elif not user.is_authenticated %}
                     <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-lg px-4">
                         <i class="fas fa-sign-in-alt me-2"></i>Fazer Login para Solicitar
@@ -239,44 +235,10 @@
                         <h5 class="card-title fw-bold text-dark mb-3">
                             <i class="fas fa-book me-2"></i>Sobre este livro
                         </h5>
-                        <p class="text-muted lh-lg mb-0">{{ book.description }}</p>
+                        <p class="text-muted lh-lg mb-0">{{ book.description|linebreaks }}</p>
                     </div>
                 </div>
                 {% endif %}
-
-                <!-- Informações de Contato -->
-                <div class="card border-0 bg-light">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold text-dark mb-3">
-                            <i class="fas fa-phone me-2"></i>Entre em contato
-                        </h5>
-                        <div>
-                            {% if book.owner.email %}
-                            <div class="mb-2">
-                                <i class="fas fa-envelope me-2 text-primary"></i>
-                                <strong class="text-dark">E-mail: </strong> 
-                                <a href="mailto:{{ book.owner.email }}" class="text-decoration-none">
-                                    {{ book.owner.email }}
-                                </a>
-                            </div>
-                            {% endif %}
-                            
-                            {% if book.owner.telefone %}
-                            <div class="mb-2">
-                                <i class="fas fa-phone me-2 text-primary"></i>
-                                <strong class="text-dark">Telefone:</strong> 
-                                <span class="text-muted">{{ book.owner.telefone }}</span>
-                            </div>
-                            {% endif %}
-                            
-                            <div>
-                                <i class="fas fa-map-marker-alt me-2 text-primary"></i>
-                                <strong class="text-dark">Localização:</strong> 
-                                <span class="text-muted">A combinar com o proprietário</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

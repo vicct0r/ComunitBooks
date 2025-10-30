@@ -61,15 +61,6 @@ class UserBookListView(generic.ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return Book.objects.filter(owner=self.kwargs.get('pk'))
-
-
-class UserBookDetailView(generic.DetailView):
-    template_name = 'books/detail.html'
-    context_object_name = 'books'
-    lookup_field = 'slug'
-
-    def get_queryset(self):
         queryset = super().get_queryset()
         title = self.request.GET.get('title')
         author = self.request.GET.get('author')
@@ -92,3 +83,10 @@ class UserBookDetailView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         return context
+
+
+class BookDetailView(generic.DetailView):
+    template_name = 'books/detail.html'
+    model = Book
+    context_object_name = 'book'
+    lookup_field = 'slug'

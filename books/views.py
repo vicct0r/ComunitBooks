@@ -1,11 +1,36 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
 from django.urls import reverse_lazy, reverse
-from django.views import generic
-from django.db.models import Q
+from django.views import generic, View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth import get_user_model
 
 from .models import Book, Category
+
+
+class BooksFiltersMixin:
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        title = self.request.GET.get('title')
+        author = self.request.GET.get('author')
+        category = self.request.GET.get('category')
+        popularity = self.request.GET.get('popularity')
+        condition = self.request.GET.get('condition')
+        status = self.request.GET.get('status')
+    
+        queryset = Book.objects.filter_by_params(
+            title=title,
+            author=author,
+            popularity=popularity,
+            condition=condition,
+            status=status,
+            category=category
+        )
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 
 class BookCreateView(LoginRequiredMixin, generic.CreateView):
@@ -23,66 +48,18 @@ class BookCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse('books:user_library', kwargs={'pk': self.request.user.pk})
 
 
-class AllBookListView(generic.ListView):
+class AllBookListView(BooksFiltersMixin, generic.ListView):
     template_name = 'books/library.html'
     model = Book
     context_object_name = 'books'
     paginate_by = 12
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        title = self.request.GET.get('title')
-        author = self.request.GET.get('author')
-        category = self.request.GET.get('category')
-        popularity = self.request.GET.get('popularity')
-        condition = self.request.GET.get('condition')
-        status = self.request.GET.get('status')
 
-        queryset = Book.objects.filter_by_params(
-            title=title,
-            author=author,
-            popularity=popularity,
-            condition=condition,
-            status=status,
-            category=category
-        )
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
-        return context
-
-
-class UserBookListView(generic.ListView):
+class UserBookListView(BooksFiltersMixin, generic.ListView):
     template_name = 'books/user_books.html'
     model = Book
     context_object_name = 'books'
     paginate_by = 12
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        title = self.request.GET.get('title')
-        author = self.request.GET.get('author')
-        category = self.request.GET.get('category')
-        popularity = self.request.GET.get('popularity')
-        condition = self.request.GET.get('condition')
-        status = self.request.GET.get('status')
-    
-        queryset = Book.objects.filter_by_params(
-            title=title,
-            author=author,
-            popularity=popularity,
-            condition=condition,
-            status=status,
-            category=category
-        )
-        return queryset
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
-        return context
 
 
 class BookDetailView(generic.DetailView):
@@ -90,3 +67,17 @@ class BookDetailView(generic.DetailView):
     model = Book
     context_object_name = 'book'
     lookup_field = 'slug'
+
+
+class BookFavoriteView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        book_id = request.POST.get('book_id')
+        book = get_object_or_404(Book, id=book_id)
+
+        if book.favorited_by.filter(id=request.user.id).exists():
+            book.favorited_by.remove(request.user)
+            messages.success(request, "Livro removido dos favoritos")
+        else:
+            book.favorited_by.add(request.user)
+            messages.success(request, "Livro adicionado aos favoritos")
+        return redirect(book.get_absolute_url())

@@ -7,16 +7,6 @@ from django.template.defaultfilters import slugify
 from stdimage import StdImageField
 
 
-class Metadata(models.Model):
-    access_count = models.IntegerField(default=0, editable=False)
-    favorite_count = models.IntegerField(default=0, editable=False)
-
-    def __str__(self):
-        return f"access count: {self.access_count}"
-
-    class Meta:
-        abstract = True
-
 class Base(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -26,7 +16,7 @@ class Base(models.Model):
         abstract = True
 
 
-class Category(Metadata):
+class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -88,7 +78,7 @@ class BookManager(models.Manager):
         return self.get_queryset().filter_by_params(**kwargs)
 
 
-class Book(Base, Metadata):
+class Book(Base):
     CONDITION_CHOICES = (
         ('NEW', 'New'),
         ('GOOD', 'Good'),
@@ -121,7 +111,8 @@ class Book(Base, Metadata):
     condition = models.CharField(choices=CONDITION_CHOICES, max_length=7, help_text="Condição do livro")
     status = models.CharField(choices=STATUS_CHOICES, max_length=12)
     slug = models.SlugField(null=True, unique=True)
-    category = models.ManyToManyField(Category, related_name='books')
+    category = models.ManyToManyField('Category', related_name='books_categories')
+    favorited_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favorite_books',blank=True, editable=False)
 
     def __str__(self):
         return self.title

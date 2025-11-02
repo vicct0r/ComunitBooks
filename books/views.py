@@ -16,14 +16,16 @@ class BooksFiltersMixin:
         popularity = self.request.GET.get('popularity')
         condition = self.request.GET.get('condition')
         status = self.request.GET.get('status')
-    
+        user_pk = self.kwargs.get('pk')
+
         queryset = Book.objects.filter_by_params(
             title=title,
             author=author,
             popularity=popularity,
             condition=condition,
             status=status,
-            category=category
+            category=category,
+            owner=user_pk
         )
         return queryset
     
@@ -60,7 +62,7 @@ class UserBookListView(BooksFiltersMixin, generic.ListView):
     model = Book
     context_object_name = 'books'
     paginate_by = 12
-
+        
 
 class BookDetailView(generic.DetailView):
     template_name = 'books/detail.html'

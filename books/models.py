@@ -11,6 +11,7 @@ class Base(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    is_visible = models.BooleanField(default=True)
 
     class Meta:
         abstract = True
@@ -44,7 +45,7 @@ class BookQuerySet(models.QuerySet):
             query = query.filter(author__icontains=author)
 
         if owner:
-            query = query.filter(owner__full_name__icontains=owner)
+            query = query.filter(owner_id=owner)
         
         if status:
             query = query.filter(status=status)
@@ -129,41 +130,4 @@ class Book(Base):
         return super().save(*args, **kwargs)
     
     objects = BookManager()
-
-
-class Loan(models.Model):
-    LOAN_STATUS_CHOICES = (
-        ('PENDING', 'Pending'),
-        ('ACTIVE', 'Active'),
-        ('COMPLETED', 'Completed'),
-        ('CANCELLED', 'Cancelled'),
-        ('OVERDUE', 'Overdue'),
-    )
-    
-    approved_date = models.DateTimeField(null=True, blank=True)
-    start_date = models.DateField(blank=True, null=True)
-    due_date = models.DateField(blank=True, null=True)
-    returned_date = models.DateField(blank=True, null=True)
-    borrower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='loans_taken')
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    max_loan_period = models.PositiveIntegerField(default=14, help_text="Duração máxima do emprestimo em dias")
-    requires_deposit = models.BooleanField(default=True)
-    deposit_amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Valor cobrado para o empréstimo"
-    )
-    allows_renewal = models.BooleanField(default=True)
-    status = models.CharField(choices=LOAN_STATUS_CHOICES, max_length=9, default='PENDING')
-    custom_terms = models.TextField(help_text="Condições adicionais para o emprestimo")
-
-    def __str__(self):
-        return f"Loan: {self.book.title} to {self.borrower.email}"
-    
-    @property
-    def lender(self):
-        return self.book.owner
-
 

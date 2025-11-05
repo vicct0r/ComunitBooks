@@ -16,10 +16,10 @@ class Order(models.Model):
         (APPROVED, 'Approved')
     )
 
-    client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_orders', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_orders', on_delete=models.CASCADE)
     book = models.ForeignKey(Book, related_name='book_orders', on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     required_days = models.PositiveIntegerField()
     status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=SUBMITTED)
 
@@ -39,7 +39,7 @@ class Loan(models.Model):
         ('OVERDUE', 'Overdue'),
     )
     
-    borrower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_loans')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_loans')
     book = models.ForeignKey(Book, related_name='book_loans', on_delete=models.CASCADE)
     approved_date = models.DateTimeField(auto_now_add=True)
     start_date = models.DateField(blank=True, null=True)

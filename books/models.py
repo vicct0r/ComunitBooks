@@ -122,7 +122,7 @@ class Book(Base):
         return self.category
 
     def get_absolute_url(self):
-        return reverse(viewname="books:detail", args=[self.pk, self.slug])
+        return reverse(viewname="books:detail", args=[self.pk])
         
     def save(self, *args, **kwargs):
         if not self.slug:

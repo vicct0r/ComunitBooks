@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meus Pedidos - BookShare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Cabeçalho -->
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <div>
+                    <h1 class="display-5 fw-bold text-primary mb-2">
+                        <i class="fas fa-list-alt me-3"></i>Meus Pedidos
+                    </h1>
+                    <p class="lead text-muted mb-0">Acompanhe todos os seus pedidos de empréstimo</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary fs-6 px-3 py-2">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        {{ orders.count }} pedido{{ orders.count|pluralize }}
+                    </span>
+                </div>
+            </div>
+
+            {% if orders %}
+            <!-- Lista de Pedidos -->
+            <div class="row">
+                {% for order in orders %}
+                <div class="col-lg-6 col-xl-4 mb-4">
+                    <div class="card border-0 shadow-sm h-100 order-card">
+                        <div class="card-header bg-transparent border-0 pb-0">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <span class="badge 
+                                    {% if order.status == 'PENDING' %}bg-warning text-dark
+                                    {% elif order.status == 'APPROVED' %}bg-success
+                                    {% elif order.status == 'REJECTED' %}bg-danger
+                                    {% elif order.status == 'CANCELLED' %}bg-secondary
+                                    {% elif order.status == 'RETURNED' %}bg-info
+                                    {% else %}bg-light text-dark{% endif %} 
+                                    fs-6 px-3 py-2">
+                                    <i class="fas 
+                                        {% if order.status == 'PENDING' %}fa-clock
+                                        {% elif order.status == 'APPROVED' %}fa-check-circle
+                                        {% elif order.status == 'REJECTED' %}fa-times-circle
+                                        {% elif order.status == 'CANCELLED' %}fa-ban
+                                        {% elif order.status == 'RETURNED' %}fa-undo
+                                        {% else %}fa-question{% endif %} me-1">
+                                    </i>
+                                    {{ order.get_status_display }}
+                                </span>
+                                <small class="text-muted">{{ order.date_created|date:"d/m/Y" }}</small>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Informações do Livro -->
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if order.book.cover_image %}
+                                    <img src="{{ order.book.cover_image.url }}" 
+                                         alt="{{ order.book.title }}" 
+                                         class="rounded shadow"
+                                         style="width: 60px; height: 80px; object-fit: cover;">
+                                    {% else %}
+                                    <img src="{% static 'images/book_icon.png' %}" 
+                                         alt="{{ order.book.title }}" 
+                                         class="rounded shadow"
+                                         style="width: 60px; height: 80px; object-fit: cover;">
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title fw-bold text-dark mb-1">
+                                        <a href="{{ order.book.get_absolute_url }}" class="text-decoration-none text-dark">
+                                            {{ order.book.title }}
+                                        </a>
+                                    </h5>
+                                    {% if order.book.author %}
+                                    <p class="text-muted mb-2 small">por {{ order.book.author }}</p>
+                                    {% endif %}
+                                    
+                                    <!-- Categorias -->
+                                    {% if order.book.category.all %}
+                                    <div class="mb-2">
+                                        {% for category in order.book.category.all %}
+                                        <span class="badge bg-light text-dark border small">
+                                            <i class="fas fa-tag me-1"></i>{{ category.name }}
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Informações do Proprietário -->
+                            <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if order.book.owner.img %}
+                                    <img src="{{ order.book.owner.img.url }}" 
+                                         alt="{{ order.book.owner.full_name }}" 
+                                         class="rounded-circle"
+                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                    <img src="{% static 'images/default_user.avif' %}" 
+                                         alt="{{ order.book.owner.full_name }}" 
+                                         class="rounded-circle"
+                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong class="d-block text-dark small">
+                                        Proprietário
+                                    </strong>
+                                    <span class="text-muted small">
+                                        {% if order.book.owner.full_name %}
+                                            {{ order.book.owner.full_name }}
+                                        {% else %}
+                                            {{ order.book.owner.email }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Detalhes do Pedido -->
+                            <div class="order-details">
+                                <div class="row g-2 text-center">
+                                    <div class="col-6">
+                                        <div class="bg-primary text-white rounded p-2">
+                                            <small class="d-block fw-semibold">Dias Solicitados</small>
+                                            <strong class="fs-5">{{ order.required_days }}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="bg-info text-white rounded p-2">
+                                            <small class="d-block fw-semibold">Condição</small>
+                                            <strong class="fs-5">{{ order.book.get_condition_display }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Descrição (se houver) -->
+                            {% if order.description %}
+                            <div class="mt-3">
+                                <strong class="text-dark small d-block mb-1">
+                                    <i class="fas fa-comment me-1"></i>Sua mensagem:
+                                </strong>
+                                <p class="text-muted small mb-0" style="font-size: 0.85rem;">
+                                    "{{ order.description|truncatewords:20 }}"
+                                </p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0 pt-0">
+                            <div class="d-grid gap-2">
+                                {% if order.status == 'PENDING' %}
+                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" 
+                                        data-bs-target="#cancelModal{{ order.id }}">
+                                    <i class="fas fa-times me-1"></i>Cancelar Pedido
+                                </button>
+                                {% elif order.status == 'APPROVED' %}
+                                <a href="#" class="btn btn-success btn-sm">
+                                    <i class="fas fa-envelope me-1"></i>Contatar Proprietário
+                                </a>
+                                {% endif %}
+                                <a href="{{ order.book.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Ver Livro
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <!-- Estado Vazio -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-clipboard-list fa-4x text-muted"></i>
+                </div>
+                <h3 class="text-muted mb-3">Nenhum pedido encontrado</h3>
+                <p class="text-muted mb-4">Você ainda não fez nenhum pedido de empréstimo.</p>
+                <a href="{% url 'books:library' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-book me-2"></i>Explorar Livros
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modais de Cancelamento -->
+{% for order in orders %}
+{% if order.status == 'PENDING' %}
+<div class="modal fade" id="cancelModal{{ order.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancelar Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja cancelar o pedido do livro <strong>"{{ order.book.title }}"</strong>?</p>
+                <p class="text-muted small">Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Manter Pedido</button>
+                <form method="post" action="#" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Cancelar Pedido</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .order-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border-radius: 12px;
+    }
+    
+    .order-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+    
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .order-details .bg-primary,
+    .order-details .bg-info {
+        border-radius: 8px;
+    }
+    
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+</style>
+{% endblock %}

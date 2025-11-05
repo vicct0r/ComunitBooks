@@ -20,8 +20,11 @@ class Order(models.Model):
     book = models.ForeignKey(Book, related_name='book_orders', on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     description = models.TextField(blank=True, null=True)
-    required_days = models.PositiveIntegerField()
+    required_days = models.PositiveIntegerField() # isso daqui ta aceitando 0 como entrada!!!!
     status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=SUBMITTED)
+
+    class Meta:
+        unique_together = ['user', 'book']
 
 
 class Loan(models.Model):

@@ -4,95 +4,149 @@
 {% block title %}Perfil - {{ user.full_name }}{% endblock %}
 
 {% block content %}
-<div class="profile-container">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="profile-card">
-                    <div class="profile-header">
-                        <div class="profile-avatar">
-                            {% if user.img %}
-                                <img src="{{ user.img.thumb.url }}" 
-                                     alt="{{ user.full_name }}" 
-                                     class="profile-avatar-img">
-                            {% else %}
-                                <img src="{% static 'images/default_user.avif' %}" 
-                                     alt="{{ user.full_name }}" 
-                                     class="profile-avatar-img">
-                            {% endif %}
-                        </div>
-                        <h2 class="profile-name">{{ user.full_name }}</h2>
-                        <p class="profile-email">{{ user.email }}</p>
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar de Navegação -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <!-- Avatar -->
+                    <div class="mb-4">
+                        {% if user.img %}
+                            <img src="{{ user.img.thumb.url }}" 
+                                 alt="{{ user.full_name }}" 
+                                 class="rounded-circle shadow"
+                                 style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'images/default_user.avif' %}" 
+                                 alt="{{ user.full_name }}" 
+                                 class="rounded-circle shadow"
+                                 style="width: 120px; height: 120px; object-fit: cover;">
+                        {% endif %}
                     </div>
                     
-                    <div class="profile-body">
-                        <div class="profile-info">
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">Nome Completo:</span>
-                                <span class="profile-info-value">{{ user.full_name }}</span>
-                            </div>
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">E-mail:</span>
-                                <span class="profile-info-value">{{ user.email }}</span>
-                            </div>
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">Telefone:</span>
-                                <span class="profile-info-value">{{ user.telefone }}</span>
-                            </div>
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">Usuário desde:</span>
-                                <span class="profile-info-value">{{ user.date_joined|date:"d/m/Y" }}</span>
-                            </div>
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">Último login:</span>
-                                <span class="profile-info-value">{{ user.last_login|date:"d/m/Y H:i" }}</span>
+                    <h4 class="fw-bold text-dark mb-2">{{ user.full_name }}</h4>
+                    <p class="text-muted mb-4">{{ user.email }}</p>
+                    
+                    <!-- Estatísticas Rápidas -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="border rounded p-2 bg-light">
+                                <div class="fw-bold text-primary fs-5">0</div>
+                                <small class="text-muted">Livros</small>
                             </div>
                         </div>
-                        
-                        <div class="profile-actions">
-                            <a href="{% url 'account_change_password' %}" class="btn btn-outline-primary">
-                                🔒 Alterar Senha
-                            </a>
-                            <a href="{% url 'account_email' %}" class="btn btn-outline-primary">
-                                📧 Gerenciar E-mail
-                            </a>
-                            <a href="{% url 'books:user_library' pk=user.id %}" class="btn btn-primary">
-                                📚 Meus Livros
+                        <div class="col-6">
+                            <div class="border rounded p-2 bg-light">
+                                <div class="fw-bold text-primary fs-5">0</div>
+                                <small class="text-muted">Pedidos</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="col-lg-8">
+            <!-- Card de Informações Pessoais -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="fas fa-user me-2"></i>Informações Pessoais
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-semibold">Nome Completo</label>
+                            <p class="fw-semibold text-dark mb-0">{{ user.full_name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-semibold">E-mail</label>
+                            <p class="fw-semibold text-dark mb-0">{{ user.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-semibold">Telefone</label>
+                            <p class="fw-semibold text-dark mb-0">{{ user.telefone|default:"Não informado" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-semibold">Usuário desde</label>
+                            <p class="fw-semibold text-dark mb-0">{{ user.date_joined|date:"d/m/Y" }}</p>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-semibold">Último login</label>
+                            <p class="fw-semibold text-dark mb-0">{{ user.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card de Ações Rápidas -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="fas fa-cogs me-2"></i>Ações Rápidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a href="{% url 'account_change_password' %}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center py-2">
+                                <i class="fas fa-lock me-2"></i>
+                                <span>Alterar Senha</span>
                             </a>
                         </div>
+                        <div class="col-md-6">
+                            <a href="{% url 'account_email' %}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center py-2">
+                                <i class="fas fa-envelope me-2"></i>
+                                <span>Gerenciar E-mail</span>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{% url 'books:user_library' pk=user.id %}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center py-2">
+                                <i class="fas fa-book me-2"></i>
+                                <span>Meus Livros</span>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{% url 'loans:orders_made_list' %}" class="btn btn-success w-100 d-flex align-items-center justify-content-center py-2">
+                                <i class="fas fa-handshake me-2"></i>
+                                <span>Meus Pedidos</span>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{% url 'loans:orders_request_list' %}" class="btn btn-info w-100 d-flex align-items-center justify-content-center py-2 text-white">
+                                <i class="fas fa-inbox me-2"></i>
+                                <span>Pedidos Recebidos</span>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="#" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center py-2">
+                                <i class="fas fa-edit me-2"></i>
+                                <span>Editar Perfil</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card de Atividade Recente (Opcional) -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="fas fa-history me-2"></i>Atividade Recente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-2x text-muted mb-3"></i>
+                        <p class="text-muted mb-0">Sua atividade recente aparecerá aqui</p>
+                        <small class="text-muted">Pedidos, empréstimos e interações</small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-.profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    margin: 0 auto 1.5rem;
-    overflow: hidden;
-    border: 4px solid var(--primary-color);
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-}
-
-.profile-avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.profile-avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 2.5rem;
-    font-weight: bold;
-}
-</style>
 {% endblock %}

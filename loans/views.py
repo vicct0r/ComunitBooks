@@ -12,7 +12,7 @@ class OrderRequestCreateView(LoginRequiredMixin, generic.CreateView):
     template_name = 'loans/order_creation.html'
     model = Order
     fields = ['description', 'required_days']
-    success_url = reverse_lazy('loans:order_list')
+    success_url = reverse_lazy('loans:orders_made_list')
     
     def form_valid(self, form):
         book = get_object_or_404(Book, id=self.kwargs.get('book_id'))
@@ -29,11 +29,32 @@ class OrderRequestCreateView(LoginRequiredMixin, generic.CreateView):
         return context
 
 
-class OrderRequestsListView(LoginRequiredMixin, generic.ListView):
+class OrdersMadeListView(LoginRequiredMixin, generic.ListView):
     template_name = 'loans/order_list.html'
     model = Order
     context_object_name = 'orders'
     
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user.id).order_by('-date_created')
-    
+
+
+class OrdersRequestedListView(LoginRequiredMixin, generic.ListView):
+    template_name = 'loans/requested_orders.html'
+    model = Order
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        query = Order.objects.filter(book__owner=self.request.user).order_by('-date_created')
+        
+        if self.request.GET.get('book'):
+            query = query.filter(book_id=self.request.GET.get('book'))
+        if self.request.GET.get('status'):
+            query = query.filter(status=self.request.GET.get('status'))
+        if self.request.GET.get('duration'):
+            query = query.filter(required_days=self.request.GET.get('duration'))
+        return query
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_books'] = Book.objects.filter(owner=self.request.user)
+        return context

@@ -16,18 +16,6 @@ class Order(models.Model):
         (APPROVED, 'Approved')
     )
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_orders', on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, related_name='book_orders', on_delete=models.CASCADE)
-    date_created = models.DateTimeField(auto_now_add=True)
-    description = models.TextField(blank=True, null=True)
-    required_days = models.PositiveIntegerField() # isso daqui ta aceitando 0 como entrada!!!!
-    status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=SUBMITTED)
-
-    class Meta:
-        unique_together = ['user', 'book']
-
-
-class Loan(models.Model):
     LOAN_PERIOD_CHOICES = (
         (7, '1 week'),
         (14, '2 weeks'),
@@ -35,6 +23,18 @@ class Loan(models.Model):
         (30, '1 month')
     )
 
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_orders', on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, related_name='book_orders', on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True)
+    description = models.TextField(blank=True, null=True)
+    required_days = models.PositiveIntegerField(choices=LOAN_PERIOD_CHOICES, default=7)
+    status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=SUBMITTED)
+
+    class Meta:
+        unique_together = ['user', 'book']
+
+
+class Loan(models.Model):
     LOAN_STATUS_CHOICES = (
         ('ACTIVE', 'Active'),
         ('COMPLETED', 'Completed'),
@@ -48,16 +48,7 @@ class Loan(models.Model):
     start_date = models.DateField(blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
     returned_date = models.DateField(blank=True, null=True)
-    max_loan_period = models.PositiveIntegerField(choices=LOAN_PERIOD_CHOICES, default=7)
-    requires_deposit = models.BooleanField(default=True)
-    deposit_amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Valor cobrado para o empréstimo"
-    )
-    allows_renewal = models.BooleanField(default=True)
+    max_loan_period = models.PositiveIntegerField(blank=True, null=True)
     status = models.CharField(choices=LOAN_STATUS_CHOICES, max_length=9, default='ACTIVE')
     custom_terms = models.TextField(help_text="Condições adicionais para o emprestimo.", blank=True, null=True)
 

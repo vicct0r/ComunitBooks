@@ -35,11 +35,16 @@ class Order(models.Model):
 
 
 class Loan(models.Model):
+    ACTIVE = 'ac'
+    COMPLETED = 'cm'
+    CANCELLED = 'cn'
+    OVERDUE = 'ov'
+
     LOAN_STATUS_CHOICES = (
-        ('ACTIVE', 'Active'),
-        ('COMPLETED', 'Completed'),
-        ('CANCELLED', 'Cancelled'),
-        ('OVERDUE', 'Overdue'),
+        (ACTIVE, 'Active'),
+        (COMPLETED, 'Completed'),
+        (CANCELLED, 'Cancelled'),
+        (OVERDUE, 'Overdue'),
     )
     
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_loans')
@@ -50,16 +55,24 @@ class Loan(models.Model):
     returned_date = models.DateField(blank=True, null=True)
     max_loan_period = models.PositiveIntegerField(blank=True, null=True)
     status = models.CharField(choices=LOAN_STATUS_CHOICES, max_length=9, default='ACTIVE')
+    deposit_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Valor cobrado para o empréstimo"
+    )
+    allows_renewal = models.BooleanField(default=True)
     custom_terms = models.TextField(help_text="Condições adicionais para o emprestimo.", blank=True, null=True)
 
     def __str__(self):
-        return f"Loan: {self.book.title} to {self.borrower.email}"
+        return f"Loan: {self.book.title} to {self.book.owner.full_name}"
     
     @property
     def lender(self):
         return self.book.owner
 
-    constraints = [
+    constraints = [ # isso aqui nao ta funcionando
             models.UniqueConstraint(
                 fields=['borrower', 'book'],
                 condition=Q(status='ACTIVE'),

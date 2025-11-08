@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}Loan {{ loan.id }}{% endblock %}
+
+{% block content %}
+    <p><strong>Emprestado para: </strong>{{ loan.user }}</p>
+    <p><strong>Livro: </strong>{{ loan.book.title }}</p>
+    <p><strong>Data de Confirmação: </strong>{{ loan.date_approved }}</p>
+    
+{% endblock %}

@@ -1,10 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from datetime import timedelta
+from django.utils import timezone
 
 from django.views import generic
 from .models import Order, Loan
 
+from . import services
 from books.models import Book
 
 
@@ -58,3 +61,33 @@ class OrdersRequestedListView(LoginRequiredMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         context['user_books'] = Book.objects.filter(owner=self.request.user)
         return context
+
+
+class LoanCreateView(LoginRequiredMixin, generic.CreateView):
+    template_name = 'loans/create_loan.html'
+    model = Loan
+    fields = ['deposit_amount', 'allows_renewal', 'custom_terms'] 
+
+    def form_valid(self, form):
+
+        _action = self.request.POST.get('action')
+        action = True if _action == "approve" else False
+
+        order = get_object_or_404(Order, id=self.kwargs.get('order_id'))
+        services.update_order_status(order, action) # update Order & Book status
+        loan = form.save(commit=False) # atribuindo info do pedido para o emprestimo
+        loan.user=order.user
+        loan.book=order.book
+        loan.due_date=timezone.now().date() + timedelta(days=order.required_days)
+        loan.max_loan_period=order.required_days
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('loans:orders_request_list')
+
+
+class LoanInfoDetailView(LoginRequiredMixin, generic.DetailView):
+    template_name = 'loans/loan_detail.html'
+    model = Loan
+    context_object_name = 'loan'
+    lookup_field = 'id'

@@ -54,7 +54,7 @@ class Loan(models.Model):
     due_date = models.DateField(blank=True, null=True)
     returned_date = models.DateField(blank=True, null=True)
     max_loan_period = models.PositiveIntegerField(blank=True, null=True)
-    status = models.CharField(choices=LOAN_STATUS_CHOICES, max_length=9, default='ACTIVE')
+    status = models.CharField(choices=LOAN_STATUS_CHOICES, max_length=9, default=ACTIVE)
     deposit_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -72,10 +72,11 @@ class Loan(models.Model):
     def lender(self):
         return self.book.owner
 
-    constraints = [ # isso aqui nao ta funcionando
+    class Meta:
+        constraints = [
             models.UniqueConstraint(
-                fields=['borrower', 'book'],
-                condition=Q(status='ACTIVE'),
+                fields=['book'],
+                condition=Q(status='ac'),
                 name='unique_active_loan_per_book_and_client'
             )
         ]

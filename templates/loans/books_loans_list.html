@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Empréstimos Ativos - {{ user.full_name }} - BookShare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Cabeçalho -->
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <div>
+                    <h1 class="display-5 fw-bold text-primary mb-2">
+                        <i class="fas fa-exchange-alt me-3"></i>Empréstimos Ativos
+                    </h1>
+                    <p class="lead text-muted mb-0">Livros que você emprestou para outros usuários</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary fs-6 px-3 py-2">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        {{ loans.count }} empréstimo{{ loans.count|pluralize }} ativo{{ loans.count|pluralize }}
+                    </span>
+                </div>
+            </div>
+
+            {% if loans %}
+            <!-- Lista de Empréstimos -->
+            <div class="row">
+                {% for loan in loans %}
+                <div class="col-12 mb-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-0 pb-0">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <span class="badge 
+                                    {% if loan.status == 'ac' %}bg-success
+                                    {% elif loan.status == 'cm' %}bg-info
+                                    {% elif loan.status == 'cn' %}bg-secondary
+                                    {% elif loan.status == 'ov' %}bg-danger
+                                    {% else %}bg-light text-dark{% endif %} 
+                                    fs-6 px-3 py-2">
+                                    <i class="fas 
+                                        {% if loan.status == 'ac' %}fa-play-circle
+                                        {% elif loan.status == 'cm' %}fa-check-circle
+                                        {% elif loan.status == 'cn' %}fa-times-circle
+                                        {% elif loan.status == 'ov' %}fa-exclamation-triangle
+                                        {% else %}fa-question{% endif %} me-1">
+                                    </i>
+                                    {{ loan.get_status_display }}
+                                </span>
+                                <small class="text-muted">ID: #{{ loan.id }}</small>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Informações do Livro -->
+                                <div class="col-md-6 mb-4">
+                                    <h5 class="fw-bold text-dark mb-3">
+                                        <i class="fas fa-book me-2 text-primary"></i>Livro Emprestado
+                                    </h5>
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-shrink-0 me-3">
+                                            {% if loan.book.cover_image %}
+                                            <img src="{{ loan.book.cover_image.url }}" 
+                                                 alt="{{ loan.book.title }}" 
+                                                 class="rounded shadow"
+                                                 style="width: 80px; height: 100px; object-fit: cover;">
+                                            {% else %}
+                                            <img src="{% static 'images/book_icon.png' %}" 
+                                                 alt="{{ loan.book.title }}" 
+                                                 class="rounded shadow"
+                                                 style="width: 80px; height: 100px; object-fit: cover;">
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="fw-bold text-dark mb-1">{{ loan.book.title }}</h6>
+                                            {% if loan.book.author %}
+                                            <p class="text-muted small mb-2">por {{ loan.book.author }}</p>
+                                            {% endif %}
+                                            <span class="badge bg-light text-dark border small">
+                                                <i class="fas fa-user me-1"></i>Seu livro
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Informações do Usuário -->
+                                <div class="col-md-6 mb-4">
+                                    <h5 class="fw-bold text-dark mb-3">
+                                        <i class="fas fa-user me-2 text-primary"></i>Usuário
+                                    </h5>
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0 me-3">
+                                            {% if loan.user.img %}
+                                            <img src="{{ loan.user.img.url }}" 
+                                                 alt="{{ loan.user.full_name }}" 
+                                                 class="rounded-circle"
+                                                 style="width: 60px; height: 60px; object-fit: cover;">
+                                            {% else %}
+                                            <img src="{% static 'images/default_user.avif' %}" 
+                                                 alt="{{ loan.user.full_name }}" 
+                                                 class="rounded-circle"
+                                                 style="width: 60px; height: 60px; object-fit: cover;">
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <strong class="d-block text-dark fs-5">
+                                                {% if loan.user.full_name %}
+                                                    {{ loan.user.full_name }}
+                                                {% else %}
+                                                    {{ loan.user.email }}
+                                                {% endif %}
+                                            </strong>
+                                            <small class="text-muted">{{ loan.user.email }}</small>
+                                            <div class="mt-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-phone me-1"></i>
+                                                    {{ loan.user.telefone|default:"Telefone não informado" }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Datas e Período -->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <strong class="text-dark d-block mb-1">
+                                            <i class="fas fa-calendar-plus me-2 text-primary"></i>Data de Início
+                                        </strong>
+                                        <span class="text-muted">
+                                            {% if loan.start_date %}
+                                                {{ loan.start_date|date:"d/m/Y" }}
+                                            {% else %}
+                                                <em class="text-warning">A combinar</em>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <strong class="text-dark d-block mb-1">
+                                            <i class="fas fa-calendar-check me-2 text-primary"></i>Data de Devolução
+                                        </strong>
+                                        <span class="{% if loan.status == 'ov' %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                            {% if loan.due_date %}
+                                                {{ loan.due_date|date:"d/m/Y" }}
+                                            {% else %}
+                                                <em class="text-warning">A combinar</em>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <strong class="text-dark d-block mb-1">
+                                            <i class="fas fa-clock me-2 text-primary"></i>Período Máximo
+                                        </strong>
+                                        <span class="badge bg-primary fs-6">
+                                            {{ loan.max_loan_period }} dia{{ loan.max_loan_period|pluralize }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informações Financeiras -->
+                            {% if loan.deposit_amount or loan.custom_terms %}
+                            <div class="row">
+                                {% if loan.deposit_amount %}
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <strong class="text-dark d-block mb-1">
+                                            <i class="fas fa-money-bill-wave me-2 text-primary"></i>Depósito
+                                        </strong>
+                                        <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                            R$ {{ loan.deposit_amount }}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if loan.allows_renewal %}
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <strong class="text-dark d-block mb-1">
+                                            <i class="fas fa-sync me-2 text-primary"></i>Renovação
+                                        </strong>
+                                        <span class="badge bg-success">Permitida</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Condições Personalizadas -->
+                            {% if loan.custom_terms %}
+                            <div class="border-top pt-3 mt-3">
+                                <strong class="text-dark d-block mb-2">
+                                    <i class="fas fa-file-contract me-2 text-primary"></i>Condições Especiais
+                                </strong>
+                                <p class="text-muted mb-0">{{ loan.custom_terms }}</p>
+                            </div>
+                            {% endif %}
+
+                            <!-- Ações -->
+                            <div class="border-top pt-3 mt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        Empréstimo aprovado em: {{ loan.approved_date|date:"d/m/Y H:i" }}
+                                    </small>
+                                    
+                                    <div class="btn-group">
+                                        {% if loan.status == 'ac' %}
+                                        <button class="btn btn-outline-success btn-sm">
+                                            <i class="fas fa-check me-1"></i>Marcar Devolvido
+                                        </button>
+                                        <button class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-envelope me-1"></i>Contatar
+                                        </button>
+                                        {% endif %}
+                                        <a href="{{ loan.book.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i>Ver Livro
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <!-- Estado Vazio -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-handshake fa-4x text-muted"></i>
+                </div>
+                <h3 class="text-muted mb-3">Nenhum empréstimo ativo</h3>
+                <p class="text-muted mb-4">Quando você aprovar pedidos de empréstimo dos seus livros, eles aparecerão aqui.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'loans:received-orders' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-inbox me-2"></i>Ver Pedidos Recebidos
+                    </a>
+                    <a href="{% url 'books:user_library' pk=user.id %}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-book me-2"></i>Minha Biblioteca
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 12px;
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .border-top {
+        border-top: 1px solid rgba(0,0,0,0.1) !important;
+    }
+</style>
+{% endblock %}

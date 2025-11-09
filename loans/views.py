@@ -12,7 +12,7 @@ from books.models import Book
 
 
 class OrderRequestCreateView(LoginRequiredMixin, generic.CreateView):
-    template_name = 'loans/order_creation.html'
+    template_name = 'orders/order_creation.html'
     model = Order
     fields = ['description', 'required_days']
     success_url = reverse_lazy('loans:orders_made_list')
@@ -33,7 +33,7 @@ class OrderRequestCreateView(LoginRequiredMixin, generic.CreateView):
 
 
 class OrdersMadeListView(LoginRequiredMixin, generic.ListView):
-    template_name = 'loans/order_list.html'
+    template_name = 'orders/order_list.html'
     model = Order
     context_object_name = 'orders'
     
@@ -42,7 +42,7 @@ class OrdersMadeListView(LoginRequiredMixin, generic.ListView):
 
 
 class OrdersRequestedListView(LoginRequiredMixin, generic.ListView):
-    template_name = 'loans/requested_orders.html'
+    template_name = 'orders/requested_orders.html'
     model = Order
     context_object_name = 'orders'
 
@@ -86,8 +86,19 @@ class LoanCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse('loans:orders_request_list')
 
 
-class LoanInfoDetailView(LoginRequiredMixin, generic.DetailView):
-    template_name = 'loans/loan_detail.html'
+class LoansListView(LoginRequiredMixin, generic.ListView):
+    template_name = 'loans/user_loans_list.html'
     model = Loan
-    context_object_name = 'loan'
-    lookup_field = 'id'
+    context_object_name = 'loans'
+
+    def get_queryset(self):
+        return Loan.objects.filter(user=self.request.user).order_by('-approved_date')
+
+
+class BookLoansListView(LoginRequiredMixin, generic.ListView):
+    template_name = 'loans/books_loans_list.html'
+    model = Loan
+    context_object_name = 'loans'
+
+    def get_queryset(self):
+        return Loan.objects.filter(book__owner=self.request.user).order_by('-approved_date')

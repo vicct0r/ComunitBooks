@@ -12,8 +12,8 @@ class Order(models.Model):
 
     ORDER_STATUS_CHOICES = (
         (SUBMITTED, 'Submitted'),
-        (DENIED, 'Denied'),
-        (APPROVED, 'Approved')
+        (APPROVED, 'Approved'),
+        (DENIED, 'Denied')
     )
 
     LOAN_PERIOD_CHOICES = (
@@ -31,7 +31,9 @@ class Order(models.Model):
     status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=SUBMITTED)
 
     class Meta:
-        unique_together = ['user', 'book']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'book'], name='unique_order_per_user_and_book')
+        ]
 
 
 class Loan(models.Model):
@@ -76,7 +78,7 @@ class Loan(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['book'],
-                condition=Q(status='ac'),
+                condition=Q(status__in=['ac', 'ov']),
                 name='unique_active_loan_per_book_and_client'
             )
         ]

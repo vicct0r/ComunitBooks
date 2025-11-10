@@ -241,7 +241,7 @@
                 <h3 class="text-muted mb-3">Nenhum empréstimo ativo</h3>
                 <p class="text-muted mb-4">Quando você aprovar pedidos de empréstimo dos seus livros, eles aparecerão aqui.</p>
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="{% url 'loans:received-orders' %}" class="btn btn-primary btn-lg">
+                    <a href="{% url 'loans:orders_request_list' %}" class="btn btn-primary btn-lg">
                         <i class="fas fa-inbox me-2"></i>Ver Pedidos Recebidos
                     </a>
                     <a href="{% url 'books:user_library' pk=user.id %}" class="btn btn-outline-primary btn-lg">

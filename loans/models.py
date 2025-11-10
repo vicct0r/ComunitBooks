@@ -23,17 +23,13 @@ class Order(models.Model):
         (30, '1 month')
     )
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_orders', on_delete=models.CASCADE)
+    borrower = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='order_borrower', on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='order_owner', on_delete=models.CASCADE, blank=True, null=True)
     book = models.ForeignKey(Book, related_name='book_orders', on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     description = models.TextField(blank=True, null=True)
     required_days = models.PositiveIntegerField(choices=LOAN_PERIOD_CHOICES, default=7)
     status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=SUBMITTED)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'book'], name='unique_order_per_user_and_book')
-        ]
 
 
 class Loan(models.Model):
@@ -49,7 +45,8 @@ class Loan(models.Model):
         (OVERDUE, 'Overdue'),
     )
     
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_loans')
+    borrower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='loan_borrower')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='loan_owner')
     book = models.ForeignKey(Book, related_name='book_loans', on_delete=models.CASCADE)
     approved_date = models.DateTimeField(auto_now_add=True)
     start_date = models.DateField(blank=True, null=True)
@@ -69,16 +66,3 @@ class Loan(models.Model):
 
     def __str__(self):
         return f"Loan: {self.book.title} to {self.book.owner.full_name}"
-    
-    @property
-    def lender(self):
-        return self.book.owner
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['book'],
-                condition=Q(status__in=['ac', 'ov']),
-                name='unique_active_loan_per_book_and_client'
-            )
-        ]

@@ -188,25 +188,25 @@
                                     </h5>
                                     <div class="d-flex align-items-center">
                                         <div class="flex-shrink-0 me-3">
-                                            {% if order.user.img %}
-                                            <img src="{{ order.user.img.url }}" alt="{{ order.user.full_name }}"
+                                            {% if order.borrower.img %}
+                                            <img src="{{ order.borrower.img.url }}" alt="{{ order.borrower.full_name }}"
                                                 class="rounded-circle"
                                                 style="width: 50px; height: 50px; object-fit: cover;">
                                             {% else %}
                                             <img src="{% static 'images/default_user.avif' %}"
-                                                alt="{{ order.user.full_name }}" class="rounded-circle"
+                                                alt="{{ order.borrower.full_name }}" class="rounded-circle"
                                                 style="width: 50px; height: 50px; object-fit: cover;">
                                             {% endif %}
                                         </div>
                                         <div class="flex-grow-1">
                                             <strong class="d-block text-dark">
-                                                {% if order.user.full_name %}
-                                                {{ order.user.full_name }}
+                                                {% if order.borrower.full_name %}
+                                                {{ order.borrower.full_name }}
                                                 {% else %}
-                                                {{ order.user.email }}
+                                                {{ order.borrower.email }}
                                                 {% endif %}
                                             </strong>
-                                            <small class="text-muted">{{ order.user.email }}</small>
+                                            <small class="text-muted">{{ order.borrower.email }}</small>
                                         </div>
                                     </div>
                                 </div>

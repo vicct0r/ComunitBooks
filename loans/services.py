@@ -2,7 +2,7 @@ from .models import Loan, Order
 from django.db import transaction
 
 
-def update_order_status(order: 'Order', operation=False) -> None:
+def update_order_status(order: 'Order', operation=False):
     """
     Update models.Order.status and models.Book.status depending on the Operation (Bool).
     """

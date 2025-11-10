@@ -31,6 +31,9 @@ class Order(models.Model):
     required_days = models.PositiveIntegerField(choices=LOAN_PERIOD_CHOICES, default=7)
     status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=SUBMITTED)
 
+    def __str__(self):
+        return f"Borrower: {self.borrower} - Book: {self.book.title}"
+
 
 class Loan(models.Model):
     ACTIVE = 'ac'

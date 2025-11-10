@@ -24,12 +24,16 @@ class OrderRequestCreateView(LoginRequiredMixin, SuccessMessageMixin, generic.Cr
     def form_valid(self, form):
         book = get_object_or_404(Book, id=self.kwargs.get('book_id'))
 
+        if Order.objects.filter(borrower=self.request.user, book=book, status=Order.SUBMITTED).exists():
+            messages.info(f'Você já possui um pedido em andamento para o livro {book.title} de {book.owner.email}!')
+            return redirect(reverse('loans:orders_made_list'))
+
         order = form.save(commit=False)
         order.book = book
         order.borrower = self.request.user
         order.owner = book.owner
         return super().form_valid(form)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['book'] = get_object_or_404(Book, id=self.kwargs.get('book_id'))
@@ -84,6 +88,10 @@ class LoanCreateView(LoginRequiredMixin, generic.CreateView):
         action = True if _action == "approve" else False
         
         order = get_object_or_404(Order, id=self.kwargs.get('order_id'))
+        
+        if Loan.objects.filter(book=order.book, status__in=[Loan.ACTIVE, Loan.OVERDUE]).exists() and action:
+            messages.warning(self.request,f"O livro {order.book.title} não está disponível para emprestimo!")
+            return redirect(reverse('loans:orders_request_list'))
 
         if action:
             loan = form.save(commit=False) # atribuindo info do pedido para o emprestimo

@@ -1,25 +1,37 @@
 services:
- db:
-   image: postgres:17
-   environment:
-     POSTGRES_DB: db01
-     POSTGRES_USER: victor
-     POSTGRES_PASSWORD: 12345@Victor
-   ports:
-     - "5432:5432"
-   volumes:
-     - postgres_data:/var/lib/postgresql/data
-   env_file:
-     - .env
- 
- django-web:
-   build: .
-   container_name: django-docker
-   ports:
-     - "8000:8000"
-   depends_on:
-     - db
-   env_file:
-     - .env.docker
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: db01
+      POSTGRES_USER: victor
+      POSTGRES_PASSWORD: 12345@Victor
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U victor -d db01"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  django-web:
+    build: .
+    container_name: django-docker
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app  # Monta o código fonte
+      - static_volume:/app/staticfiles
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+
 volumes:
-   postgres_data:
+  postgres_data:
+  static_volume:

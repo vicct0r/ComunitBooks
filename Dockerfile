@@ -33,6 +33,7 @@ COPY . /app/
  
 # Expose the Django port
 EXPOSE 8000
- 
+
+RUN apt-get update && apt-get install -y netcat-openbsd
 # Run Django’s development server
 ENTRYPOINT [ "/entrypoint.sh" ]

@@ -16,9 +16,9 @@
                     <p class="lead text-muted mb-0">Acompanhe todos os seus pedidos de empréstimo</p>
                 </div>
                 <div class="text-end">
-                    <span class="badge bg-primary fs-6 px-3 py-2">
+                    <span class="badge bg-primary fs-6 px-3 py-2">  
                         <i class="fas fa-clipboard-list me-2"></i>
-                        {{ orders.count }} pedido{{ orders.count|pluralize }}
+                        {{ orders.count }} pedido(s)
                     </span>
                 </div>
             </div>
@@ -79,30 +79,31 @@
                                     <p class="text-muted mb-2 small">por {{ order.book.author }}</p>
                                     {% endif %}
                                     
-                                    <!-- Categorias -->
-                                    {% if order.book.category.all %}
+                                    {% with categories=order.book.categories_list %}
+                                    {% if categories %}
                                     <div class="mb-2">
-                                        {% for category in order.book.category.all %}
+                                        {% for category in categories %}
                                         <span class="badge bg-light text-dark border small">
-                                            <i class="fas fa-tag me-1"></i>{{ category.name }}
+                                            <i class="fas fa-tag me-1"></i>{{ category }}
                                         </span>
                                         {% endfor %}
                                     </div>
                                     {% endif %}
+                                    {% endwith %}
                                 </div>
                             </div>
 
-                            <!-- Informações do Proprietário -->
                             <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
                                 <div class="flex-shrink-0 me-3">
-                                    {% if order.book.owner.img %}
-                                    <img src="{{ order.book.owner.img.url }}" 
-                                         alt="{{ order.book.owner.full_name }}" 
+                                    {% with owner=order.book.owner %}
+                                    {% if owner.img %}
+                                    <img src="{{ owner.img.url }}" 
+                                         alt="{{ owner.full_name }}" 
                                          class="rounded-circle"
                                          style="width: 40px; height: 40px; object-fit: cover;">
                                     {% else %}
                                     <img src="{% static 'images/default_user.avif' %}" 
-                                         alt="{{ order.book.owner.full_name }}" 
+                                         alt="{{ owner.full_name }}" 
                                          class="rounded-circle"
                                          style="width: 40px; height: 40px; object-fit: cover;">
                                     {% endif %}
@@ -112,13 +113,14 @@
                                         Proprietário
                                     </strong>
                                     <span class="text-muted small">
-                                        {% if order.book.owner.full_name %}
-                                            {{ order.book.owner.full_name }}
+                                        {% if owner.full_name %}
+                                            {{ owner.full_name }}
                                         {% else %}
-                                            {{ order.book.owner.email }}
+                                            {{ owner.email }}
                                         {% endif %}
                                     </span>
                                 </div>
+                                {% endwith %}
                             </div>
 
                             <!-- Detalhes do Pedido -->
@@ -139,7 +141,6 @@
                                 </div>
                             </div>
 
-                            <!-- Descrição (se houver) -->
                             {% if order.description %}
                             <div class="mt-3">
                                 <strong class="text-dark small d-block mb-1">
@@ -217,31 +218,4 @@
 </div>
 {% endif %}
 {% endfor %}
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .order-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        border-radius: 12px;
-    }
-    
-    .order-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-    }
-    
-    .card-header {
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .order-details .bg-primary,
-    .order-details .bg-info {
-        border-radius: 8px;
-    }
-    
-    .bg-light {
-        background-color: #f8f9fa !important;
-    }
-</style>
 {% endblock %}

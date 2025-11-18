@@ -5,8 +5,7 @@
 
 {% block content %}
 <div class="container py-5">
-    <div class="row">
-        <!-- Coluna da Imagem -->
+    <div class="row"> 
         <div class="col-lg-5 col-md-6 mb-4">
             <div class="card border-0 shadow-lg position-relative">
                 {% if book.cover_image %}
@@ -62,7 +61,6 @@
             </div>
         </div>
 
-        <!-- Coluna das Informações -->
         <div class="col-lg-7 col-md-6">
             <div>
                 <!-- Cabeçalho -->
@@ -77,11 +75,10 @@
                         </h2>
                         {% endif %}
                         
-                        <!-- Categorias Múltiplas -->
-                        {% if book.category.all %}
+                        {% if book.category_list %}
                         <div class="mb-3">
                             <div class="d-flex flex-wrap gap-2">
-                                {% for category in book.category.all %}
+                                {% for category in book.category_list %}
                                 <span class="badge bg-primary px-3 py-2">
                                     <i class="fas fa-tag me-1"></i>{{ category.name }}
                                 </span>
@@ -225,7 +222,7 @@
                             {% endif %}
 
                             <!-- BOTÃO DE FAVORITAR CORRIGIDO -->
-                            {% if user in book.favorited_by.all %}
+                            {% if user in book.favorited_by_list %}
                                 <form method="post" action="{% url 'books:favorite' %}" class="d-inline m-0">
                                     {% csrf_token %}
                                     <input type="hidden" name="book_id" value="{{ book.id }}">

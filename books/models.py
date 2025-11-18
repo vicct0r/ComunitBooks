@@ -30,12 +30,11 @@ class BookQuerySet(models.QuerySet):
             return self.none()
         lookups = Q(title__icontains=query) |\
         Q(author__icontains=query) |\
-        Q(owner__full_name__icontains=query) |\
         Q(slug__icontains=query) |\
         Q(category__icontains=query)
         return self.filter(lookups)
     
-    def filter_by_params(self, title=None, author=None, owner=None, status=None, condition=None, popularity=None, category=None):
+    def filter_by_params(self, title=None, author=None, status=None, condition=None, popularity=None, category=None):
         query = self.all()
 
         if title:
@@ -43,9 +42,6 @@ class BookQuerySet(models.QuerySet):
         
         if author:
             query = query.filter(author__icontains=author)
-
-        if owner:
-            query = query.filter(owner_id=owner)
         
         if status:
             query = query.filter(status=status)

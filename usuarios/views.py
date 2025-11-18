@@ -18,3 +18,4 @@ class UserProfileView(generic.DetailView):
     model = get_user_model()
     context_object_name = 'user'
     lookup_field = 'id'
+    

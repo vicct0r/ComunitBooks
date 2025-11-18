@@ -46,14 +46,14 @@ class OrdersMadeListView(LoginRequiredMixin, generic.ListView):
     context_object_name = 'orders'
     
     def get_queryset(self):
-        return Order.objects.filter(borrower=self.request.user.id).order_by('-date_created')
+        return Order.objects.select_related('owner', 'book').filter(borrower=self.request.user.id).order_by('-date_created')
 
 
 class OrdersRequestedListView(LoginRequiredMixin, generic.ListView):
     template_name = 'orders/requested_orders.html'
     model = Order
     context_object_name = 'orders'
-
+    # 6 queries para esta view, 3 duplicações para user.id
     def get_queryset(self):
         query = Order.objects.filter(owner=self.request.user).order_by('-date_created')
         

@@ -9,6 +9,5 @@ class HomePageView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context['recent_books'] = Book.objects.order_by('-created')[:6]
+        context['recent_books'] = Book.objects.select_related('owner').order_by('-created')[:6]
         return context

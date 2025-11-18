@@ -216,10 +216,10 @@
                     {% endif %}
 
                     <!-- Categorias Múltiplas -->
-                    {% if book.category.all %}
+                    {% if categories %}
                     <div class="book-categories mb-3">
                         <div class="d-flex flex-wrap gap-1">
-                            {% for category in book.category.all %}
+                            {% for category in categories %}
                             <span class="badge bg-light text-dark border small">
                                 <i class="fas fa-tag me-1"></i>{{ category.name }}
                             </span>
@@ -231,19 +231,14 @@
                     <!-- Estatísticas -->
                     <div class="book-stats mb-3">
                         <div class="d-flex gap-3 text-muted small">
-                            {% if book.view_count %}
+                            {% if book.all.count %}
                             <span>
-                                <i class="fas fa-eye me-1"></i>{{ book.view_count }}
+                                <i class="fas fa-eye me-1"></i>{{ book.all.count }}
                             </span>
                             {% endif %}
                             {% if book.favorite_count %}
                             <span>
                                 <i class="fas fa-heart me-1"></i>{{ book.favorite_count }}
-                            </span>
-                            {% endif %}
-                            {% if book.average_rating %}
-                            <span>
-                                <i class="fas fa-star me-1"></i>{{ book.average_rating }}
                             </span>
                             {% endif %}
                         </div>
@@ -254,8 +249,8 @@
                         <div class="d-flex align-items-center text-muted small">
                             <i class="fas fa-user me-2"></i>
                             <span class="text-truncate">
-                                {% if book.owner.get_full_name %}
-                                {{ book.owner.get_full_name }}
+                                {% if book.owner.full_name %}
+                                {{ book.owner.full_name }}
                                 {% else %}
                                 {{ book.owner.username }}
                                 {% endif %}

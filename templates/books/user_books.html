@@ -14,7 +14,7 @@
                     <p class="text-muted mb-0">Gerencie seus livros compartilhados</p>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <span class="badge bg-primary">{{ books.count }} livro{{ books.count|pluralize }}</span>
+                    <span class="badge bg-primary">{{ books.count }} livro(s)</span>
                     <a href="{% url 'books:create' %}" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus me-1"></i>
                         Adicionar
@@ -168,15 +168,15 @@
                     <p class="text-muted small mb-2">por {{ book.author }}</p>
                     {% endif %}
 
-                    {% if book.category.all %}
+                    {% if categories %}
                     <div class="mb-2">
-                        {% for category in book.category.all|slice:":2" %}
+                        {% for category in categories|slice:":2" %}
                         <span class="badge bg-light text-dark border small me-1">
                             {{ category.name }}
                         </span>
                         {% endfor %}
-                        {% if book.category.all|length > 2 %}
-                        <span class="badge bg-light text-dark border small">+{{ book.category.all|length|add:"-2" }}</span>
+                        {% if categories|length > 2 %}
+                        <span class="badge bg-light text-dark border small">+{{ categories|length|add:"-2" }}</span>
                         {% endif %}
                     </div>
                     {% endif %}

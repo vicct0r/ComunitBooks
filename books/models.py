@@ -108,7 +108,7 @@ class Book(Base):
     condition = models.CharField(choices=CONDITION_CHOICES, max_length=7, help_text="Condição do livro")
     status = models.CharField(choices=STATUS_CHOICES, max_length=12)
     slug = models.SlugField(null=True, unique=True)
-    category = models.ManyToManyField('Category', related_name='books_categories')
+    category = models.ManyToManyField('Category', related_name='books_categories', null=True, blank=True)
     favorited_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favorite_books',blank=True, editable=False)
 
     def __str__(self):

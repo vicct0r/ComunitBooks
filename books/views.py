@@ -54,6 +54,9 @@ class AllBookListView(BooksFiltersMixin, generic.ListView):
     context_object_name = 'books'
     paginate_by = 12
 
+    def get_queryset(self):
+        return super().get_queryset().filter(is_visible=True)
+
 
 class UserBookListView(BooksFiltersMixin, generic.ListView):
     template_name = 'books/user_books.html'
@@ -82,3 +85,16 @@ class BookFavoriteView(LoginRequiredMixin, View):
             book.favorited_by.add(request.user)
             messages.success(request, "Livro adicionado aos favoritos")
         return redirect(book.get_absolute_url())
+
+
+class BookUpdateView(LoginRequiredMixin, generic.UpdateView):
+    template_name = 'books/update.html'
+    model = Book
+    fields = ['title', 'author', 'cover_image', 'condition', 'category', 'is_visible']
+
+    def form_valid(self, form):
+        messages.success(self.request, 'O livro foi atualizado com sucesso!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('books:detail', kwargs={'pk': self.kwargs.get('pk')})

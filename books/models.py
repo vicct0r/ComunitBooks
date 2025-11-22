@@ -90,7 +90,7 @@ class Book(Base):
     )
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_books', on_delete=models.CASCADE)
-    title = models.CharField(max_length=200, help_text="Título do livro")
+    title = models.CharField(max_length=250, help_text="Título do livro")
     author = models.CharField(max_length=200, blank=True, null=True)
     cover_image = StdImageField(
         upload_to="books/",

@@ -91,8 +91,8 @@
                                     </h5>
                                     <div class="d-flex align-items-center">
                                         <div class="flex-shrink-0 me-3">
-                                            {% if loan.user.img %}
-                                            <img src="{{ loan.user.img.url }}" 
+                                            {% if loan.borrower.img %}
+                                            <img src="{{ loan.borrower.img.url }}" 
                                                  alt="{{ loan.user.full_name }}" 
                                                  class="rounded-circle"
                                                  style="width: 60px; height: 60px; object-fit: cover;">
@@ -111,11 +111,11 @@
                                                     {{ loan.user.email }}
                                                 {% endif %}
                                             </strong>
-                                            <small class="text-muted">{{ loan.user.email }}</small>
+                                            <small class="text-muted">{{ loan.borrower.email }}</small>
                                             <div class="mt-2">
                                                 <small class="text-muted">
                                                     <i class="fas fa-phone me-1"></i>
-                                                    {{ loan.user.telefone|default:"Telefone não informado" }}
+                                                    {{ loan.borrower.telefone|default:"Telefone não informado" }}
                                                 </small>
                                             </div>
                                         </div>

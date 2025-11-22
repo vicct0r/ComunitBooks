@@ -63,6 +63,11 @@ class UserBookListView(BooksFiltersMixin, generic.ListView):
     model = Book
     context_object_name = 'books'
     paginate_by = 12
+
+    def get_queryset(self):
+        if self.kwargs.get('pk'):
+            return super().get_queryset().filter(is_visible=True, owner=self.kwargs.get('pk'))
+        return super().get_queryset().filter(is_visible=True, owner=self.request.user.id)
         
 
 class BookDetailView(generic.DetailView):

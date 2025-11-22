@@ -147,7 +147,7 @@
                         #{{ forloop.counter }}
                     </span>
                     <div class="card-body text-center pt-5">
-                        <img src="{{ book.get_cover_url }}" class="rounded mb-3" alt="{{ book.title }}" style="width: 120px; height: 160px; object-fit: cover;">
+                        <img src="{{ book.cover_image.url }}" class="rounded mb-3" alt="{{ book.title }}" style="width: 120px; height: 160px; object-fit: cover;">
                         <h5 class="card-title fw-bold">{{ book.title }}</h5>
                         {% if book.author %}
                         <p class="card-text text-muted">por {{ book.author }}</p>
@@ -155,13 +155,13 @@
                         <div class="mb-3">
                             <span class="badge bg-light text-dark">
                                 <i class="fas fa-handshake me-1"></i>
-                                {{ book.request_count|default:"12" }} solicitações
+                                {{ book.book_orders.count|default:"0" }} solicitações
                             </span>
                         </div>
                         <div class="text-muted small">
                             <i class="fas fa-user-circle me-1"></i>
-                            {% if book.owner.get_full_name %}
-                            {{ book.owner.get_full_name }}
+                            {% if book.owner.full_name %}
+                            {{ book.owner.full_name }}
                             {% else %}
                             {{ book.owner.username }}
                             {% endif %}

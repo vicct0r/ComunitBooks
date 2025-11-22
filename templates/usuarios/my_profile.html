@@ -121,24 +121,51 @@
                                     </div>
                                 </div>
 
-                                <!-- Links Rápidos -->
+                                <!-- Links Rápidos - APENAS PARA O PRÓPRIO USUÁRIO -->
+                                {% if user == request.user %}
                                 <div class="col-lg-6 mb-4">
                                     <h5 class="mb-3">Acesso Rápido</h5>
                                     <div class="d-grid gap-2">
-                                        <a href="{% url 'books:user_library' pk=user.id %}" class="btn btn-outline-primary text-start py-2">
-                                            <i class="fas fa-book me-2"></i>Minha Biblioteca
-                                            <span class="badge bg-primary rounded-pill float-end mt-1">{{ user.user_books.count }}</span>
+                                        <a href="{% url 'books:user_library' pk=user.id %}" class="btn btn-primary text-start py-2 d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <i class="fas fa-book me-2"></i>Minha Biblioteca
+                                            </span>
+                                            <span class="badge bg-white text-primary rounded-pill">{{ user.user_books.count }}</span>
                                         </a>
-                                        <a href="{% url 'loans:user_loans_list' %}" class="btn btn-outline-success text-start py-2">
-                                            <i class="fas fa-exchange-alt me-2"></i>Meus Empréstimos
-                                            <span class="badge bg-success rounded-pill float-end mt-1">{{ user.loan_borrower.count }}</span>
+                                        <a href="{% url 'loans:user_loans_list' %}" class="btn btn-success text-start py-2 d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <i class="fas fa-exchange-alt me-2"></i>Meus Empréstimos
+                                            </span>
+                                            <span class="badge bg-white text-success rounded-pill">{{ user.loan_borrower.count }}</span>
                                         </a>
-                                        <a href="{% url 'loans:books_loans_list' %}" class="btn btn-outline-info text-start py-2">
-                                            <i class="fas fa-share me-2"></i>Livros Emprestados
-                                            <span class="badge bg-warning rounded-pill float-end mt-1">{{ user.loan_owner.count }}</span>
+                                        <a href="{% url 'loans:books_loans_list' %}" class="btn btn-warning text-start py-2 d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <i class="fas fa-share me-2"></i>Livros Emprestados
+                                            </span>
+                                            <span class="badge bg-white text-warning rounded-pill">{{ user.loan_owner.count }}</span>
                                         </a>
                                     </div>
                                 </div>
+                                {% else %}
+                                <!-- Informações Públicas para outros usuários -->
+                                <div class="col-lg-6 mb-4">
+                                    <h5 class="mb-3">Biblioteca Pública</h5>
+                                    <div class="d-grid gap-2">
+                                        <a href="{% url 'books:user_library' pk=user.id %}" class="btn btn-outline-primary text-start py-2 d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <i class="fas fa-book me-2"></i>Ver Biblioteca
+                                            </span>
+                                            <span class="badge bg-primary text-white rounded-pill">{{ user.user_books.count }}</span>
+                                        </a>
+                                        <div class="text-center mt-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Entre em contato para solicitar empréstimos
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -153,12 +180,16 @@
                                         <div class="card-body">
                                             <div class="row text-center">
                                                 <div class="col-6 mb-3">
-                                                    <div class="h4 text-primary mb-1">{{ user.order_borrower.count }}</div>
-                                                    <small class="text-muted">Pedidos Realizados</small>
+                                                    <a href="{% url 'loans:orders_made_list' %}" class="text-decoration-none">
+                                                        <div class="h4 text-primary mb-1">{{ user.order_borrower.count }}</div>
+                                                        <small class="text-muted">Pedidos Realizados</small>
+                                                    </a>
                                                 </div>
                                                 <div class="col-6 mb-3">
-                                                    <div class="h4 text-warning mb-1">{{ user.order_owner.count }}</div>
-                                                    <small class="text-muted">Pedidos Recebidos</small>
+                                                    <a href="{% url 'loans:orders_request_list' %}" class="text-decoration-none">
+                                                        <div class="h4 text-warning mb-1">{{ user.order_owner.count }}</div>
+                                                        <small class="text-muted">Pedidos Recebidos</small>
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -169,10 +200,10 @@
                                 <div class="col-md-6 mb-4">
                                     <h5 class="mb-3">Configurações</h5>
                                     <div class="d-grid gap-2">
-                                        <a href="{% url 'account_change_password' %}" class="btn btn-outline-secondary text-start py-2">
+                                        <a href="{% url 'account_change_password' %}" class="btn btn-primary text-start py-2">
                                             <i class="fas fa-shield-alt me-2"></i>Alterar Senha
                                         </a>
-                                        <a href="{% url 'account_email' %}" class="btn btn-outline-secondary text-start py-2">
+                                        <a href="{% url 'account_email' %}" class="btn btn-primary text-start py-2">
                                             <i class="fas fa-envelope me-2"></i>Gerenciar E-mails
                                         </a>
                                     </div>
@@ -227,21 +258,6 @@
     border-radius: 6px;
     font-weight: 500;
     transition: all 0.2s;
-}
-
-.btn-outline-primary, 
-.btn-outline-success, 
-.btn-outline-info, 
-.btn-outline-secondary {
-    border: 1px solid #e1e4e8;
-    background: #fff;
-}
-
-.btn-outline-primary:hover,
-.btn-outline-success:hover,
-.btn-outline-info:hover,
-.btn-outline-secondary:hover {
-    background: #f6f8fa;
 }
 
 .badge {

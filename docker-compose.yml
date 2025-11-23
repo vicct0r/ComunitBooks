@@ -32,6 +32,14 @@ services:
     env_file:
       - .env.docker
 
+  nginx:
+    build: ./nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - django-web
+
 volumes:
   postgres_data:
   static_volume:

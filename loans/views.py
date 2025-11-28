@@ -11,7 +11,17 @@ from django.views import generic
 from .models import Order, Loan
 
 from . import services
+from .services import LoanService
 from books.models import Book
+
+
+class OrderCancelView(LoginRequiredMixin, generic.View):
+
+    def post(self, request, pk):
+        order = Order.objects.get(id=pk)
+        services.cancel_order(order)
+        messages.success(request, 'O pedido foi cancelado.')
+        return redirect('loans:orders_made_list')
 
 
 class OrderRequestCreateView(LoginRequiredMixin, SuccessMessageMixin, generic.CreateView):
@@ -40,22 +50,10 @@ class OrderRequestCreateView(LoginRequiredMixin, SuccessMessageMixin, generic.Cr
         return context
 
 
-class OrdersMadeListView(LoginRequiredMixin, generic.ListView):
-    template_name = 'orders/order_list.html'
-    model = Order
-    context_object_name = 'orders'
-    
-    def get_queryset(self):
-        return Order.objects.select_related('owner', 'book').filter(borrower=self.request.user.id).order_by('-date_created')
+class OrdersFilterMixin:
 
-
-class OrdersRequestedListView(LoginRequiredMixin, generic.ListView):
-    template_name = 'orders/requested_orders.html'
-    model = Order
-    context_object_name = 'orders'
-    # 6 queries para esta view, 3 duplicações para user.id
     def get_queryset(self):
-        query = Order.objects.filter(owner=self.request.user).order_by('-date_created')
+        query = super().get_queryset()
         
         if self.request.GET.get('book'):
             query = query.filter(book_id=self.request.GET.get('book'))
@@ -64,6 +62,26 @@ class OrdersRequestedListView(LoginRequiredMixin, generic.ListView):
         if self.request.GET.get('duration'):
             query = query.filter(required_days=self.request.GET.get('duration'))
         return query
+
+
+class OrdersMadeListView(LoginRequiredMixin, OrdersFilterMixin, generic.ListView):
+    template_name = 'orders/order_list.html'
+    model = Order
+    context_object_name = 'orders'
+    
+    def get_queryset(self):
+        query = super().get_queryset()
+        return query.select_related('owner', 'book').filter(borrower=self.request.user).order_by('-date_created')
+    
+
+class OrdersRequestedListView(LoginRequiredMixin, OrdersFilterMixin, generic.ListView):
+    template_name = 'orders/requested_orders.html'
+    model = Order
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        query = super().get_queryset()
+        return query.select_related('owner', 'book').filter(owner=self.request.user).order_by('-date_created')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -94,11 +112,10 @@ class LoanCreateView(LoginRequiredMixin, generic.CreateView):
             return redirect(reverse('loans:orders_request_list'))
 
         if action:
-            loan = form.save(commit=False) # atribuindo info do pedido para o emprestimo
+            loan = form.save(commit=False)
             loan.borrower=order.borrower
             loan.book=order.book
             loan.owner=order.book.owner if order.book.owner else None
-            loan.due_date=timezone.now().date() + timedelta(days=order.required_days)
             loan.max_loan_period=order.required_days
             loan.save()
 
@@ -114,19 +131,84 @@ class LoanCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse('loans:orders_request_list')
 
 
-class LoansListView(LoginRequiredMixin, generic.ListView):
+class LoanStatusMixin:
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_id = self.request.user.id
+
+        loans_with_actions = []
+        for loan in context['loans']:
+            loans_with_actions.append({
+                'loan': loan,
+                'allowed_actions': LoanService.allowed_actions(loan, user_id=user_id)
+            })
+        
+        context['usuario'] = user_id
+        context['loans_with_actions'] = loans_with_actions
+        return context
+    
+    def get_queryset(self):
+        query = super().get_queryset()
+        
+        if self.request.GET.get('status'):
+            query = query.filter(status=self.request.GET.get('status'))
+        if self.request.GET.get('duration'):
+            query = query.filter(required_days=self.request.GET.get('duration'))
+        return query
+
+
+class LoansListView(LoginRequiredMixin, LoanStatusMixin, generic.ListView):
     template_name = 'loans/user_loans_list.html'
     model = Loan
     context_object_name = 'loans'
 
     def get_queryset(self):
-        return Loan.objects.filter(borrower=self.request.user).order_by('-approved_date')
+        query = super().get_queryset()
+        return query.filter(borrower=self.request.user).order_by('-approved_date')
 
 
-class BookLoansListView(LoginRequiredMixin, generic.ListView):
+class BookLoansListView(LoginRequiredMixin, LoanStatusMixin, generic.ListView):
     template_name = 'loans/books_loans_list.html'
     model = Loan
     context_object_name = 'loans'
 
     def get_queryset(self):
-        return Loan.objects.filter(owner=self.request.user).order_by('-approved_date')
+        query = super().get_queryset()
+        return query.filter(owner=self.request.user).order_by('-approved_date')
+
+
+class LoanStatusUpdate(LoginRequiredMixin, generic.View):
+    
+    def post(self, request, pk):
+        action = request.POST.get('action')
+        user = request.user
+        loan_id = pk
+        loan = Loan.objects.get(id=pk)
+        
+        if action == "send":
+            message = LoanService.send_book(loan_id)
+            messages.success(request, message)
+        elif action == "deny":
+            message = LoanService.deny_delivery(loan_id)
+            messages.success(request, message)
+        elif action == "confirm_delivery":
+            message = LoanService.borrower_confirm_delivery(loan_id)
+            messages.success(request, message)
+        elif action == "return_book":
+            message = LoanService.borrower_return_book(loan_id)
+            messages.success(request, message)
+        elif action == "lender_confirm_delivery":  
+            message = LoanService.lender_confirm_delivery(loan_id)
+            messages.success(request, message)
+        elif action == "renew": 
+            message = LoanService.request_renewal(loan_id)
+            messages.success(request, message)
+        else:
+            messages.error(request, "Ação inválida")
+        
+        if user == loan.borrower:
+            return redirect('loans:user_loans_list')
+        
+        if user == loan.owner:
+            return redirect('loans:books_loans_list')

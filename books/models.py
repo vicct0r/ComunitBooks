@@ -76,17 +76,26 @@ class BookManager(models.Manager):
 
 
 class Book(Base):
+    NEW = 'nw'
+    GOOD = 'gd'
+    FAIR = 'fr'
+    DAMAGED = 'dm'
+
+    AVAILABLE = 'av'
+    UNAVAILABLE = 'un'
+    RESERVED = 'rs'
+
     CONDITION_CHOICES = (
-        ('NEW', 'New'),
-        ('GOOD', 'Good'),
-        ('FAIR', 'Regular'),
-        ('DAMAGED', 'Damaged')
+        (NEW, 'Novo'),
+        (GOOD, 'Bom'),
+        (FAIR, 'Desgastado'),
+        (DAMAGED, 'Danificado')
     )
 
     STATUS_CHOICES = (
-        ('AVAILABLE', 'Available'),
-        ('UNAVAILABLE', 'Unavailable'),
-        ('RESERVED', 'Reserved'),
+        (AVAILABLE, 'Disponível'),
+        (UNAVAILABLE, 'Indisponível'),
+        (RESERVED, 'Reservado'),
     )
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_books', on_delete=models.CASCADE)

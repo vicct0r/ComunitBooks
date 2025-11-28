@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-12">
             <!-- Cabeçalho -->
-            <div class="d-flex justify-content-between align-items-center mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1 class="display-5 fw-bold text-primary mb-2">
                         <i class="fas fa-list-alt me-3"></i>Meus Pedidos
@@ -23,6 +23,109 @@
                 </div>
             </div>
 
+            <!-- Filtros -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <!-- Filtro por Livro -->
+                        <div class="col-md-4">
+                            <label for="book_filter" class="form-label fw-semibold">
+                                <i class="fas fa-book me-1"></i>Filtrar por Livro
+                            </label>
+                            <select name="book" id="book_filter" class="form-select">
+                                <option value="">Todos os livros</option>
+                                {% for book in requested_books %}
+                                {% with book_id_str=book.id|stringformat:"i" %}
+                                <option value="{{ book.id }}" 
+                                    {% if request.GET.book == book_id_str %}selected{% endif %}>
+                                    {{ book.title }}
+                                </option>
+                                {% endwith %}
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Filtro por Status -->
+                        <div class="col-md-3">
+                            <label for="status_filter" class="form-label fw-semibold">
+                                <i class="fas fa-filter me-1"></i>Filtrar por Status
+                            </label>
+                            <select name="status" id="status_filter" class="form-select">
+                                <option value="">Todos os status</option>
+                                <option value="pr" {% if request.GET.status == 'pr' %}selected{% endif %}>Pendentes</option>
+                                <option value="ap" {% if request.GET.status == 'ap' %}selected{% endif %}>Aprovados</option>
+                                <option value="dn" {% if request.GET.status == 'dn' %}selected{% endif %}>Recusados</option>
+                                <option value="cn" {% if request.GET.status == 'cn' %}selected{% endif %}>Cancelados</option>
+                            </select>
+                        </div>
+
+                        <!-- Filtro por Duração -->
+                        <div class="col-md-3">
+                            <label for="duration_filter" class="form-label fw-semibold">
+                                <i class="fas fa-calendar me-1"></i>Duração
+                            </label>
+                            <select name="duration" id="duration_filter" class="form-select">
+                                <option value="">Qualquer duração</option>
+                                <option value="7" {% if request.GET.duration == '7' %}selected{% endif %}>1 semana</option>
+                                <option value="14" {% if request.GET.duration == '14' %}selected{% endif %}>2 semanas</option>
+                                <option value="21" {% if request.GET.duration == '21' %}selected{% endif %}>3 semanas</option>
+                                <option value="30" {% if request.GET.duration == '30' %}selected{% endif %}>1 mês</option>
+                            </select>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i>Filtrar
+                            </button>
+                        </div>
+
+                        <!-- Limpar Filtros -->
+                        {% if request.GET.book or request.GET.status or request.GET.duration %}
+                        <div class="col-12">
+                            <a href="?" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-times me-1"></i>Limpar Filtros
+                            </a>
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+            <!-- Indicadores de Filtro Ativo -->
+            {% if request.GET.book or request.GET.status or request.GET.duration %}
+            <div class="alert alert-info d-flex align-items-center mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                <div>
+                    <strong>Filtros ativos:</strong>
+                    {% if request.GET.book %}
+                    {% with book_id=request.GET.book %}
+                    {% for book in requested_books %}
+                    {% if book.id|stringformat:"i" == book_id %}
+                    <span class="badge bg-primary ms-2">Livro: {{ book.title }}</span>
+                    {% endif %}
+                    {% endfor %}
+                    {% endwith %}
+                    {% endif %}
+                    {% if request.GET.status %}
+                    <span class="badge bg-info ms-2">
+                        Status:
+                        {% if request.GET.status == 'pr' %}Pendente
+                        {% elif request.GET.status == 'ap' %}Aprovado
+                        {% elif request.GET.status == 'dn' %}Recusado
+                        {% elif request.GET.status == 'cn' %}Cancelado
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                    {% if request.GET.duration %}
+                    <span class="badge bg-success ms-2">
+                        Duração: {{ request.GET.duration }} dia{{ request.GET.duration|pluralize }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
             {% if orders %}
             <!-- Lista de Pedidos -->
             <div class="row">
@@ -32,19 +135,17 @@
                         <div class="card-header bg-transparent border-0 pb-0">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <span class="badge 
-                                    {% if order.status == 'PENDING' %}bg-warning text-dark
-                                    {% elif order.status == 'APPROVED' %}bg-success
-                                    {% elif order.status == 'REJECTED' %}bg-danger
-                                    {% elif order.status == 'CANCELLED' %}bg-secondary
-                                    {% elif order.status == 'RETURNED' %}bg-info
+                                    {% if order.status == 'pr' %}bg-warning text-dark
+                                    {% elif order.status == 'ap' %}bg-success
+                                    {% elif order.status == 'dn' %}bg-danger
+                                    {% elif order.status == 'cn' %}bg-secondary
                                     {% else %}bg-light text-dark{% endif %} 
                                     fs-6 px-3 py-2">
                                     <i class="fas 
-                                        {% if order.status == 'PENDING' %}fa-clock
-                                        {% elif order.status == 'APPROVED' %}fa-check-circle
-                                        {% elif order.status == 'REJECTED' %}fa-times-circle
-                                        {% elif order.status == 'CANCELLED' %}fa-ban
-                                        {% elif order.status == 'RETURNED' %}fa-undo
+                                        {% if order.status == 'pr' %}fa-clock
+                                        {% elif order.status == 'ap' %}fa-check-circle
+                                        {% elif order.status == 'dn' %}fa-times-circle
+                                        {% elif order.status == 'cn' %}fa-ban
                                         {% else %}fa-question{% endif %} me-1">
                                     </i>
                                     {{ order.get_status_display }}
@@ -155,12 +256,12 @@
 
                         <div class="card-footer bg-transparent border-0 pt-0">
                             <div class="d-grid gap-2">
-                                {% if order.status == 'PENDING' %}
+                                {% if order.status == 'pr' %}
                                 <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" 
                                         data-bs-target="#cancelModal{{ order.id }}">
                                     <i class="fas fa-times me-1"></i>Cancelar Pedido
                                 </button>
-                                {% elif order.status == 'APPROVED' %}
+                                {% elif order.status == 'ap' %}
                                 <a href="#" class="btn btn-success btn-sm">
                                     <i class="fas fa-envelope me-1"></i>Contatar Proprietário
                                 </a>
@@ -181,11 +282,29 @@
                 <div class="mb-4">
                     <i class="fas fa-clipboard-list fa-4x text-muted"></i>
                 </div>
-                <h3 class="text-muted mb-3">Nenhum pedido encontrado</h3>
-                <p class="text-muted mb-4">Você ainda não fez nenhum pedido de empréstimo.</p>
+                <h3 class="text-muted mb-3">
+                    {% if request.GET.book or request.GET.status or request.GET.duration %}
+                    Nenhum pedido encontrado com os filtros aplicados
+                    {% else %}
+                    Nenhum pedido encontrado
+                    {% endif %}
+                </h3>
+                <p class="text-muted mb-4">
+                    {% if request.GET.book or request.GET.status or request.GET.duration %}
+                    Tente ajustar os filtros para ver mais resultados.
+                    {% else %}
+                    Você ainda não fez nenhum pedido de empréstimo.
+                    {% endif %}
+                </p>
+                {% if request.GET.book or request.GET.status or request.GET.duration %}
+                <a href="?" class="btn btn-primary btn-lg">
+                    <i class="fas fa-times me-2"></i>Limpar Filtros
+                </a>
+                {% else %}
                 <a href="{% url 'books:library' %}" class="btn btn-primary btn-lg">
                     <i class="fas fa-book me-2"></i>Explorar Livros
                 </a>
+                {% endif %}
             </div>
             {% endif %}
         </div>
@@ -194,7 +313,7 @@
 
 <!-- Modais de Cancelamento -->
 {% for order in orders %}
-{% if order.status == 'PENDING' %}
+{% if order.status == 'pr' %}
 <div class="modal fade" id="cancelModal{{ order.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -208,7 +327,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Manter Pedido</button>
-                <form method="post" action="#" class="d-inline">
+                <form method="post" action="{% url 'loans:cancel_order' order.id %}" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">Cancelar Pedido</button>
                 </form>
@@ -218,4 +337,40 @@
 </div>
 {% endif %}
 {% endfor %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 12px;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+
+    .order-card {
+        transition: all 0.3s ease;
+    }
+
+    .order-card:hover {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .order-details .bg-primary,
+    .order-details .bg-info {
+        transition: all 0.3s ease;
+    }
+
+    .order-details .bg-primary:hover,
+    .order-details .bg-info:hover {
+        transform: scale(1.05);
+    }
+</style>
 {% endblock %}

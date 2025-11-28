@@ -9,18 +9,20 @@ class Order(models.Model):
     SUBMITTED = 'pr'
     APPROVED = 'ap'
     DENIED = 'dn'
+    CANCELED = 'cn'
 
     ORDER_STATUS_CHOICES = (
-        (SUBMITTED, 'Submitted'),
-        (APPROVED, 'Approved'),
-        (DENIED, 'Denied')
+        (SUBMITTED, 'Enviado'),
+        (APPROVED, 'Aprovado'),
+        (CANCELED, 'Cancelado'),
+        (DENIED, 'Negado')
     )
 
     LOAN_PERIOD_CHOICES = (
-        (7, '1 week'),
-        (14, '2 weeks'),
-        (21, '3 weeks'),
-        (30, '1 month')
+        (7, '1 semana'),
+        (14, '2 semanas'),
+        (21, '3 semanas'),
+        (30, '1 mês')
     )
 
     borrower = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='order_borrower', on_delete=models.CASCADE)
@@ -36,16 +38,22 @@ class Order(models.Model):
 
 
 class Loan(models.Model):
+    APPROVED = 'ap'
+    ON_ROUTE = 'or'
     ACTIVE = 'ac'
     COMPLETED = 'cm'
     CANCELLED = 'cn'
+    IN_RETURN = 'rt'
     OVERDUE = 'ov'
 
     LOAN_STATUS_CHOICES = (
-        (ACTIVE, 'Active'),
-        (COMPLETED, 'Completed'),
-        (CANCELLED, 'Cancelled'),
-        (OVERDUE, 'Overdue'),
+        (APPROVED, 'Aprovado'),
+        (ACTIVE, 'Ativo'),
+        (ON_ROUTE, 'Em Rota'),
+        (IN_RETURN, 'Em Devolução'),
+        (COMPLETED, 'Completo'),
+        (CANCELLED, 'Cancelada'),
+        (OVERDUE, 'Atraso'),
     )
     
     borrower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='loan_borrower')
@@ -56,7 +64,7 @@ class Loan(models.Model):
     due_date = models.DateField(blank=True, null=True)
     returned_date = models.DateField(blank=True, null=True)
     max_loan_period = models.PositiveIntegerField(blank=True, null=True)
-    status = models.CharField(choices=LOAN_STATUS_CHOICES, max_length=9, default=ACTIVE)
+    status = models.CharField(choices=LOAN_STATUS_CHOICES, max_length=9, default=APPROVED)
     deposit_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -69,3 +77,17 @@ class Loan(models.Model):
 
     def __str__(self):
         return f"Loan: {self.book.title} to {self.book.owner.full_name}"
+
+    def clean(self):
+        if self.book_id and Loan.objects.filter(book_id=self.book_id, status__in=[Loan.ACTIVE, Loan.ON_ROUTE, Loan.OVERDUE]).exists():
+            raise ValueError('Este livro já tem um Emprestimo!')
+        return super().clean()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['book'],
+                condition=Q(status__in=['ac', 'or', 'ov']),
+                name='unique_active_loan_per_book',
+            ),
+        ]

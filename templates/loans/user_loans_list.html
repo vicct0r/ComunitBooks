@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-12">
             <!-- Cabeçalho -->
-            <div class="d-flex justify-content-between align-items-center mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1 class="display-5 fw-bold text-primary mb-2">
                         <i class="fas fa-book-reader me-3"></i>Meus Emprestimos
@@ -23,10 +23,72 @@
                 </div>
             </div>
 
+            <!-- Filtro por Status -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <!-- Filtro por Status -->
+                        <div class="col-md-6">
+                            <label for="status_filter" class="form-label fw-semibold">
+                                <i class="fas fa-filter me-1"></i>Filtrar por Status
+                            </label>
+                            <select name="status" id="status_filter" class="form-select">
+                                <option value="">Todos os status</option>
+                                <option value="ap" {% if request.GET.status == 'ap' %}selected{% endif %}>Aprovados</option>
+                                <option value="ac" {% if request.GET.status == 'ac' %}selected{% endif %}>Ativos</option>
+                                <option value="or" {% if request.GET.status == 'or' %}selected{% endif %}>Em Trânsito</option>
+                                <option value="ir" {% if request.GET.status == 'ir' %}selected{% endif %}>Em Devolução</option>
+                                <option value="cm" {% if request.GET.status == 'cm' %}selected{% endif %}>Concluídos</option>
+                                <option value="cn" {% if request.GET.status == 'cn' %}selected{% endif %}>Cancelados</option>
+                                <option value="ov" {% if request.GET.status == 'ov' %}selected{% endif %}>Atrasados</option>
+                            </select>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i>Filtrar
+                            </button>
+                        </div>
+
+                        <!-- Limpar Filtros -->
+                        <div class="col-md-3">
+                            {% if request.GET.status %}
+                            <a href="?" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-times me-1"></i>Limpar Filtro
+                            </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Indicador de Filtro Ativo -->
+            {% if request.GET.status %}
+            <div class="alert alert-info d-flex align-items-center mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                <div>
+                    <strong>Filtro ativo:</strong>
+                    <span class="badge bg-info ms-2">
+                        Status:
+                        {% if request.GET.status == 'ap' %}Aprovados
+                        {% elif request.GET.status == 'ac' %}Ativos
+                        {% elif request.GET.status == 'or' %}Em Trânsito
+                        {% elif request.GET.status == 'ir' %}Em Devolução
+                        {% elif request.GET.status == 'cm' %}Concluídos
+                        {% elif request.GET.status == 'cn' %}Cancelados
+                        {% elif request.GET.status == 'ov' %}Atrasados
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+
             {% if loans %}
             <!-- Lista de Livros Emprestados -->
             <div class="row">
-                {% for loan in loans %}
+                {% for loan_data in loans_with_actions %}
+                {% with loan=loan_data.loan allowed_actions=loan_data.allowed_actions %}
                 <div class="col-12 mb-4">
                     <div class="card border-0 shadow-sm">
                         <div class="card-header bg-transparent border-0 pb-0">
@@ -63,13 +125,11 @@
                                             {% if loan.book.cover_image %}
                                             <img src="{{ loan.book.cover_image.url }}" 
                                                  alt="{{ loan.book.title }}" 
-                                                 class="rounded shadow"
-                                                 style="width: 80px; height: 100px; object-fit: cover;">
+                                                 class="rounded shadow book-cover">
                                             {% else %}
-                                            <img src="{% static 'images/book_icon.png' %}" 
-                                                 alt="{{ loan.book.title }}" 
-                                                 class="rounded shadow"
-                                                 style="width: 80px; height: 100px; object-fit: cover;">
+                                            <div class="book-cover-placeholder">
+                                                <i class="fas fa-book"></i>
+                                            </div>
                                             {% endif %}
                                         </div>
                                         <div class="flex-grow-1">
@@ -101,13 +161,11 @@
                                             {% if loan.book.owner.img %}
                                             <img src="{{ loan.book.owner.img.url }}" 
                                                  alt="{{ loan.book.owner.full_name }}" 
-                                                 class="rounded-circle"
-                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                                 class="rounded-circle user-avatar">
                                             {% else %}
-                                            <img src="{% static 'images/default_user.avif' %}" 
-                                                 alt="{{ loan.book.owner.full_name }}" 
-                                                 class="rounded-circle"
-                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                            <div class="user-avatar-placeholder">
+                                                {{ loan.owner.email }}
+                                            </div>
                                             {% endif %}
                                         </div>
                                         <div class="flex-grow-1">
@@ -160,7 +218,7 @@
                                         <strong class="d-block mb-1">Dias Restantes</strong>
                                         <span class="fs-5 fw-bold">
                                             {% if loan.due_date %}
-                                                {{ loan.due_date|timeuntil:loan.start_date }}
+                                                {{ loan.days_remaining }} dias
                                             {% else %}
                                                 -
                                             {% endif %}
@@ -205,31 +263,84 @@
                                 </div>
                             </div>
 
-                            <!-- Ações -->
+                            <!-- Ações Dinâmicas para Borrower -->
                             <div class="border-top pt-3 mt-3">
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                                     <small class="text-muted">
-                                        Empréstimo aprovado em: {{ loan.approved_date|date:"d/m/Y H:i" }}
+                                        <i class="fas fa-calendar-check me-1"></i>
+                                        Aprovado em {{ loan.approved_date|date:"d/m/Y" }}
                                     </small>
                                     
-                                    <div class="btn-group">
-                                        {% if loan.status == 'ac' %}
-                                        <button class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-sync me-1"></i>Solicitar Renovação
-                                        </button>
-                                        <button class="btn btn-outline-success btn-sm">
-                                            <i class="fas fa-check me-1"></i>Marcar como Devolvido
-                                        </button>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <!-- CONFIRMAR RECEBIMENTO - Quando o livro está em trânsito -->
+                                        {% if "confirm_delivery" in allowed_actions %}
+                                        <form method="post" action="{% url 'loans:update_status' loan.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="confirm_delivery">
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check-circle me-1"></i>Confirmar Recebimento
+                                            </button>
+                                        </form>
                                         {% endif %}
+
+                                        <!-- DEVOLVER LIVRO - Quando o empréstimo está ativo -->
+                                        {% if "return_book" in allowed_actions %}
+                                        <form method="post" action="{% url 'loans:update_status' loan.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="return_book">
+                                            <button type="submit" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-undo me-1"></i>Devolver Livro
+                                            </button>
+                                        </form>
+                                        {% endif %}
+
+                                        <!-- SOLICITAR RENOVAÇÃO -->
+                                        {% if "renew" in allowed_actions %}
+                                        <form method="post" action="{% url 'loans:update_status' loan.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="renew">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-sync me-1"></i>Solicitar Renovação
+                                            </button>
+                                        </form>
+                                        {% endif %}
+
+                                        <!-- ESTADOS INFORMATIVOS -->
+                                        {% if "waiting_confirm" in allowed_actions %}
+                                        <span class="badge bg-info text-dark align-self-center">
+                                            <i class="fas fa-clock me-1"></i>Aguardando Envio
+                                        </span>
+                                        {% endif %}
+
+                                        {% if "on_route" in allowed_actions %}
+                                        <span class="badge bg-warning text-dark align-self-center">
+                                            <i class="fas fa-truck me-1"></i>Livro em Trânsito
+                                        </span>
+                                        {% endif %}
+
+                                        {% if "loan_active" in allowed_actions %}
+                                        <span class="badge bg-success align-self-center">
+                                            <i class="fas fa-play-circle me-1"></i>Empréstimo Ativo
+                                        </span>
+                                        {% endif %}
+
+                                        <!-- AÇÕES SECUNDÁRIAS -->
                                         <a href="{% url 'books:detail' loan.book.id %}" class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-eye me-1"></i>Ver Detalhes do Livro
+                                            <i class="fas fa-eye me-1"></i>Ver Detalhes
                                         </a>
+
+                                        {% if loan.book.owner.telefone %}
+                                        <a href="tel:{{ loan.book.owner.telefone }}" class="btn btn-outline-info btn-sm">
+                                            <i class="fas fa-phone me-1"></i>Contatar
+                                        </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                {% endwith %}
                 {% endfor %}
             </div>
 
@@ -239,15 +350,33 @@
                 <div class="mb-4">
                     <i class="fas fa-book-open fa-4x text-muted"></i>
                 </div>
-                <h3 class="text-muted mb-3">Nenhum livro em uso no momento</h3>
-                <p class="text-muted mb-4">Você ainda não possui livros emprestados de outros usuários.</p>
-                <div class="d-flex justify-content-center gap-3">
+                <h3 class="text-muted mb-3">
+                    {% if request.GET.status %}
+                    Nenhum empréstimo encontrado com este status
+                    {% else %}
+                    Nenhum livro em uso no momento
+                    {% endif %}
+                </h3>
+                <p class="text-muted mb-4">
+                    {% if request.GET.status %}
+                    Tente ajustar o filtro para ver mais resultados.
+                    {% else %}
+                    Você ainda não possui livros emprestados de outros usuários.
+                    {% endif %}
+                </p>
+                <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                    {% if request.GET.status %}
+                    <a href="?" class="btn btn-primary btn-lg">
+                        <i class="fas fa-times me-2"></i>Limpar Filtro
+                    </a>
+                    {% else %}
                     <a href="{% url 'books:library' %}" class="btn btn-primary btn-lg">
                         <i class="fas fa-search me-2"></i>Buscar Livros para Emprestar
                     </a>
                     <a href="{% url 'loans:orders_made_list' %}" class="btn btn-outline-primary btn-lg">
                         <i class="fas fa-history me-2"></i>Ver Meus Pedidos
                     </a>
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
@@ -269,6 +398,64 @@
     
     .border-top {
         border-top: 1px solid rgba(0,0,0,0.1) !important;
+    }
+
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .book-cover {
+        width: 80px;
+        height: 100px;
+        object-fit: cover;
+    }
+
+    .book-cover-placeholder {
+        width: 80px;
+        height: 100px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+    }
+
+    .user-avatar-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .d-flex.flex-wrap {
+            justify-content: center;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+        }
     }
 </style>
 {% endblock %}

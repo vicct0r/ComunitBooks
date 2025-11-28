@@ -8,9 +8,8 @@ while ! nc -z db 5432; do
 done
 echo "PostgreSQL está pronto!"
 
-# Executar migrações e coletar static files
 python manage.py migrate --no-input
 python manage.py collectstatic --no-input
 
 # Iniciar servidor
-gunicorn --bind 0.0.0.0:8000 --workers 3 config.wsgi:application
+gunicorn --bind 0.0.0.0:8000 --workers 3 config.wsgi:application  

@@ -68,7 +68,12 @@ class UserBookListView(BooksFiltersMixin, generic.ListView):
         if self.kwargs.get('pk'):
             return super().get_queryset().filter(is_visible=True, owner=self.kwargs.get('pk'))
         return super().get_queryset().filter(is_visible=True, owner=self.request.user.id)
-        
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
+    
 
 class BookDetailView(generic.DetailView):
     template_name = 'books/detail.html'

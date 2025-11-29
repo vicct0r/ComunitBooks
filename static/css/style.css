@@ -1,186 +1,79 @@
-/* ===== VARIÁVEIS CSS ===== */
-:root {
-    --primary-color: #4361ee;
-    --primary-dark: #3a56d4;
-    --secondary-color: #7209b7;
-    --accent-color: #f72585;
-    --text-dark: #2b2d42;
-    --text-light: #6c757d;
-    --bg-light: #f8f9fa;
-    --bg-white: #ffffff;
-    --border-radius: 12px;
-    --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    --transition: all 0.3s ease;
+/* ===== OTIMIZAÇÃO: REGRAS MANTIDAS SOMENTE PARA STYLING ÚNICO OU TRANSIÇÕES ===== */
+
+/* Remove margem inferior da navbar (já coberto no HTML com mb-0 e no CSS com .navbar: margin-bottom: 0) */
+.navbar {
+    margin-bottom: 0 !important;
 }
 
-/* ===== ESTILOS GLOBAIS ===== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* Corrige o dropdown - remove borda branca do header (mantido, pois combina cor e borda) */
+.dropdown-header {
+    border-top-left-radius: 0.75rem !important;
+    border-top-right-radius: 0.75rem !important;
+    border: none !important; /* Reforça a ausência de borda */
 }
 
-body {
-    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-    color: var(--text-dark);
-    line-height: 1.6;
-    background-color: var(--bg-light);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+/* Ajusta o posicionamento do dropdown (mantido para espaçamento vertical) */
+.dropdown-menu {
+    margin-top: 0.5rem !important;
+    border: none !important; /* Garante que não há borda */
 }
 
-/* ===== NAVBAR ===== */
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.5rem !important;
+/* Garante que heróis e conteúdos colam no navbar, se necessário (deixado para não anular o layout de páginas específicas) */
+.hero-section, .container-fluid, .container {
+    margin-top: 0 !important;
+    /* padding-top: 0 !important; - Removido para permitir o py-4 no main */
 }
 
-.navbar-dark {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
-    box-shadow: 0 2px 20px rgba(67, 97, 238, 0.15);
-}
+/* ===== ACABAMENTOS FINAIS: TRANSIÇÕES E HOVER EFFECTS (mantidos) ===== */
 
+/* Suaviza transições do navbar */
 .nav-link {
-    font-weight: 500;
-    transition: var(--transition);
-    border-radius: 8px;
-    margin: 0 2px;
-    padding: 0.5rem 1rem !important;
+    transition: all 0.2s ease-in-out;
 }
 
 .nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
     transform: translateY(-1px);
 }
 
-.navbar-toggler {
-    border: none !important;
-    box-shadow: none !important;
-}
-
-.navbar-toggler:focus {
-    box-shadow: none !important;
-}
-
-/* ===== DROPDOWN DO USUÁRIO ===== */
-.user-avatar {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.user-avatar i {
-    font-size: 1.3rem;
-}
-
-.dropdown-header {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    padding: 1rem;
-    border-radius: 0;
-}
-
-.dropdown-menu {
-    border: none;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    padding: 0.5rem 0;
-    min-width: 220px;
-}
-
+/* Melhora visual do dropdown */
 .dropdown-item {
-    border-radius: 6px;
-    margin: 0.1rem 0.5rem;
-    padding: 0.5rem 1rem;
-    transition: var(--transition);
-    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
 .dropdown-item:hover {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    transform: translateX(2px);
+    transform: translateX(5px);
 }
 
-.dropdown-item.text-danger:hover {
-    background: linear-gradient(135deg, #dc3545, #e83e8c);
-    color: white;
+/* Ajusta bordas coloridas das mensagens (mantido, pois o Bootstrap não oferece esta funcionalidade nativamente) */
+.message-alert {
+    border-left: 4px solid !important;
 }
 
-/* ===== MENSAGENS DO SISTEMA ===== */
-.messages-container {
-    min-width: min(100%, 400px);
+.alert-success {
+    border-left-color: #198754 !important;
 }
 
-.message-global {
-    border: none;
-    border-radius: var(--border-radius);
-    padding: 1rem 1.25rem;
-    box-shadow: var(--box-shadow);
-    border-left: 4px solid transparent;
+.alert-danger, .alert-error {
+    border-left-color: #dc3545 !important;
 }
 
-.message-global.alert-success {
-    background: white;
-    color: #28a745;
-    border-left-color: #28a745;
+.alert-warning {
+    border-left-color: #ffc107 !important;
 }
 
-.message-global.alert-error,
-.message-global.alert-danger {
-    background: white;
-    color: #dc3545;
-    border-left-color: #dc3545;
+.alert-info {
+    border-left-color: #0dcaf0 !important;
 }
 
-.message-global.alert-warning {
-    background: white;
-    color: #856404;
-    border-left-color: #ffc107;
-}
-
-.message-global.alert-info {
-    background: white;
-    color: #17a2b8;
-    border-left-color: #17a2b8;
-}
-
-.alert-icon {
-    font-size: 1.2rem;
-}
-
-.alert-content {
-    font-weight: 500;
-}
-
-/* ===== RESPONSIVIDADE ===== */
+/* Responsividade refinada (mantido) */
 @media (max-width: 768px) {
+    .navbar-nav .nav-link {
+        margin: 0.1rem 0;
+        text-align: center;
+    }
+    
     .dropdown-menu {
-        margin-top: 0.5rem;
-    }
-    
-    .user-avatar {
-        width: 28px;
-        height: 28px;
-    }
-    
-    .user-avatar i {
-        font-size: 1.1rem;
-    }
-    
-    .nav-link {
-        padding: 0.5rem 0.75rem !important;
-    }
-    
-    .message-global {
-        padding: 0.75rem 1rem;
-    }
-    
-    .alert-content {
-        font-size: 0.9rem;
+        width: 95%;
+        margin: 0.5rem auto;
     }
 }

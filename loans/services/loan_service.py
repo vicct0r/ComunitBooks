@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.utils.timezone import timedelta
 
 from books.models import Book
-from .models import Loan, Order
+from ..models import Loan, Order
 
 
 def cancel_order(order: Order):

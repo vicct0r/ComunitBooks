@@ -36,7 +36,7 @@ class BooksFiltersMixin:
 class BookCreateView(LoginRequiredMixin, generic.CreateView):
     template_name = 'books/create.html'
     model = Book
-    fields = ['title', 'author', 'cover_image', 'condition', 'status']
+    fields = ['title', 'author', 'cover_image', 'condition', 'status', 'category']
 
     def form_valid(self, form):
         obj = form.save(commit=False)

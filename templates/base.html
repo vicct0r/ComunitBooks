@@ -6,160 +6,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookShare | {% block title %}{% endblock %}</title>
+    <title>CommunityBooks | {% block title %}{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    {% block extra_css %} 
-    {% endblock %}
+    <link rel="icon" type="image/x-icon" href="{% static 'images/bk.png' %}">
+    {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100 bg-light">
 
-<!-- Navbar Refatorado -->
-<nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(135deg, #4361ee, #7209b7);">
     <div class="container">
-        <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'core:home' %}">
-            <span class="fs-4 me-2">📚</span> BookShare
+        <a class="navbar-brand fw-bold fs-3 d-flex align-items-center" href="{% url 'core:home' %}">
+            <span class="me-2">
+                <img src="{% static 'images/www.png' %}" alt="Ícone BookShare" 
+                     style="height: 1.5em; width: auto; vertical-align: middle;">
+            </span> 
+            CommunityBooks
         </a>
 
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'books:library' %}">
-                        <i class="fas fa-search me-1"></i>Explorar
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'books:create' %}">
-                        <i class="fas fa-plus me-1"></i>Cadastrar Livro
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-users me-1"></i>Comunidade
-                    </a>
-                </li>
-            </ul>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link px-3 py-2 rounded-3 mx-1 {% if request.resolver_match.url_name == 'library' %}active bg-white bg-opacity-10 fw-semibold{% endif %}" 
+                           href="{% url 'books:library' %}">
+                            <i class="fas fa-search me-2"></i>Explorar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 py-2 rounded-3 mx-1 {% if request.resolver_match.url_name == 'create' %}active bg-white bg-opacity-10 fw-semibold{% endif %}" 
+                           href="{% url 'books:create' %}">
+                            <i class="fas fa-plus me-2"></i>Cadastrar Livro
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 py-2 rounded-3 mx-1" href="#">
+                            <i class="fas fa-users me-2"></i>Comunidade
+                        </a>
+                    </li>
+                </ul>
 
-            <ul class="navbar-nav ms-auto">
-                {% if user.is_authenticated %}
-                <!-- Dropdown do Usuário Melhorado -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center py-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="user-avatar me-2">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <span class="d-none d-sm-inline text-capitalize">
-                            {% if user.full_name %}
-                                {{ user.full_name|truncatechars:15 }}
-                            {% else %}
-                                {{ user.email|truncatechars:15 }}
-                            {% endif %}
-                        </span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-                        <li class="dropdown-header">
-                            <div class="fw-bold text-capitalize">
-                                {% if user.full_name %}
-                                    {{ user.full_name }}
-                                {% else %}
-                                    {{ user.email }}
-                                {% endif %}
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center py-2 px-3 rounded-3" 
+                           href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <div class="me-2">
+                                <i class="fas fa-user-circle fs-5"></i>
                             </div>
-                            <div class="small text-muted">{{ user.email }}</div>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'user:profile' pk=user.id %}">
-                                <i class="fas fa-user me-2"></i>Meu Perfil
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'books:user_library' pk=user.id %}">
-                                <i class="fas fa-book me-2"></i>Meus Livros
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'account_email' %}">
-                                <i class="fas fa-envelope me-2"></i>Gerenciar E-mail
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'account_change_password' %}">
-                                <i class="fas fa-key me-2"></i>Alterar Senha
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-danger" href="{% url 'account_logout' %}">
-                                <i class="fas fa-sign-out-alt me-2"></i>Sair
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'account_login' %}">
-                        <i class="fas fa-sign-in-alt me-1"></i>Entrar
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-primary btn-sm ms-2" href="{% url 'user:signup' %}">
-                        <i class="fas fa-user-plus me-1"></i>Registrar
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
-</nav>
-
-<!-- Sistema de Mensagens Melhorado -->
-{% if messages %}
-<div class="position-fixed top-0 start-50 translate-middle-x mt-5 z-3" style="min-width: min(100%, 400px);">
-    <div class="messages-container">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show message-global shadow-lg mb-2" role="alert">
-            <div class="d-flex align-items-center">
-                <div class="alert-icon me-3 flex-shrink-0">
-                    {% if message.tags == 'success' %}
-                    <i class="fas fa-check-circle"></i>
-                    {% elif message.tags == 'error' or message.tags == 'danger' %}
-                    <i class="fas fa-exclamation-circle"></i>
-                    {% elif message.tags == 'warning' %}
-                    <i class="fas fa-exclamation-triangle"></i>
-                    {% elif message.tags == 'info' %}
-                    <i class="fas fa-info-circle"></i>
+                            <span class="d-none d-sm-inline text-capitalize">
+                                {% if user.full_name %}
+                                    {{ user.full_name|truncatechars:15 }}
+                                {% else %}
+                                    {{ user.email|truncatechars:15 }}
+                                {% endif %}
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+                            <li class="dropdown-header text-white rounded-top-3 p-3 border-0" 
+                                style="background: linear-gradient(135deg, #4361ee, #7209b7); margin: -1px -1px 0 -1px;">
+                                <div class="fw-bold text-capitalize">
+                                    {% if user.full_name %}
+                                        {{ user.full_name }}
+                                    {% else %}
+                                        {{ user.email }}
+                                    {% endif %}
+                                </div>
+                                <div class="small text-white text-opacity-75">{{ user.email }}</div>
+                            </li>
+                            <li><hr class="dropdown-divider my-2 mx-0"></li>
+                            <li>
+                                <a class="dropdown-item rounded-2 mx-2 py-2" href="{% url 'user:profile' pk=user.id %}">
+                                    <i class="fas fa-user me-2 text-primary"></i>Meu Perfil
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-2 mx-2 py-2" href="{% url 'books:user_library' pk=user.id %}">
+                                    <i class="fas fa-book me-2 text-primary"></i>Meus Livros
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-2 mx-0"></li>
+                            <li>
+                                <a class="dropdown-item rounded-2 mx-2 py-2" href="{% url 'account_email' %}">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>Gerenciar E-mail
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-2 mx-2 py-2" href="{% url 'account_change_password' %}">
+                                    <i class="fas fa-key me-2 text-primary"></i>Alterar Senha
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-2 mx-0"></li>
+                            <li>
+                                <a class="dropdown-item rounded-2 mx-2 py-2 text-danger" href="{% url 'account_logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     {% else %}
-                    <i class="fas fa-bell"></i>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 py-2 rounded-3 mx-1" href="{% url 'account_login' %}">
+                            <i class="fas fa-sign-in-alt me-2"></i>Entrar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary btn-sm ms-2 px-3 py-2 rounded-3" href="{% url 'user:signup' %}">
+                            <i class="fas fa-user-plus me-2"></i>Registrar
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+    <div class="position-fixed top-0 start-50 translate-middle-x mt-5 z-3" style="min-width: min(100%, 400px);">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-lg border-0 rounded-3 mb-2 message-alert" 
+             role="alert">
+            <div class="d-flex align-items-start">
+                <div class="flex-shrink-0 me-3 pt-1"> 
+                    {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle fs-5"></i>
+                    {% elif message.tags == 'error' or message.tags == 'danger' %}
+                    <i class="fas fa-exclamation-circle fs-5"></i>
+                    {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation-triangle fs-5"></i>
+                    {% elif message.tags == 'info' %}
+                    <i class="fas fa-info-circle fs-5"></i>
+                    {% else %}
+                    <i class="fas fa-bell fs-5"></i>
                     {% endif %}
                 </div>
-                <div class="alert-content flex-grow-1">
+                <div class="flex-grow-1 fw-medium text-break">
                     {{ message }}
                 </div>
-                <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close flex-shrink-0 ms-3" data-bs-dismiss="alert"></button>
             </div>
         </div>
         {% endfor %}
     </div>
-</div>
-{% endif %}
+    {% endif %}
 
-<main class="flex-grow-1">
-    {% block content %}{% endblock %}
-</main>
+    <main class="flex-grow-1 py-4">
+        {% block content %}{% endblock %}
+    </main>
 
-<footer class="bg-dark text-white py-4 mt-5">
-    <div class="container text-center">
-        <p class="mb-0">© 2025 BookShare. Compartilhe histórias, não apenas livros.</p>
-    </div>
-</footer>
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-0">© 2025 BookShare. Compartilhe histórias, não apenas livros.</p>
+        </div>
+    </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adiciona classe active ao link do menu atual
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    // O template tag do Django já cuida dos links principais.
+                    // Esta lógica deve ser usada apenas se o Django falhar ou para links dinâmicos.
+                    // link.classList.add('active', 'bg-white', 'bg-opacity-10', 'fw-semibold');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ book.title }} - BookShare{% endblock %}
+{% block title %}{{ book.title }}{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -42,15 +42,15 @@
                         </span>
                         
                         <span class="badge 
-                            {% if book.status == 'av' %}bg-success
-                            {% elif book.status == 'un' %}bg-warning text-dark
-                            {% elif book.status == 'rs' %}bg-info
+                            {% if book.status == 'AVAILABLE' %}bg-success
+                            {% elif book.status == 'UNAVAILABLE' %}bg-warning text-dark
+                            {% elif book.status == 'RESERVED' %}bg-info
                             {% else %}bg-secondary{% endif %} 
                             fs-6">
                             <i class="fas 
-                                {% if book.status == 'av' %}fa-check-circle
-                                {% elif book.status == 'un' %}fa-clock
-                                {% elif book.status == 'rs' %}fa-user-clock
+                                {% if book.status == 'AVAILABLE' %}fa-check-circle
+                                {% elif book.status == 'UNAVAILABLE' %}fa-clock
+                                {% elif book.status == 'RESERVED' %}fa-user-clock
                                 {% else %}fa-question-circle{% endif %} me-1">
                             </i>
                             {{ book.get_status_display }}

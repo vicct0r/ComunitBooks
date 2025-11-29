@@ -171,16 +171,14 @@
                                     <small class="text-muted d-block">{{ loan.borrower.email }}</small>
                                 </div>
 
-                                <div class="flex-shrink-0 ms-3">
+                                <div class="flex-shrink-0 ms-0 ms-md-3 order-1 order-md-2">
                                     <a href="{% url 'user:profile' loan.borrower.id %}" class="text-decoration-none">
                                         {% if loan.borrower.img %}
-                                            <img src="{{ loan.borrower.img.url }}"
-                                                 alt="{{ loan.borrower.full_name }}"
-                                                 class="rounded-circle user-avatar-sm">
+                                        <img src="{{ loan.borrower.img.url }}" alt="{{ loan.borrower.full_name }}"
+                                            class="rounded-circle user-avatar-sm shadow-sm">
                                         {% else %}
-                                            <img src="{% static 'default_user.avif' %}"
-                                                 alt="{{ loan.borrower.full_name }}"
-                                                 class="rounded-circle user-avatar-sm">
+                                        <img src="{% static 'images/default_user.avif' %}" alt="Usuário sem foto"
+                                            class="rounded-circle user-avatar-sm shadow-sm">
                                         {% endif %}
                                     </a>
                                 </div>

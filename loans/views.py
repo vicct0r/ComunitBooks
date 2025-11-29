@@ -1,8 +1,6 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
-from datetime import timedelta
-from django.utils import timezone
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -10,8 +8,9 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.views import generic
 from .models import Order, Loan
 
-from . import services
-from .services import LoanService
+from .services import loan_service
+from .services.loan_service import LoanService
+from .services import notification
 from books.models import Book
 
 
@@ -19,7 +18,7 @@ class OrderCancelView(LoginRequiredMixin, generic.View):
 
     def post(self, request, pk):
         order = Order.objects.get(id=pk)
-        services.cancel_order(order)
+        loan_service.cancel_order(order)
         messages.success(request, 'O pedido foi cancelado.')
         return redirect('loans:orders_made_list')
 
@@ -119,11 +118,12 @@ class LoanCreateView(LoginRequiredMixin, generic.CreateView):
             loan.max_loan_period=order.required_days
             loan.save()
 
-            services.update_order_status(order, action)
+            loan_service.update_order_status(order, action)
             messages.success(self.request, "Pedido aprovado, emprestimo criado!")
+            notification.loan_approved(loan)
             return super().form_valid(form)
         else:
-            services.update_order_status(order, action) 
+            loan_service.update_order_status(order, action) 
             messages.info(self.request, "Este pedido foi recusado e arquivado!")
             return redirect(reverse('loans:orders_request_list'))
     

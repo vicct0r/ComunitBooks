@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
+from .services.loan_service import LoanService
 from .models import Loan, Order
 from books.models import Book
 
@@ -47,6 +48,82 @@ class OrderTests(TestCase):
     def test_order_creation(self):
         self.assertEqual(self.order.status, Order.SUBMITTED)
         self.assertEqual(self.borrower.id, self.order.borrower.id)
+
+
+class LoanTests(TestCase):
+    User = get_user_model()
     
+    def setUp(self):
 
+        self.owner_user = self.User.objects.create_user(
+            email='owner@example.com',
+            password='owner_password',
+            telefone='(61)1111-2222',
+        )
 
+        self.borrower_user = self.User.objects.create_user(
+            email='borrower@example.com',
+            password='borrower_password',
+            telefone='(61)3333-4444',
+        )
+
+        self.book_instance = Book.objects.create(
+            title="O Nome do Vento",
+            author="Patrick Rothfuss",
+            owner=self.owner_user,
+            condition=Book.NEW,
+            status=Book.AVAILABLE
+        )
+
+        self.loan_instance = Loan.objects.create(
+            borrower=self.borrower_user,
+            owner=self.owner_user, 
+            book=self.book_instance,
+            status=Loan.APPROVED,
+            max_loan_period=14, 
+            allows_renewal=True,
+            deposit_amount=10.00
+        )
+
+    def test_deny_loan(self):
+        service_instance = LoanService.deny_delivery(self.loan_instance.id)
+        self.loan_instance.refresh_from_db()
+        self.assertNotIn(self.loan_instance.status, [Loan.ACTIVE, Loan.ON_ROUTE])
+        self.assertEqual(self.loan_instance.status, Loan.CANCELLED)
+        self.assertEqual(self.loan_instance.book.status, Book.AVAILABLE)
+        self.assertNotEqual(self.loan_instance.book.status, Book.UNAVAILABLE)
+        self.assertIn('cancelado', service_instance)
+    
+    def test_accept_loan(self):
+        self.loan_instance.status = Loan.APPROVED
+        service_instance = LoanService.send_book(self.loan_instance.id)
+        self.loan_instance.refresh_from_db()
+        self.assertEqual(self.loan_instance.status, Loan.ON_ROUTE)
+        self.assertEqual(self.loan_instance.book.status, Book.UNAVAILABLE)
+        self.assertNotEqual(self.loan_instance.status, Loan.APPROVED)
+        self.assertNotEqual(self.loan_instance.book.status, Book.RESERVED)
+        self.assertIn('Envio', service_instance)
+
+    def test_confirm_delivery(self):
+        service_instance = LoanService.borrower_confirm_delivery(self.loan_instance.id)
+        self.loan_instance.refresh_from_db()
+        self.assertEqual(self.loan_instance.status, Loan.ACTIVE)
+        self.assertNotEqual(self.loan_instance.status, Loan.ON_ROUTE)
+        self.assertTrue(self.loan_instance.start_date)
+        self.assertTrue(self.loan_instance.due_date)
+        self.assertIn('Entrega', service_instance)
+
+    def test_return_book(self):
+        self.loan_instance.status = Loan.ACTIVE
+        service_instance = LoanService.borrower_return_book(self.loan_instance.id)
+        self.loan_instance.refresh_from_db()
+        self.assertEqual(self.loan_instance.status, Loan.IN_RETURN)
+        self.assertNotIn(self.loan_instance.status, [Loan.ACTIVE, Loan.ON_ROUTE, Loan.APPROVED])
+    
+    def test_confirm_return(self):
+        self.loan_instance.status = Loan.IN_RETURN
+        service_instance = LoanService.lender_confirm_delivery(self.loan_instance.id)
+        self.loan_instance.refresh_from_db()
+        self.assertTrue(self.loan_instance.returned_date)
+        self.assertEqual(self.loan_instance.status, Loan.COMPLETED)
+        self.assertEqual(self.loan_instance.book.status, Book.AVAILABLE)

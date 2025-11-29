@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.utils.timezone import timedelta
 
 from books.models import Book
+from .notification import sent, approve, completed, returned, delivered 
 from ..models import Loan, Order
 
 
@@ -51,6 +52,7 @@ class LoanService:
         loan.book.status = Book.UNAVAILABLE
         loan.save()
         loan.book.save()
+        sent(loan)
         return f"Envio confirmado. Emprestimo estará ativo assim que chegar para {loan.borrower.email}."
 
     @staticmethod
@@ -66,6 +68,7 @@ class LoanService:
         loan.due_date = timezone.now().date() + timedelta(days=loan.max_loan_period)
         loan.save()
         loan.book.save()
+        delivered(loan)
         return f"Entrega do livro {loan.book.title} foi confirmada."
 
     @staticmethod
@@ -79,6 +82,7 @@ class LoanService:
         loan.status = Loan.IN_RETURN
         loan.save()
         loan.book.save()
+        returned(loan)
         return f"Devolução do livro {loan.book.title} foi efetuada."
 
     @staticmethod
@@ -94,6 +98,7 @@ class LoanService:
         loan.returned_date = timezone.now()
         loan.save()
         loan.book.save()
+        completed(loan)
         return f"Seu livro {loan.book.title} foi marcado como devolvido."
     
     @staticmethod

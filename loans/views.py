@@ -10,7 +10,6 @@ from .models import Order, Loan
 
 from .services import loan_service
 from .services.loan_service import LoanService
-from .services import notification
 from books.models import Book
 
 
@@ -120,7 +119,7 @@ class LoanCreateView(LoginRequiredMixin, generic.CreateView):
 
             loan_service.update_order_status(order, action)
             messages.success(self.request, "Pedido aprovado, emprestimo criado!")
-            notification.loan_approved(loan)
+            notification.approve(loan)
             return super().form_valid(form)
         else:
             loan_service.update_order_status(order, action) 

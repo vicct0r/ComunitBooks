@@ -1,98 +1,581 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Perfil - {{ user.full_name }}{% endblock %}
+{% block title %}{{ user.full_name }} - Perfil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="profile-container">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="profile-card">
-                    <div class="profile-header">
-                        <div class="profile-avatar">
-                            {% if user.img %}
-                                <img src="{{ user.img.thumb.url }}" 
-                                     alt="{{ user.full_name }}" 
-                                     class="profile-avatar-img">
-                            {% else %}
-                                <img src="{% static 'images/default_user.avif' %}" 
-                                     alt="{{ user.full_name }}" 
-                                     class="profile-avatar-img">
-                            {% endif %}
+<div class="profile-app">
+    <!-- Header do Perfil -->
+    <div class="profile-header">
+        <div class="container">
+            <div class="profile-hero">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar-wrapper">
+                        {% if user.img %}
+                        <img src="{{ user.img.thumb.url }}" alt="{{ user.full_name }}" class="profile-avatar">
+                        {% else %}
+                        <div class="profile-avatar-default">
+                            <i class="fas fa-user"></i>
                         </div>
-                        <h2 class="profile-name">{{ user.full_name }}</h2>
-                        <p class="profile-email">{{ user.email }}</p>
+                        {% endif %}
+                        
+                        {% if user.is_verified %}
+                        <div class="profile-verified">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        {% endif %}
                     </div>
                     
-                    <div class="profile-body">
-                        <div class="profile-info">
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">Nome Completo:</span>
-                                <span class="profile-info-value">{{ user.full_name }}</span>
-                            </div>
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">E-mail:</span>
-                                <span class="profile-info-value">{{ user.email }}</span>
-                            </div>
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">Telefone:</span>
-                                <span class="profile-info-value">{{ user.telefone }}</span>
-                            </div>
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">Usuário desde:</span>
-                                <span class="profile-info-value">{{ user.date_joined|date:"d/m/Y" }}</span>
-                            </div>
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">Último login:</span>
-                                <span class="profile-info-value">{{ user.last_login|date:"d/m/Y H:i" }}</span>
-                            </div>
-                        </div>
+                    <div class="profile-mobile-actions">
+                        {% if user == request.user %}
+                        <a href="{% url 'user:profile_update' user.id %}" class="btn-mobile-edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="profile-info-main">
+                    <div class="profile-title-section">
+                        <h1 class="profile-name">{{ user.full_name|default:user.email }}</h1>
+                        <p class="profile-email">{{ user.email }}</p>
                         
-                        <div class="profile-actions">
-                            <a href="{% url 'account_change_password' %}" class="btn btn-outline-primary">
-                                🔒 Alterar Senha
-                            </a>
-                            <a href="{% url 'account_email' %}" class="btn btn-outline-primary">
-                                📧 Gerenciar E-mail
-                            </a>
-                            <a href="{% url 'books:user_library' pk=user.id %}" class="btn btn-primary">
-                                📚 Meus Livros
-                            </a>
+                        <div class="profile-meta">
+                            <span class="profile-meta-item">
+                                <i class="fas fa-calendar"></i>
+                                Membro desde {{ user.date_joined|date:"m/Y" }}
+                            </span>
+                            {% if user.telefone and user == request.user %}
+                            <span class="profile-meta-item">
+                                <i class="fas fa-phone"></i>
+                                {{ user.telefone }}
+                            </span>
+                            {% endif %}
                         </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <a href="{% url 'books:user_library' user_id=user.id %}" class="btn-primary">
+                            <i class="fas fa-book"></i>
+                            {% if user == request.user %}Minha Biblioteca{% else %}Ver Biblioteca{% endif %}
+                        </a>
+                        
+                        {% if user == request.user %}
+                        <a href="{% url 'books:create' %}" class="btn-secondary">
+                            <i class="fas fa-plus"></i>
+                            Adicionar Livro
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="container">
+        <div class="profile-content">
+            <!-- Sidebar para Desktop -->
+            <aside class="profile-sidebar">
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">Estatísticas</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ user.user_books.count }}</div>
+                            <div class="stat-label">Livros</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ loans_submitted }}</div>
+                            <div class="stat-label">Empréstimos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ loans_received }}</div>
+                            <div class="stat-label">Compartilhados</div>
+                        </div>
+                    </div> 
+                </div>
+
+                {% if user != request.user %}
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">Confiança</h3>
+                    <div class="trust-indicators">
+                        {% if user.is_verified %}
+                        <div class="trust-item verified">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Verificado</span>
+                        </div>
+                        {% endif %}
+                        {% if user.telefone %}
+                        <div class="trust-item contact">
+                            <i class="fas fa-phone"></i>
+                            <span>Contato disponível</span>
+                        </div>
+                        {% endif %}
+                        <div class="trust-item active">
+                            <i class="fas fa-users"></i>
+                            <span>Ativo na comunidade</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if user == request.user %}
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">Acesso Rápido</h3>
+                    <div class="quick-actions">
+                        <a href="{% url 'orders:submitted' %}" class="quick-action">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Meus Pedidos</span>
+                        </a>
+                        <a href="{% url 'orders:received' %}" class="quick-action">
+                            <i class="fas fa-inbox"></i>
+                            <span>Pedidos Recebidos</span>
+                        </a>
+                        <a href="{% url 'loans:submitted' %}" class="quick-action">
+                            <i class="fas fa-book-reader"></i>
+                            <span>Meus Empréstimos</span>
+                        </a>
+                        <a href="{% url 'loans:received' %}" class="quick-action">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Empréstimos Ativos</span>
+                        </a>
+                        <a href="{% url 'user:profile_update' user.pk %}" class="quick-action">
+                            <i class="fas fa-user-edit"></i>
+                            <span>Editar Perfil</span>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </aside>
+
+            <!-- Área de Conteúdo Principal -->
+            <main class="profile-main">
+                <!-- Navegação Mobile -->
+                <nav class="profile-mobile-nav">
+                    <button class="mobile-nav-btn active" data-tab="overview">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Visão Geral</span>
+                    </button>
+                    {% if user == request.user %}
+                    <button class="mobile-nav-btn" data-tab="activity">
+                        <i class="fas fa-history"></i>
+                        <span>Atividade</span>
+                    </button>
+                    <button class="mobile-nav-btn" data-tab="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Configurações</span>
+                    </button>
+                    {% else %}
+                    <button class="mobile-nav-btn" data-tab="community">
+                        <i class="fas fa-users"></i>
+                        <span>Comunidade</span>
+                    </button>
+                    {% endif %}
+                </nav>
+
+                <!-- Conteúdo das Abas -->
+                <div class="tab-content">
+                    <!-- Aba: Visão Geral -->
+                    <div class="tab-pane active" id="overview">
+                        <div class="content-section">
+                            <h2 class="section-title">
+                                {% if user == request.user %}Meu Dashboard{% else %}Atividade{% endif %}
+                            </h2>
+                            
+                            <div class="metrics-grid">
+                                <!-- Biblioteca -->
+                                <a href="{% url 'books:user_library' user_id=user.id %}" class="metric-card">
+                                    <div class="metric-header">
+                                        <i class="fas fa-book metric-icon"></i>
+                                        <h3 class="metric-title">Biblioteca</h3>
+                                    </div>
+                                    <div class="metric-value">{{ user.user_books.count }}</div>
+                                    <p class="metric-description">
+                                        {% if user == request.user %}
+                                        Seus livros disponíveis para troca
+                                        {% else %}
+                                        Livros disponíveis
+                                        {% endif %}
+                                    </p>
+                                </a>
+
+                                <!-- Empréstimos Ativos (Livros que PEGOU emprestado) -->
+                                <a href="{% url 'loans:submitted' %}" class="metric-card">
+                                    <div class="metric-header">
+                                        <i class="fas fa-book-reader metric-icon"></i>
+                                        <h3 class="metric-title">Empréstimos</h3>
+                                    </div>
+                                    <div class="metric-value">{{ loans_submitted }}</div>
+                                    <p class="metric-description">
+                                        {% if user == request.user %}
+                                        Livros que você pegou emprestado
+                                        {% else %}
+                                        Empréstimos recebidos
+                                        {% endif %}
+                                    </p>
+                                </a>
+
+                                {% if user == request.user %}
+                                <!-- Empréstimos Ativos (Livros que EMPRESTOU) -->
+                                <a href="{% url 'loans:received' %}" class="metric-card">
+                                    <div class="metric-header">
+                                        <i class="fas fa-exchange-alt metric-icon"></i>
+                                        <h3 class="metric-title">Compartilhados</h3>
+                                    </div>
+                                    <div class="metric-value">{{ loans_received }}</div>
+                                    <p class="metric-description">Livros que você emprestou para outros</p>
+                                </a>
+
+                                <!-- Pedidos Recebidos -->
+                                <a href="{% url 'orders:received' %}" class="metric-card">
+                                    <div class="metric-header">
+                                        <i class="fas fa-inbox metric-icon"></i>
+                                        <h3 class="metric-title">Pedidos Recebidos</h3>
+                                    </div>
+                                    <div class="metric-value">{{ orders_received }}</div>
+                                    <p class="metric-description">Solicitações dos seus livros</p>
+                                </a>
+                                
+                                {% else %}
+                                <!-- Empréstimos Compartilhados (para visitantes) -->
+                                <div class="metric-card">
+                                    <div class="metric-header">
+                                        <i class="fas fa-share metric-icon"></i>
+                                        <h3 class="metric-title">Compartilhados</h3>
+                                    </div>
+                                    <div class="metric-value">{{ loans_received }}</div>
+                                    <p class="metric-description">Livros emprestados para outros</p>
+                                </div>
+
+                                <!-- Experiência (para visitantes) -->
+                                <div class="metric-card highlight">
+                                    <div class="metric-header">
+                                        <i class="fas fa-handshake metric-icon"></i>
+                                        <h3 class="metric-title">Experiência</h3>
+                                    </div>
+                                    <div class="metric-value">{{ completed_loans|default:"0" }}</div>
+                                    <p class="metric-description">Trocas concluídas com sucesso</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if user == request.user %}
+                        <div class="content-section">
+                            <h2 class="section-title">Resumo de Atividade</h2>
+                            <div class="engagement-cards">
+                                <!-- Pedidos Feitos -->
+                                <a href="{% url 'orders:submitted' %}" class="engagement-card">
+                                    <div class="engagement-icon">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </div>
+                                    <div class="engagement-content">
+                                        <div class="engagement-value">{{ orders_submitted }}</div>
+                                        <div class="engagement-label">Pedidos Feitos</div>
+                                    </div>
+                                </a>
+                                
+                                <!-- Trocas Concluídas -->
+                                <div class="engagement-card">
+                                    <div class="engagement-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="engagement-content">
+                                        <div class="engagement-value">{{ completed_loans|default:"0" }}</div>
+                                        <div class="engagement-label">Trocas Concluídas</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Empréstimos Ativos -->
+                                <a href="{% url 'loans:submitted' %}" class="engagement-card">
+                                    <div class="engagement-icon">
+                                        <i class="fas fa-book-open"></i>
+                                    </div>
+                                    <div class="engagement-content">
+                                        <div class="engagement-value">{{ loans_submitted }}</div>
+                                        <div class="engagement-label">Empréstimos Ativos</div>
+                                    </div>
+                                </a>
+                                
+                                <!-- Favoritos -->
+                                <div class="engagement-card">
+                                    <div class="engagement-icon">
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                    <div class="engagement-content">
+                                        <div class="engagement-value">{{ user.favorite_books.count }}</div>
+                                        <div class="engagement-label">Favoritos</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Aba: Atividade -->
+                    {% if user == request.user %}
+                    <div class="tab-pane" id="activity">
+                        <div class="content-section">
+                            <h2 class="section-title">Atividade Recente</h2>
+                            
+                            <div class="activity-feed">
+                                <!-- Pedidos Recebidos -->
+                                {% if recent_received_orders %}
+                                <div class="activity-group">
+                                    <div class="activity-group-header">
+                                        <h3 class="activity-group-title">
+                                            <i class="fas fa-inbox"></i>
+                                            Pedidos Recebidos
+                                        </h3>
+                                        <a href="{% url 'orders:received' %}" class="activity-group-link">
+                                            Ver todos
+                                        </a>
+                                    </div>
+                                    {% for order in recent_received_orders|slice:":3" %}
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <p class="activity-text">
+                                                <strong>{{ order.borrower.full_name|default:order.borrower.email }}</strong>
+                                                solicitou <strong>{{ order.book.title }}</strong>
+                                            </p>
+                                            <span class="activity-time">{{ order.date_created|timesince }} atrás</span>
+                                        </div>
+                                        <div class="activity-badge status-{{ order.status }}">
+                                            {{ order.get_status_display }}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                <!-- Pedidos Feitos -->
+                                {% if recent_made_orders %}
+                                <div class="activity-group">
+                                    <div class="activity-group-header">
+                                        <h3 class="activity-group-title">
+                                            <i class="fas fa-paper-plane"></i>
+                                            Pedidos Feitos
+                                        </h3>
+                                        <a href="{% url 'orders:submitted' %}" class="activity-group-link">
+                                            Ver todos
+                                        </a>
+                                    </div>
+                                    {% for order in recent_made_orders|slice:":3" %}
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <p class="activity-text">
+                                                Você solicitou <strong>{{ order.book.title }}</strong>
+                                                de <strong>{{ order.book.owner.full_name|default:order.book.owner.email }}</strong>
+                                            </p>
+                                            <span class="activity-time">{{ order.date_created|timesince }} atrás</span>
+                                        </div>
+                                        <div class="activity-badge status-{{ order.status }}">
+                                            {{ order.get_status_display }}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                {% if not recent_received_orders and not recent_made_orders %}
+                                <div class="empty-state">
+                                    <i class="fas fa-history empty-icon"></i>
+                                    <h3>Nenhuma atividade recente</h3>
+                                    <p>Quando você começar a usar a plataforma, suas atividades aparecerão aqui.</p>
+                                    <a href="{% url 'books:library' %}" class="btn-primary">
+                                        Explorar Livros
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Aba: Comunidade (para outros usuários) -->
+                    {% if user != request.user %}
+                    <div class="tab-pane" id="community">
+                        <div class="content-section">
+                            <h2 class="section-title">Na Comunidade</h2>
+                            
+                            <div class="community-stats">
+                                <div class="community-stat">
+                                    <i class="fas fa-trophy"></i>
+                                    <div>
+                                        <h3>Membro desde {{ user.date_joined|date:"Y" }}</h3>
+                                        <p>Há mais de {{ user.date_joined|timesince }} na comunidade</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="community-stat">
+                                    <i class="fas fa-handshake"></i>
+                                    <div>
+                                        <h3>Experiência Comprovada</h3>
+                                        <p>
+                                            {% with total_loans=user.loan_borrower.count|add:user.loan_owner.count %}
+                                            {{ total_loans }} troca{{ total_loans|pluralize }} realizada{{ total_loans|pluralize }}
+                                            {% endwith %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="trust-section">
+                                <h3 class="trust-title">Sinais de Confiança</h3>
+                                <div class="trust-badges">
+                                    {% if user.is_verified %}
+                                    <div class="trust-badge">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Email Verificado</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if user.telefone %}
+                                    <div class="trust-badge">
+                                        <i class="fas fa-phone"></i>
+                                        <span>Contato Disponível</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="trust-badge">
+                                        <i class="fas fa-book"></i>
+                                        <span>{{ user.user_books.count }} Livro{{ user.user_books.count|pluralize }} para Troca</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Aba: Configurações -->
+                    {% if user == request.user %}
+                    <div class="tab-pane" id="settings">
+                        <div class="content-section">
+                            <h2 class="section-title">Configurações da Conta</h2>
+                            
+                            <div class="settings-grid">
+                                <a href="{% url 'user:profile_update' user.pk %}" class="setting-card">
+                                    <div class="setting-icon">
+                                        <i class="fas fa-user-edit"></i>
+                                    </div>
+                                    <div class="setting-content">
+                                        <h3>Perfil Público</h3>
+                                        <p>Atualize suas informações pessoais e foto</p>
+                                    </div>
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+
+                                <a href="{% url 'account_change_password' %}" class="setting-card">
+                                    <div class="setting-icon">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div class="setting-content">
+                                        <h3>Segurança</h3>
+                                        <p>Altere sua senha e configure a segurança</p>
+                                    </div>
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+
+                                <a href="{% url 'account_email' %}" class="setting-card">
+                                    <div class="setting-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="setting-content">
+                                        <h3>E-mails</h3>
+                                        <p>Gerencie endereços de email da conta</p>
+                                    </div>
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="content-section">
+                            <h2 class="section-title">Acesso às Funcionalidades</h2>
+                            <div class="feature-grid">
+                                <a href="{% url 'orders:submitted' %}" class="feature-card">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <h4>Meus Pedidos</h4>
+                                    <p>Solicitações de empréstimo que você fez</p>
+                                </a>
+                                <a href="{% url 'orders:received' %}" class="feature-card">
+                                    <i class="fas fa-inbox"></i>
+                                    <h4>Pedidos Recebidos</h4>
+                                    <p>Solicitações para seus livros</p>
+                                </a>
+                                <a href="{% url 'loans:submitted' %}" class="feature-card">
+                                    <i class="fas fa-book-reader"></i>
+                                    <h4>Meus Empréstimos</h4>
+                                    <p>Livros que você pegou emprestado</p>
+                                </a>
+                                <a href="{% url 'loans:received' %}" class="feature-card">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <h4>Empréstimos Ativos</h4>
+                                    <p>Livros que você emprestou</p>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="content-section">
+                            <h2 class="section-title">Privacidade</h2>
+                            <div class="privacy-notice">
+                                <i class="fas fa-info-circle"></i>
+                                <div class="privacy-content">
+                                    <h3>Visibilidade do Telefone</h3>
+                                    <p>Seu número de telefone é visível apenas para usuários com quem você tem empréstimos ativos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
 </div>
+{% endblock %}
 
-<style>
-.profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    margin: 0 auto 1.5rem;
-    overflow: hidden;
-    border: 4px solid var(--primary-color);
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-}
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sistema de abas mobile
+        const mobileNavBtns = document.querySelectorAll('.mobile-nav-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        mobileNavBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // Remove active de todos
+                mobileNavBtns.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                
+                // Adiciona active ao atual
+                this.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
 
-.profile-avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.profile-avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 2.5rem;
-    font-weight: bold;
-}
-</style>
+        // Efeitos hover simples
+        const clickableCards = document.querySelectorAll('.metric-card, .engagement-card, .feature-card, .setting-card');
+        clickableCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    });
+</script>
 {% endblock %}

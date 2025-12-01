@@ -1,10 +1,12 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
+from django.urls import reverse
 from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
 
-from .models import CustomUser
 from .forms import CustomUserCreationForm, CustomUserChangeForm
+from . import services
 
 
 class UserSignupView(generic.CreateView):
@@ -14,8 +16,27 @@ class UserSignupView(generic.CreateView):
     success_url = reverse_lazy('core:home')
 
 
-class UserProfileView(generic.DetailView):
+class UserProfileView(LoginRequiredMixin, generic.DetailView):
     template_name = 'usuarios/my_profile.html'
     model = get_user_model()
     context_object_name = 'user'
-    lookup_field = 'id'
+    pk_url_kwarg = 'user_id'
+
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+        context = super().get_context_data(**kwargs)
+        context['orders_received'] = services.orders_received(user)
+        context['loans_received'] = services.loans_received(user)
+        context['orders_submitted'] = services.orders_submitted(user)
+        context['loans_submitted'] = services.loans_submitted(user)
+        return context
+    
+
+class UserUpdateView(LoginRequiredMixin, generic.UpdateView):
+    template_name = 'usuarios/change_user_info.html'
+    model = get_user_model()
+    form_class = CustomUserChangeForm
+    pk_url_kwarg = 'user_id'
+
+    def get_success_url(self):
+        return reverse('user:profile', kwargs={'user_id': self.request.user.id})

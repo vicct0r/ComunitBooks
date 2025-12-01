@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from stdimage import StdImageField
+import uuid
 
+from stdimage import StdImageField
 
 class UsuarioManager(BaseUserManager):
     use_in_migrations = True
@@ -32,6 +33,7 @@ class UsuarioManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractUser):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = None
     email = models.EmailField('Email', unique=True, max_length=100)
     full_name = models.CharField(max_length=200, blank=True, null=True)

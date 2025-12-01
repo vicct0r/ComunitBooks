@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meus Empréstimos{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="display-5 fw-bold text-primary mb-2">
+                        <i class="fas fa-book-reader me-3"></i>Meus Empréstimos
+                    </h1>
+                    <p class="lead text-muted mb-0">Livros que você pegou emprestado de outros usuários</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary fs-6 px-3 py-2">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        {{ allowed_actions|length }} livro{{ allowed_actions|length|pluralize }}
+                    </span>
+                </div>
+            </div>
+
+            {% if allowed_actions %}
+            <div class="row">
+                {% for loan_item in allowed_actions %}
+                <div class="col-12 mb-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-0 pb-0">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <span class="badge 
+                                    {% if loan_item.loan.status == 'ac' %}bg-success
+                                    {% elif loan_item.loan.status == 'cm' %}bg-info
+                                    {% elif loan_item.loan.status == 'cn' %}bg-secondary
+                                    {% elif loan_item.loan.status == 'ov' %}bg-danger
+                                    {% else %}bg-warning text-dark{% endif %} 
+                                    fs-6 px-3 py-2">
+                                    <i class="fas 
+                                        {% if loan_item.loan.status == 'ac' %}fa-play-circle
+                                        {% elif loan_item.loan.status == 'cm' %}fa-check-circle
+                                        {% elif loan_item.loan.status == 'cn' %}fa-times-circle
+                                        {% elif loan_item.loan.status == 'ov' %}fa-exclamation-triangle
+                                        {% else %}fa-clock{% endif %} me-1">
+                                    </i>
+                                    {{ loan_item.loan.get_status_display }}
+                                </span>
+                                <small class="text-muted">Empréstimo #{{ loan_item.loan.id }}</small>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Informações do Livro -->
+                                <div class="col-md-6 mb-4">
+                                    <h5 class="fw-bold text-dark mb-3">
+                                        <i class="fas fa-book me-2 text-primary"></i>Livro
+                                    </h5>
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-shrink-0 me-3">
+                                            {% if loan_item.loan.book.cover_image %}
+                                            <img src="{{ loan_item.loan.book.cover_image.url }}" 
+                                                 alt="{{ loan_item.loan.book.title }}" 
+                                                 class="rounded shadow" style="width: 80px; height: 100px; object-fit: cover;">
+                                            {% else %}
+                                            <div class="rounded shadow d-flex align-items-center justify-content-center" 
+                                                 style="width: 80px; height: 100px; background: #f8f9fa; color: #6c757d;">
+                                                <i class="fas fa-book fa-2x"></i>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="fw-bold text-dark mb-1">{{ loan_item.loan.book.title }}</h6>
+                                            {% if loan_item.loan.book.author %}
+                                            <p class="text-muted small mb-2">por {{ loan_item.loan.book.author }}</p>
+                                            {% endif %}
+                                            <p class="text-muted small mb-0">De: 
+                                                {% if loan_item.loan.owner.full_name %}
+                                                    {{ loan_item.loan.owner.full_name }}
+                                                {% else %}
+                                                    {{ loan_item.loan.owner.email }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Informações do Empréstimo -->
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong class="text-dark d-block mb-1">
+                                                <i class="fas fa-calendar-plus me-2 text-primary"></i>Início
+                                            </strong>
+                                            <span class="text-muted">
+                                                {% if loan_item.loan.start_date %}
+                                                    {{ loan_item.loan.start_date|date:"d/m/Y" }}
+                                                {% else %}
+                                                    <em class="text-warning">A combinar</em>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong class="text-dark d-block mb-1">
+                                                <i class="fas fa-calendar-check me-2 text-primary"></i>Devolução
+                                            </strong>
+                                            <span class="{% if loan_item.loan.status == 'ov' %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                                {% if loan_item.loan.due_date %}
+                                                    {{ loan_item.loan.due_date|date:"d/m/Y" }}
+                                                {% else %}
+                                                    <em>A combinar</em>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if loan_item.loan.deposit_amount %}
+                                    <div class="mt-3">
+                                        <strong class="text-dark d-block mb-1">
+                                            <i class="fas fa-money-bill-wave me-2 text-primary"></i>Depósito
+                                        </strong>
+                                        <span class="badge bg-warning text-dark">
+                                            R$ {{ loan_item.loan.deposit_amount }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Ações Dinâmicas -->
+                            <div class="border-top pt-3 mt-3">
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% if "confirm_delivery" in loan_item.allowed_actions %}
+                                        <form method="post" action="{% url 'loans:update_status' loan_item.loan.id %}" class="d-inline confirm-delivery-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="confirm_delivery">
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check-circle me-1"></i>Confirmar Recebimento
+                                            </button>
+                                        </form>
+                                        {% endif %}
+
+                                        {% if "return_book" in loan_item.allowed_actions %}
+                                        <form method="post" action="{% url 'loans:update_status' loan_item.loan.id %}" class="d-inline return-book-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="return_book">
+                                            <button type="submit" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-undo me-1"></i>Devolver Livro
+                                            </button>
+                                        </form>
+                                        {% endif %}
+
+                                        {% if "renew" in loan_item.allowed_actions %}
+                                        <form method="post" action="{% url 'loans:update_status' loan_item.loan.id %}" class="d-inline renew-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="renew">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-sync me-1"></i>Solicitar Renovação
+                                            </button>
+                                        </form>
+                                        {% endif %}
+
+                                        {% if "waiting_confirm" in loan_item.allowed_actions %}
+                                        <span class="badge bg-info text-dark align-self-center">
+                                            <i class="fas fa-clock me-1"></i>Aguardando Envio
+                                        </span>
+                                        {% endif %}
+
+                                        {% if "on_route" in loan_item.allowed_actions %}
+                                        <span class="badge bg-warning text-dark align-self-center">
+                                            <i class="fas fa-truck me-1"></i>Livro em Trânsito
+                                        </span>
+                                        {% endif %}
+
+                                        {% if "loan_active" in loan_item.allowed_actions %}
+                                        <span class="badge bg-success align-self-center">
+                                            <i class="fas fa-play-circle me-1"></i>Empréstimo Ativo
+                                        </span>
+                                        {% endif %}
+
+                                        <a href="{% url 'books:detail' loan_item.loan.book.id %}" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-eye me-1"></i>Ver Detalhes
+                                        </a>
+
+                                        {% if loan_item.loan.owner.telefone %}
+                                        <a href="tel:{{ loan_item.loan.owner.telefone }}" class="btn btn-outline-info btn-sm">
+                                            <i class="fas fa-phone me-1"></i>Contatar
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-check me-1"></i>
+                                        Aprovado em {{ loan_item.loan.approved_date|date:"d/m/Y" }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-book-open fa-4x text-muted"></i>
+                </div>
+                <h3 class="text-muted mb-3">
+                    Nenhum livro em uso no momento
+                </h3>
+                <p class="text-muted mb-4">
+                    Você ainda não possui livros emprestados de outros usuários.
+                </p>
+                <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                    <a href="{% url 'books:library' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Buscar Livros para Emprestar
+                    </a>
+                    <a href="{% url 'orders:submitted' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-history me-2"></i>Ver Meus Pedidos
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Confirmação para ação de confirmar recebimento
+    document.querySelectorAll('.confirm-delivery-form button[type="submit"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!confirm('Tem certeza que recebeu o livro?\n\nEsta ação não pode ser desfeita.')) {
+                return false;
+            }
+            const form = this.closest('.confirm-delivery-form');
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Confirmando...';
+            this.disabled = true;
+            setTimeout(() => form.submit(), 500);
+        });
+    });
+    
+    // Confirmação para ação de devolver livro
+    document.querySelectorAll('.return-book-form button[type="submit"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!confirm('Tem certeza que deseja devolver o livro?\n\nO proprietário será notificado.')) {
+                return false;
+            }
+            const form = this.closest('.return-book-form');
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Devolvendo...';
+            this.disabled = true;
+            setTimeout(() => form.submit(), 500);
+        });
+    });
+    
+    // Confirmação para ação de solicitar renovação
+    document.querySelectorAll('.renew-form button[type="submit"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!confirm('Deseja solicitar renovação do empréstimo?\n\nO proprietário será notificado.')) {
+                return false;
+            }
+            const form = this.closest('.renew-form');
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Solicitando...';
+            this.disabled = true;
+            setTimeout(() => form.submit(), 500);
+        });
+    });
+});
+</script>
+{% endblock %}

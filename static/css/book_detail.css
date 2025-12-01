@@ -1,130 +1,464 @@
-/* Sistema de Cores para Status e Condição - Book Detail */
-.book-detail-info .status-available,
-.book-detail-cover .status-available {
-    background: linear-gradient(135deg, #10b981, #059669) !important;
-    color: white !important;
-    border: none !important;
+/* ===== VARIÁVEIS BOOK DETAIL ===== */
+:root {
+    --book-detail-spacing: 2rem;
+    --book-cover-width: 400px;
+    --book-cover-height: 560px;
+    --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --card-shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
-.book-detail-info .status-borrowed,
-.book-detail-cover .status-borrowed {
-    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-    color: white !important;
-    border: none !important;
+/* ===== LAYOUT PRINCIPAL ===== */
+.book-detail-container {
+    padding: 2rem 0;
+    background: #f8fafc;
+    min-height: calc(100vh - 200px);
 }
 
-.book-detail-info .status-reserved, 
-.book-detail-cover .status-reserved {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
-    color: white !important;
-    border: none !important;
+.book-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(300px, 400px) 1fr;
+    gap: 3rem;
+    align-items: start;
 }
 
-.book-detail-info .status-maintenance,
-.book-detail-cover .status-maintenance {
-    background: linear-gradient(135deg, #6b7280, #4b5563) !important;
-    color: white !important;
-    border: none !important;
+/* ===== COLUNA DA CAPA ===== */
+.book-cover-column {
+    position: sticky;
+    top: 2rem;
 }
 
-.book-detail-info .condition-new,
-.book-detail-cover .condition-new {
-    background: linear-gradient(135deg, #10b981, #047857) !important;
-    color: white !important;
-    border: none !important;
-}
-
-.book-detail-info .condition-good,
-.book-detail-cover .condition-good {
-    background: linear-gradient(135deg, #3b82f6, #1e40af) !important;
-    color: white !important;
-    border: none !important;
-}
-
-.book-detail-info .condition-regular,
-.book-detail-cover .condition-regular {
-    background: linear-gradient(135deg, #f59e0b, #b45309) !important;
-    color: white !important;
-    border: none !important;
-}
-
-.book-detail-info .condition-bad,
-.book-detail-cover .condition-bad {
-    background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
-    color: white !important;
-    border: none !important;
-}
-
-/* Categorias */
-.book-detail-info .category-badge {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
-    color: white !important;
-    border: none !important;
-    font-weight: 500;
-}
-
-/* Efeitos hover para badges */
-.book-detail-badge {
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-}
-
-.book-detail-badge:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-}
-
-/* Animações para ícones de status */
-.book-detail-info .status-available .fa-check-circle,
-.book-detail-info .condition-new .fa-star,
-.book-detail-cover .status-available .fa-check-circle,
-.book-detail-cover .condition-new .fa-star {
-    animation: badge-pulse 2s infinite;
-}
-
-.book-detail-info .status-borrowed .fa-clock,
-.book-detail-cover .status-borrowed .fa-clock {
-    animation: badge-rotate 3s linear infinite;
-}
-
-@keyframes badge-pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
-
-@keyframes badge-rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* Layout específico para book detail */
-.book-detail-cover {
-    border-radius: 16px;
+.book-cover-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
     overflow: hidden;
-    position: relative;
+    border: 1px solid #e5e7eb;
 }
 
-.book-detail-img {
+.book-cover-wrapper {
+    position: relative;
+    aspect-ratio: 2/3;
+    overflow: hidden;
+}
+
+.book-cover-image {
     width: 100%;
-    height: 400px;
+    height: 100%;
     object-fit: cover;
 }
 
-/* Garantir que os badges fiquem acima da imagem */
-.book-detail-cover .badge {
+.book-cover-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 4rem;
+}
+
+.book-badges {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     z-index: 10;
 }
 
-/* Responsividade específica */
-@media (max-width: 768px) {
-    .book-detail-img {
-        height: 350px;
+.book-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: white;
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.book-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+/* Cores dos Status */
+.status-av {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.status-un {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.status-rs {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+/* Cores das Condições */
+.condition-nw {
+    background: linear-gradient(135deg, #10b981, #047857);
+}
+
+.condition-gd {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+}
+
+.condition-fr {
+    background: linear-gradient(135deg, #f59e0b, #b45309);
+}
+
+.condition-dm {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+
+/* ===== AÇÕES DO LIVRO ===== */
+.book-actions {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-borrow {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.btn-borrow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+    color: white;
+}
+
+.favorite-form {
+    margin: 0;
+}
+
+.owner-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* ===== COLUNA DAS INFORMAÇÕES ===== */
+.book-info-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Cabeçalho */
+.book-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e5e7eb;
+}
+
+.book-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1f2937;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+}
+
+.book-author {
+    font-size: 1.25rem;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+}
+
+.book-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-badge {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+}
+
+.category-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+/* Proprietário */
+.owner-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e5e7eb;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.owner-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.owner-avatar {
+    flex-shrink: 0;
+}
+
+.avatar-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e5e7eb;
+}
+
+.avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    border: 3px solid #e5e7eb;
+}
+
+.owner-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.owner-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.owner-email {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Estatísticas */
+.book-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem 1rem;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e5e7eb;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: white;
+}
+
+.stat-icon.condition {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.stat-icon.status {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.stat-icon.date {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.stat-icon.favorites {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+}
+
+.stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Descrição */
+.description-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e5e7eb;
+}
+
+.description-content {
+    color: #4b5563;
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.description-content p {
+    margin-bottom: 1rem;
+}
+
+.description-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 1024px) {
+    .book-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .book-cover-column {
+        position: static;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .book-title {
+        font-size: 2rem;
     }
 }
 
-@media (max-width: 576px) {
-    .book-detail-img {
-        height: 280px;
+@media (max-width: 768px) {
+    .book-detail-container {
+        padding: 1rem 0;
+    }
+    
+    .book-title {
+        font-size: 1.75rem;
+    }
+    
+    .book-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .book-actions .btn {
+        width: 100%;
+    }
+    
+    .owner-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .book-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .book-header,
+    .owner-card,
+    .description-card {
+        padding: 1.25rem;
+    }
+    
+    .book-title {
+        font-size: 1.5rem;
+    }
+    
+    .book-badges {
+        top: 0.5rem;
+        left: 0.5rem;
+    }
+    
+    .book-badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.75rem;
+    }
+}
+
+/* ===== ANIMAÇÕES ===== */
+@media (prefers-reduced-motion: no-preference) {
+    .book-cover-card,
+    .book-header,
+    .owner-card,
+    .stat-card,
+    .description-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .book-badge.status-av .fa-check-circle,
+    .book-badge.condition-nw .fa-star {
+        animation: badge-pulse 2s infinite;
+    }
+    
+    .book-badge.status-un .fa-clock {
+        animation: badge-rotate 3s linear infinite;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes badge-pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+    
+    @keyframes badge-rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
 }

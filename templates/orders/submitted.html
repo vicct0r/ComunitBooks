@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meus Pedidos - CommunityBooks{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/orders.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-5 fw-bold text-dark mb-2">
+                        <i class="fas fa-paper-plane me-3"></i>Meus Pedidos
+                    </h1>
+                    <p class="lead text-muted">Acompanhe os pedidos de empréstimo que você enviou</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary fs-6 px-3 py-2 order-count-badge">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        {{ orders|length }} pedido{{ orders|length|pluralize }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if orders %}
+    <div class="row">
+        {% for order in orders %}
+        <div class="col-12 mb-4">
+            <div class="order-card card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="order-status-badge badge 
+                            {% if order.status == 'pr' %}bg-warning text-dark
+                            {% elif order.status == 'ap' %}bg-success
+                            {% elif order.status == 'dn' %}bg-danger
+                            {% else %}bg-light text-dark{% endif %} 
+                            fs-6 px-3 py-2">
+                            <i class="fas 
+                                {% if order.status == 'pr' %}fa-clock
+                                {% elif order.status == 'ap' %}fa-check-circle
+                                {% elif order.status == 'dn' %}fa-times-circle
+                                {% else %}fa-question{% endif %} me-1"></i>
+                            {{ order.get_status_display }}
+                        </span>
+                        <small class="text-muted">{{ order.date_created|date:"d/m/Y H:i" }}</small>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h5 class="fw-bold text-dark mb-3">
+                                <i class="fas fa-book me-2 text-primary"></i>Livro Solicitado
+                            </h5>
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if order.book.cover_image %}
+                                    <img src="{{ order.book.cover_image.optimized.url }}" 
+                                         alt="{{ order.book.title }}"
+                                         class="order-book-cover rounded shadow"
+                                         loading="lazy">
+                                    {% else %}
+                                    <div class="order-book-placeholder rounded shadow d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-book-open text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold text-dark mb-1">{{ order.book.title }}</h6>
+                                    {% if order.book.author %}
+                                    <p class="text-muted small mb-2">por {{ order.book.author }}</p>
+                                    {% endif %}
+                                    <span class="badge bg-light text-dark border small">
+                                        <i class="fas fa-user me-1"></i>Dono: {{ order.book.owner.get_full_name|default:order.book.owner.username }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong class="text-dark d-block mb-1">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>Duração Solicitada
+                                </strong>
+                                <span class="badge bg-primary fs-6 px-3 py-2 order-duration-badge">
+                                    {{ order.required_days }} dia{{ order.required_days|pluralize }}
+                                </span>
+                            </div>
+                            <div class="mb-3">
+                                <strong class="text-dark d-block mb-1">
+                                    <i class="fas fa-comment me-2 text-primary"></i>Mensagem
+                                </strong>
+                                {% if order.description %}
+                                <p class="text-muted mb-0 order-message">{{ order.description }}</p>
+                                {% else %}
+                                <p class="text-muted fst-italic mb-0 order-message">Nenhuma mensagem fornecida</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if order.status == 'pr' %}
+                    <div class="order-actions border-top pt-3 mt-3">
+                        <div class="d-flex justify-content-end">
+                            <form action="{% url 'orders:cancel' order.id %}" method="post" class="d-inline cancel-form">
+                                {% csrf_token %}
+                                <button type="submit" name="action" value="cancel" 
+                                        class="btn btn-danger px-4 order-action-btn cancel-btn">
+                                    <i class="fas fa-times me-2"></i>Cancelar Pedido
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="empty-state text-center py-5">
+                <div class="empty-icon mb-4">
+                    <i class="fas fa-paper-plane display-1 text-muted"></i>
+                </div>
+                <h3 class="empty-title h4 text-dark mb-3">Nenhum pedido enviado</h3>
+                <p class="empty-text text-muted mb-4">Quando você solicitar empréstimos de livros, os pedidos aparecerão aqui.</p>
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                    <a href="{% url 'books:library' %}" class="btn btn-primary">
+                        <i class="fas fa-book me-2"></i>Explorar Livros
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Confirmação para ação de cancelar
+    document.querySelectorAll('.cancel-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (!confirm('Tem certeza que deseja CANCELAR este pedido?\n\nO dono do livro será notificado.')) {
+                return false;
+            }
+            
+            // Adicionar feedback visual
+            const originalText = this.innerHTML;
+            this.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Cancelando...`;
+            this.disabled = true;
+            
+            // Submeter o formulário
+            const form = this.closest('.cancel-form');
+            setTimeout(() => {
+                form.submit();
+            }, 500);
+        });
+    });
+    
+    // Animação dos cards
+    const cards = document.querySelectorAll('.order-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+            card.style.transition = 'all 0.5s ease';
+        }, 100 * index);
+    });
+});
+</script>
+{% endblock %}

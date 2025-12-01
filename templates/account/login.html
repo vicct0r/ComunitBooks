@@ -1,27 +1,350 @@
-{% extends "base.html" %}
-{% load crispy_forms_tags %}
+{% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Login - CommunityBooks{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h4 class="card-title mb-3">Entrar</h4>
-          <form method="post" action="{% url 'account_login' %}">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button type="submit" class="btn btn-primary w-100 mt-3">Entrar</button>
-          </form>
-          <div class="text-center mt-3">
-            <a href="{% url 'user:signup' %}">Criar conta</a> |
-            <a href="{% url 'account_reset_password' %}">Esqueceu a senha?</a>
-          </div>
-        </div>
-      </div>
+<div class="auth-container">
+    <div class="auth-background">
+        <!-- Background com elementos decorativos -->
+        <div class="auth-shape auth-shape-1"></div>
+        <div class="auth-shape auth-shape-2"></div>
+        <div class="auth-shape auth-shape-3"></div>
     </div>
-  </div>
+
+    <div class="container">
+        <div class="auth-layout">
+            <!-- Lado Esquerdo: Conteúdo de Apresentação -->
+            <div class="auth-hero">
+                <div class="auth-hero-content">
+                    <a href="{% url 'core:home' %}" class="auth-logo">
+                        <div class="logo-wrapper">
+                            <img src="{% static 'images/www.png' %}" alt="CommunityBooks" class="logo-icon">
+                            <span class="logo-text">CommunityBooks</span>
+                        </div>
+                    </a>
+
+                    <div class="hero-main">
+                        <h1 class="hero-title">
+                            Bem-vindo de
+                            <span class="gradient-text">volta</span>
+                        </h1>
+                        
+                        <p class="hero-description">
+                            Continue sua jornada literária. Acesse sua conta para explorar novos livros, 
+                            gerenciar sua biblioteca e conectar-se com outros leitores.
+                        </p>
+
+                        <div class="hero-features">
+                            <div class="feature-item">
+                                <i class="fas fa-book-open feature-icon"></i>
+                                <span>Acesse sua biblioteca</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-exchange-alt feature-icon"></i>
+                                <span>Gerencie empréstimos</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-bell feature-icon"></i>
+                                <span>Veja suas notificações</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-footer">
+                        <p>Não tem uma conta ainda?</p>
+                        <a href="{% url 'user:signup' %}" class="btn-login-link">
+                            Criar Conta <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lado Direito: Formulário -->
+            <div class="auth-form-section">
+                <div class="auth-form-container">
+                    <div class="auth-form-header">
+                        <h2 class="form-title">Entrar</h2>
+                        <p class="form-subtitle">Acesse sua conta para continuar</p>
+                    </div>
+
+                    <form method="post" action="{% url 'account_login' %}" class="auth-form" id="loginForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div class="alert-content">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="id_login" class="form-label">
+                                Email *
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input type="email" 
+                                       class="form-input {% if form.login.errors %}input-error{% endif %}" 
+                                       id="id_login" 
+                                       name="login" 
+                                       placeholder="seu@email.com"
+                                       value="{{ form.login.value|default:'' }}"
+                                       required
+                                       autocomplete="email">
+                            </div>
+                            {% if form.login.errors %}
+                            <div class="error-message">
+                                {% for error in form.login.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Senha -->
+                        <div class="form-group">
+                            <div class="form-label-wrapper">
+                                <label for="id_password" class="form-label">
+                                    Senha *
+                                </label>
+                                <a href="{% url 'account_reset_password' %}" class="forgot-password">
+                                    Esqueceu a senha?
+                                </a>
+                            </div>
+                            <div class="input-wrapper">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" 
+                                       class="form-input {% if form.password.errors %}input-error{% endif %}" 
+                                       id="id_password" 
+                                       name="password" 
+                                       placeholder="Sua senha"
+                                       required
+                                       autocomplete="current-password">
+                                <button type="button" class="password-toggle" data-target="id_password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                            <div class="error-message">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Lembrar de mim -->
+                        <div class="form-group remember-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="id_remember" name="remember" class="checkbox-input">
+                                <span class="checkbox-checkmark"></span>
+                                <span class="checkbox-label">
+                                    Lembrar de mim
+                                </span>
+                            </label>
+                        </div>
+
+                        {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                        {% endif %}
+
+                        <!-- Botão de Submit -->
+                        <button type="submit" class="btn btn-primary auth-submit-btn" id="submitBtn">
+                            <span class="btn-text">Entrar na Minha Conta</span>
+                            <div class="btn-loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+
+                        <!-- Divisor -->
+                        <div class="auth-divider">
+                            <span>ou</span>
+                        </div>
+
+                        <!-- Criar Conta -->
+                        <div class="quick-signup">
+                            <p class="quick-signup-text">Não tem uma conta?</p>
+                            <a href="{% url 'user:signup' %}" class="btn btn-secondary">
+                                Criar Nova Conta
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Links Adicionais -->
+                    <div class="auth-links">
+                        <a href="{% url 'core:home' %}" class="auth-link">
+                            <i class="fas fa-arrow-left"></i>
+                            Voltar para a página inicial
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+    
+    // Toggle de senha
+    document.querySelectorAll('.password-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        });
+    });
+    
+    // Auto-focus no campo de email
+    const emailInput = document.getElementById('id_login');
+    if (emailInput) {
+        emailInput.focus();
+    }
+    
+    // Submit handler
+    if (form) {
+        form.addEventListener('submit', function() {
+            btnText.style.opacity = '0';
+            btnLoading.style.display = 'flex';
+            submitBtn.disabled = true;
+        });
+    }
+    
+    // Validação em tempo real
+    const inputs = document.querySelectorAll('.form-input');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() !== '') {
+                this.classList.add('input-filled');
+            } else {
+                this.classList.remove('input-filled');
+            }
+        });
+        
+        // Enter para submit
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && form.checkValidity()) {
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
+    });
+    
+    // Demo credentials para desenvolvimento (remover em produção)
+    const demoCredentials = {
+        email: 'demo@communitybooks.com',
+        password: 'demopass123'
+    };
+    
+    // Botão de preenchimento rápido (apenas em desenvolvimento)
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const demoBtn = document.createElement('button');
+        demoBtn.type = 'button';
+        demoBtn.className = 'btn-demo';
+        demoBtn.innerHTML = '<i class="fas fa-magic"></i> Preencher Demo';
+        demoBtn.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        `;
+        
+        demoBtn.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = 'var(--shadow-lg)';
+        });
+        
+        demoBtn.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'var(--shadow)';
+        });
+        
+        demoBtn.addEventListener('click', function() {
+            if (emailInput) emailInput.value = demoCredentials.email;
+            if (document.getElementById('id_password')) {
+                document.getElementById('id_password').value = demoCredentials.password;
+            }
+            
+            // Animar os campos
+            inputs.forEach(input => {
+                input.classList.add('input-filled');
+                input.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    input.style.transform = 'scale(1)';
+                }, 200);
+            });
+            
+            // Mostrar toast
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--success);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: var(--shadow-lg);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.innerHTML = '<i class="fas fa-check-circle"></i> Credenciais preenchidas!';
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        });
+        
+        document.body.appendChild(demoBtn);
+        
+        // Adicionar estilos de animação
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+});
+</script>
 {% endblock %}

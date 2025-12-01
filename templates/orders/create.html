@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Solicitar Empréstimo {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <!-- Cabeçalho -->
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold text-primary mb-3">
+                    <i class="fas fa-handshake me-2"></i>Solicitar Empréstimo
+                </h1>
+                <p class="lead text-muted">Preencha os dados para solicitar o empréstimo deste livro</p>
+            </div>
+
+            <!-- Card do Livro -->
+            <div class="card border-0 shadow-lg mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center">
+                            {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" 
+                                 class="img-fluid rounded shadow" 
+                                 style="max-height: 150px; object-fit: cover;"
+                                 alt="Capa do livro {{ book.title }}">
+                            {% else %}
+                            <img src="{% static 'images/book_icon.png' %}" 
+                                 class="img-fluid rounded shadow" 
+                                 style="max-height: 150px; object-fit: cover;"
+                                 alt="Capa do livro {{ book.title }}">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-9">
+                            <h4 class="card-title fw-bold text-dark mb-2">{{ book.title }}</h4>
+                            {% if book.author %}
+                            <h5 class="card-subtitle text-muted mb-3">por {{ book.author }}</h5>
+                            {% endif %}
+                            
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-tag me-1"></i>
+                                    {% for category in book.category.all %}
+                                        {{ category.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    {{ book.get_status_display }}
+                                </span>
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-star me-1"></i>
+                                    {{ book.get_condition_display }}
+                                </span>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if book.owner.img %}
+                                    <img src="{{ book.owner.img.url }}" 
+                                         alt="{{ book.owner.full_name }}" 
+                                         class="rounded-circle"
+                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                    <img src="{% static 'images/default_user.avif' %}" 
+                                         alt="{{ book.owner.full_name }}" 
+                                         class="rounded-circle"
+                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong class="d-block text-dark">
+                                        Proprietário: 
+                                        {% if book.owner.full_name %}
+                                            {{ book.owner.full_name }}
+                                        {% else %}
+                                            {{ book.owner.email }}
+                                        {% endif %}
+                                    </strong>
+                                    <small class="text-muted">Membro desde {{ book.owner.date_joined|date:"m/Y" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulário de Solicitação -->
+            <div class="card border-0 shadow">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Dados do Empréstimo
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Formulário Crispy customizado manualmente -->
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Campo Descrição com Crispy -->
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label fw-bold fs-5">
+                                <i class="fas fa-comment text-primary me-2"></i>{{ form.description.label }}
+                            </label>
+                            {{ form.description|as_crispy_field }}
+                            <div class="form-text text-muted mt-1">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                Explique por que você gostaria de emprestar este livro e como pretende utilizá-lo.
+                            </div>
+                        </div>
+
+                        <!-- Campo Dias Requeridos com Crispy -->
+                        <div class="mb-4">
+                            <label for="{{ form.required_days.id_for_label }}" class="form-label fw-bold fs-5">
+                                <i class="fas fa-calendar text-primary me-2"></i>{{ form.required_days.label }}
+                            </label>
+                            {{ form.required_days|as_crispy_field }}
+                            <div class="form-text text-muted mt-1">
+                                <i class="fas fa-clock me-1"></i>
+                                Selecione por quantos dias você precisa do livro.
+                            </div>
+                        </div>
+
+                        <!-- Informações Importantes -->
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-info-circle me-2"></i>Informações importantes
+                            </h6>
+                            <ul class="mb-0 mt-2">
+                                <li>O proprietário será notificado da sua solicitação</li>
+                                <li>Você será responsável pelo livro durante o período do empréstimo</li>
+                                <li>O proprietário pode aceitar ou recusar sua solicitação</li>
+                                <li>Em caso de aceitação, combinem os detalhes de entrega/devolução</li>
+                            </ul>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <a href="{{ book.get_absolute_url }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar para o Livro
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Solicitação
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos para melhorar a aparência dos campos crispy */
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+    
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .form-select {
+        padding: 0.75rem;
+    }
+    
+    .card {
+        border-radius: 15px;
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+    
+    /* Melhorar a aparência dos campos crispy */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Estilo para os labels dos campos */
+    .form-label {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Perfil - CommunityBooks{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_edit.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-edit-container">
+    <!-- Cabeçalho -->
+    <div class="profile-edit-header">
+        <h1 class="profile-edit-title">
+            <i class="fas fa-user-edit me-2"></i>
+            Editar Perfil
+        </h1>
+        <p class="profile-edit-subtitle">
+            Atualize suas informações pessoais e foto de perfil
+        </p>
+    </div>
+
+    <!-- Formulário -->
+    <div class="profile-edit-card">
+        <div class="profile-edit-card-header">
+            <h2 class="profile-edit-card-title">
+                <i class="fas fa-id-card"></i>
+                Informações Pessoais
+            </h2>
+        </div>
+
+        <div class="profile-edit-card-body">
+            <form method="post" enctype="multipart/form-data" id="profileEditForm">
+                {% csrf_token %}
+                
+                <!-- Mensagens de erro gerais -->
+                {% if form.non_field_errors %}
+                <div class="form-error-message">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    {% for error in form.non_field_errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Seção: Foto de Perfil -->
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-camera"></i>
+                        Foto de Perfil
+                    </h3>
+                    
+                    <div class="avatar-upload-section">
+                        <!-- Avatar Atual -->
+                        <div class="avatar-preview">
+                            {% if user.img %}
+                            <img src="{{ user.img.url }}" alt="Avatar atual" class="current-avatar" id="avatarPreview">
+                            {% else %}
+                            <div class="avatar-placeholder" id="avatarPreviewPlaceholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Controles de Upload -->
+                        <div class="avatar-upload-controls">
+                            <div class="file-input-wrapper">
+                                <input type="file" 
+                                       id="{{ form.img.id_for_label }}" 
+                                       name="{{ form.img.name }}" 
+                                       accept="image/*" 
+                                       class="file-input" 
+                                       onchange="previewAvatar(this)">
+                                <label for="{{ form.img.id_for_label }}" class="file-input-btn">
+                                    <i class="fas fa-upload"></i>
+                                    Escolher nova foto
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 2MB.
+                            </div>
+                            <div id="fileName" class="file-name"></div>
+                            {% if form.img.errors %}
+                            <div class="form-error">
+                                {% for error in form.img.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seção: Informações Básicas -->
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-user"></i>
+                        Informações Básicas
+                    </h3>
+                    
+                    <!-- Nome Completo -->
+                    <div class="form-group">
+                        <label for="{{ form.full_name.id_for_label }}" class="form-label required-field">
+                            Nome Completo
+                        </label>
+                        <input type="text" 
+                               id="{{ form.full_name.id_for_label }}" 
+                               name="{{ form.full_name.name }}" 
+                               value="{{ form.full_name.value|default:'' }}" 
+                               class="form-input" 
+                               placeholder="Digite seu nome completo"
+                               required>
+                        {% if form.full_name.help_text %}
+                        <div class="form-text">{{ form.full_name.help_text }}</div>
+                        {% endif %}
+                        {% if form.full_name.errors %}
+                        <div class="form-error">
+                            {% for error in form.full_name.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Telefone -->
+                    <div class="form-group">
+                        <label for="{{ form.telefone.id_for_label }}" class="form-label">
+                            <i class="fas fa-phone me-1"></i>
+                            Telefone
+                        </label>
+                        <input type="tel" 
+                               id="{{ form.telefone.id_for_label }}" 
+                               name="{{ form.telefone.name }}" 
+                               value="{{ form.telefone.value|default:'' }}" 
+                               class="form-input" 
+                               placeholder="(11) 99999-9999">
+                        {% if form.telefone.help_text %}
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            {{ form.telefone.help_text }}
+                        </div>
+                        {% endif %}
+                        {% if form.telefone.errors %}
+                        <div class="form-error">
+                            {% for error in form.telefone.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Ações -->
+                <div class="form-actions">
+                    <a href="{% url 'user:profile' user.id %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Informações Adicionais -->
+    <div class="profile-edit-info">
+        <div class="info-card">
+            <div class="info-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="info-content">
+                <h4>Privacidade e Segurança</h4>
+                <p>Seu número de telefone é visível apenas para usuários com quem você tem empréstimos ativos.</p>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-icon">
+                <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="info-content">
+                <h4>Atualizações em Tempo Real</h4>
+                <p>Suas alterações serão refletidas imediatamente em toda a plataforma.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Preview da imagem do avatar
+        window.previewAvatar = function(input) {
+            const fileName = document.getElementById('fileName');
+            const avatarPreview = document.getElementById('avatarPreview');
+            const avatarPlaceholder = document.getElementById('avatarPreviewPlaceholder');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                fileName.textContent = file.name;
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    if (avatarPreview) {
+                        avatarPreview.src = e.target.result;
+                    } else if (avatarPlaceholder) {
+                        avatarPlaceholder.style.display = 'none';
+                        const newImg = document.createElement('img');
+                        newImg.src = e.target.result;
+                        newImg.className = 'current-avatar';
+                        newImg.id = 'avatarPreview';
+                        avatarPlaceholder.parentNode.appendChild(newImg);
+                    }
+                }
+                
+                reader.readAsDataURL(file);
+            } else {
+                fileName.textContent = '';
+            }
+        };
+        
+        // Máscara de telefone
+        const phoneInput = document.getElementById('{{ form.telefone.id_for_label }}');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                if (value.length > 0) {
+                    value = '(' + value;
+                    if (value.length > 3) {
+                        value = value.substring(0, 3) + ') ' + value.substring(3);
+                    }
+                    if (value.length > 10) {
+                        value = value.substring(0, 10) + '-' + value.substring(10);
+                    }
+                    if (value.length > 15) {
+                        value = value.substring(0, 15);
+                    }
+                }
+                
+                e.target.value = value;
+            });
+        }
+        
+        // Validação do formulário
+        const form = document.getElementById('profileEditForm');
+        form.addEventListener('submit', function(e) {
+            const fullName = document.getElementById('{{ form.full_name.id_for_label }}');
+            const phone = document.getElementById('{{ form.telefone.id_for_label }}');
+            let isValid = true;
+            
+            // Validação do nome
+            if (!fullName.value.trim()) {
+                showError(fullName, 'Por favor, digite seu nome completo.');
+                isValid = false;
+            } else if (fullName.value.trim().length < 3) {
+                showError(fullName, 'O nome deve ter pelo menos 3 caracteres.');
+                isValid = false;
+            } else {
+                removeError(fullName);
+            }
+            
+            // Validação opcional do telefone
+            if (phone.value.trim()) {
+                const phoneDigits = phone.value.replace(/\D/g, '');
+                if (phoneDigits.length < 10 || phoneDigits.length > 11) {
+                    showError(phone, 'Por favor, digite um telefone válido com DDD.');
+                    isValid = false;
+                } else {
+                    removeError(phone);
+                }
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                // Scroll para o primeiro erro
+                const firstError = document.querySelector('.field-error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+        
+        function showError(field, message) {
+            const errorDiv = field.parentNode.querySelector('.field-error');
+            if (errorDiv) {
+                errorDiv.textContent = message;
+            } else {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error form-error';
+                errorDiv.textContent = message;
+                field.parentNode.appendChild(errorDiv);
+            }
+            field.classList.add('input-error');
+        }
+        
+        function removeError(field) {
+            const errorDiv = field.parentNode.querySelector('.field-error');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+            field.classList.remove('input-error');
+        }
+        
+        // Feedback visual nos campos
+        const inputs = document.querySelectorAll('.form-input');
+        inputs.forEach(input => {
+            // Foco
+            input.addEventListener('focus', function() {
+                this.parentNode.classList.add('focused');
+            });
+            
+            // Blur
+            input.addEventListener('blur', function() {
+                this.parentNode.classList.remove('focused');
+            });
+            
+            // Input
+            input.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    this.parentNode.classList.add('has-value');
+                } else {
+                    this.parentNode.classList.remove('has-value');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

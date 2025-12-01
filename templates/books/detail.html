@@ -1,263 +1,202 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ book.title }} - BookShare{% endblock %}
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/book_detail.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row">
-        <!-- Coluna da Imagem -->
-        <div class="col-lg-5 col-md-6 mb-4">
-            <div class="card border-0 shadow-lg position-relative">
-                {% if book.cover_image %}
-                <img src="{{ book.cover_image.url }}" 
-                     class="card-img-top" 
-                     style="height: 400px; object-fit: cover;"
-                     alt="Capa do livro {{ book.title }}"
-                     loading="eager">
-                {% else %}
-                <img src="{% static 'images/book_icon.png' %}" 
-                     class="card-img-top" 
-                     style="height: 400px; object-fit: cover;"
-                     alt="Capa do livro {{ book.title }}"
-                     loading="eager">
-                {% endif %}
-                
-                <!-- Badges na Imagem -->
-                <div class="position-absolute top-0 start-0 m-3">
-                    <span class="badge 
-                        {% if book.condition == 'NEW' %}bg-success
-                        {% elif book.condition == 'GOOD' %}bg-primary
-                        {% elif book.condition == 'FAIR' %}bg-warning text-dark
-                        {% elif book.condition == 'DAMAGED' %}bg-danger
-                        {% else %}bg-secondary{% endif %} 
-                        fs-6 px-3 py-2">
-                        <i class="fas 
-                            {% if book.condition == 'NEW' %}fa-star
-                            {% elif book.condition == 'GOOD' %}fa-thumbs-up
-                            {% elif book.condition == 'FAIR' %}fa-balance-scale
-                            {% elif book.condition == 'DAMAGED' %}fa-exclamation-triangle
-                            {% else %}fa-book{% endif %} me-1">
-                        </i>
-                        {{ book.get_condition_display }}
-                    </span>
-                </div>
-                
-                <div class="position-absolute top-0 end-0 m-3">
-                    <span class="badge 
-                        {% if book.status == 'AVAILABLE' %}bg-success
-                        {% elif book.status == 'UNAVAILABLE' %}bg-warning text-dark
-                        {% elif book.status == 'RESERVED' %}bg-info
-                        {% else %}bg-secondary{% endif %} 
-                        fs-6 px-3 py-2">
-                        <i class="fas 
-                            {% if book.status == 'AVAILABLE' %}fa-check-circle
-                            {% elif book.status == 'UNAVAILABLE' %}fa-clock
-                            {% elif book.status == 'RESERVED' %}fa-user-clock
-                            {% else %}fa-question-circle{% endif %} me-1">
-                        </i>
-                        {{ book.get_status_display }}
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Coluna das Informações -->
-        <div class="col-lg-7 col-md-6">
-            <div>
-                <!-- Cabeçalho -->
-                <div class="d-flex justify-content-between align-items-start mb-4">
-                    <div class="flex-grow-1">
-                        <h1 class="display-5 fw-bold text-dark mb-2">
-                            {{ book.title }}
-                        </h1>
-                        {% if book.author %}
-                        <h2 class="h4 text-muted mb-3">
-                            por <strong class="text-dark">{{ book.author }}</strong>
-                        </h2>
+<div class="book-detail-container">
+    <div class="container">
+        <div class="book-detail-grid">
+            <!-- Coluna da Imagem -->
+            <div class="book-cover-column">
+                <div class="book-cover-card">
+                    <div class="book-cover-wrapper">
+                        {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" 
+                             class="book-cover-image" 
+                             alt="{{ book.title }}"
+                             loading="eager">
+                        {% else %}
+                        <div class="book-cover-placeholder">
+                            <i class="fas fa-book"></i>
+                        </div>
                         {% endif %}
                         
-                        <!-- Categorias Múltiplas -->
-                        {% if book.category.all %}
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap gap-2">
-                                {% for category in book.category.all %}
-                                <span class="badge bg-primary px-3 py-2">
-                                    <i class="fas fa-tag me-1"></i>{{ category.name }}
-                                </span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% if user == book.owner %}
-                    <div class="dropdown flex-shrink-0 ms-3">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-edit me-2"></i>Editar Livro
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="#">
-                                    <i class="fas fa-trash me-2"></i>Excluir Livro
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    {% endif %}
-                </div>
-
-                <!-- Informações Principais -->
-                <div class="card border-0 bg-light mb-4">
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-sm-6">
-                                <div class="mb-3">
-                                    <small class="text-muted fw-semibold text-uppercase">Proprietário</small>
-                                    <div class="d-flex align-items-center mt-1">
-                                        <div class="flex-shrink-0 me-3">
-                                            {% if book.owner.img %}
-                                                <img src="{{ book.owner.img.url }}" 
-                                                     alt="{{ book.owner.full_name }}" 
-                                                     class="rounded-circle"
-                                                     style="width: 45px; height: 45px; object-fit: cover;">
-                                            {% else %}
-                                                <img src="{% static 'images/default_user.avif' %}" 
-                                                     alt="{{ book.owner.full_name }}" 
-                                                     class="rounded-circle"
-                                                     style="width: 45px; height: 45px; object-fit: cover;">
-                                            {% endif %}
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <strong class="d-block">
-                                                {% if book.owner.full_name %}
-                                                    {{ book.owner.full_name }}
-                                                {% else %}
-                                                    {{ book.owner.email }}
-                                                {% endif %}
-                                            </strong>
-                                            <small class="text-muted">Membro desde {{ book.owner.date_joined|date:"m/Y" }}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Badges de Status e Condição -->
+                        <div class="book-badges">
+                            <span class="book-badge condition-{{ book.condition }}">
+                                <i class="fas 
+                                    {% if book.condition == 'nw' %}fa-star
+                                    {% elif book.condition == 'gd' %}fa-thumbs-up
+                                    {% elif book.condition == 'fr' %}fa-balance-scale
+                                    {% else %}fa-exclamation-triangle{% endif %} me-1">
+                                </i>
+                                {{ book.get_condition_display }}
+                            </span>
                             
-                            <div class="col-sm-6">
-                                <div class="mb-3">
-                                    <small class="text-muted fw-semibold text-uppercase">Status</small>
-                                    <div class="mt-1">
-                                        <span class="badge 
-                                            {% if book.status == 'AVAILABLE' %}bg-success
-                                            {% elif book.status == 'UNAVAILABLE' %}bg-warning text-dark
-                                            {% elif book.status == 'RESERVED' %}bg-info
-                                            {% else %}bg-secondary{% endif %} 
-                                            fs-6 px-3 py-2">
-                                            <i class="fas 
-                                                {% if book.status == 'AVAILABLE' %}fa-check-circle
-                                                {% elif book.status == 'UNAVAILABLE' %}fa-clock
-                                                {% elif book.status == 'RESERVED' %}fa-user-clock
-                                                {% else %}fa-question-circle{% endif %} me-1">
-                                            </i>
-                                            {{ book.get_status_display }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-sm-6">
-                                <div class="mb-3">
-                                    <small class="text-muted fw-semibold text-uppercase">Condição</small>
-                                    <div class="mt-1">
-                                        <span class="badge 
-                                            {% if book.condition == 'NEW' %}bg-success
-                                            {% elif book.condition == 'GOOD' %}bg-primary
-                                            {% elif book.condition == 'FAIR' %}bg-warning text-dark
-                                            {% elif book.condition == 'DAMAGED' %}bg-danger
-                                            {% else %}bg-secondary{% endif %} 
-                                            fs-6 px-3 py-2">
-                                            <i class="fas 
-                                                {% if book.condition == 'NEW' %}fa-star
-                                                {% elif book.condition == 'GOOD' %}fa-thumbs-up
-                                                {% elif book.condition == 'FAIR' %}fa-balance-scale
-                                                {% elif book.condition == 'DAMAGED' %}fa-exclamation-triangle
-                                                {% else %}fa-book{% endif %} me-1">
-                                            </i>
-                                            {{ book.get_condition_display }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-sm-6">
-                                <div class="mb-3">
-                                    <small class="text-muted fw-semibold text-uppercase">Cadastrado em</small>
-                                    <div class="mt-1">
-                                        <strong class="fs-6">{{ book.created|date:"d/m/Y" }}</strong>
-                                    </div>
-                                </div>
-                            </div>
+                            <span class="book-badge status-{{ book.status }}">
+                                <i class="fas 
+                                    {% if book.status == 'av' %}fa-check-circle
+                                    {% elif book.status == 'un' %}fa-clock
+                                    {% else %}fa-user-clock{% endif %} me-1">
+                                </i>
+                                {{ book.get_status_display }}
+                            </span>
                         </div>
                     </div>
-                </div>
 
-                <!-- Ações -->
-                <div class="mb-4">
-                    {% if user.is_authenticated and user != book.owner %}
-                        <div class="d-flex flex-wrap gap-3 align-items-center">
-                            {% if book.status == 'AVAILABLE' %}
-                            <button class="btn btn-primary btn-lg px-4" data-bs-toggle="modal" data-bs-target="#requestModal">
-                                <i class="fas fa-handshake me-2"></i>Solicitar Empréstimo
-                            </button>
-                            {% elif book.status == 'UNAVAILABLE' %}
-                            <button class="btn btn-outline-secondary btn-lg px-4" disabled>
-                                <i class="fas fa-clock me-2"></i>Indisponível
-                            </button>
-                            {% elif book.status == 'RESERVED' %}
-                            <button class="btn btn-outline-warning btn-lg px-4" disabled>
-                                <i class="fas fa-user-clock me-2"></i>Reservado
-                            </button>
-                            {% endif %}
+                    <!-- Ações do Livro -->
+                    <div class="book-actions">
+                        {% if user.is_authenticated %}
+                            {% if user != book.owner %}
+                                {% if book.status == 'av' %}
+                                <a href="{% url 'orders:create' book.id %}" class="btn btn-primary btn-lg btn-borrow">
+                                    <i class="fas fa-handshake me-2"></i>Solicitar Empréstimo
+                                </a>
+                                {% elif book.status == 'un' %}
+                                <button class="btn btn-secondary btn-lg" disabled>
+                                    <i class="fas fa-clock me-2"></i>Indisponível
+                                </button>
+                                {% elif book.status == 'rs' %}
+                                <button class="btn btn-warning btn-lg" disabled>
+                                    <i class="fas fa-user-clock me-2"></i>Reservado
+                                </button>
+                                {% endif %}
 
-                            <!-- BOTÃO DE FAVORITAR CORRIGIDO -->
-                            {% if user in book.favorited_by.all %}
-                                <form method="post" action="{% url 'books:favorite' %}" class="d-inline m-0">
+                                <!-- Favoritar -->
+                                <form method="post" action="{% url 'books:favorite' %}" class="favorite-form">
                                     {% csrf_token %}
                                     <input type="hidden" name="book_id" value="{{ book.id }}">
-                                    <button type="submit" class="btn btn-outline-danger btn-lg px-4">
-                                        <i class="fas fa-heart me-2"></i>Remover Favorito
+                                    <button type="submit" class="btn {% if user in book.favorited_by.all %}btn-danger{% else %}btn-outline-primary{% endif %}">
+                                        <i class="fas fa-heart me-2"></i>
+                                        {% if user in book.favorited_by.all %}Remover Favorito{% else %}Adicionar Favorito{% endif %}
                                     </button>
                                 </form>
                             {% else %}
-                                <form method="post" action="{% url 'books:favorite' %}" class="d-inline m-0">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="book_id" value="{{ book.id }}">
-                                    <button type="submit" class="btn btn-outline-primary btn-lg px-4">
-                                        <i class="fas fa-heart me-2"></i>Adicionar aos Favoritos
-                                    </button>
-                                </form>
+                                <!-- Menu do Proprietário -->
+                                <div class="owner-actions">
+                                    <a href="{% url 'books:update' book.id %}" class="btn btn-outline-primary">
+                                        <i class="fas fa-edit me-2"></i>Editar Livro
+                                    </a>
+                                </div>
                             {% endif %}
-                        </div>
+                        {% else %}
+                        <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Fazer Login para Solicitar
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
-                    {% elif not user.is_authenticated %}
-                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-lg px-4">
-                        <i class="fas fa-sign-in-alt me-2"></i>Fazer Login para Solicitar
-                    </a>
-                    {% endif %}
+            <!-- Coluna das Informações -->
+            <div class="book-info-column">
+                <!-- Cabeçalho -->
+                <div class="book-header">
+                    <div class="book-title-section">
+                        <h1 class="book-title">{{ book.title }}</h1>
+                        {% if book.author %}
+                        <h2 class="book-author">por {{ book.author }}</h2>
+                        {% endif %}
+                        
+                        <!-- Categorias -->
+                        {% if book.category.exists %}
+                        <div class="book-categories">
+                            {% for category in book.category.all %}
+                            <span class="category-badge">
+                                <i class="fas fa-tag me-1"></i>{{ category.name }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <!-- Descrição (se houver) -->
+                <!-- Informações do Proprietário -->
+                <div class="owner-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-user me-2"></i>Proprietário
+                    </h3>
+                    <div class="owner-info">
+                        <div class="owner-avatar">
+                            {% if book.owner.img %}
+                                <img src="{{ book.owner.img.url }}" 
+                                     alt="{{ book.owner.full_name }}" 
+                                     class="avatar-image">
+                            {% else %}
+                                <div class="avatar-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="owner-details">
+                            <strong class="owner-name">
+                                {% if book.owner.full_name %}
+                                    {{ book.owner.full_name }}
+                                {% else %}
+                                    {{ book.owner.email }}
+                                {% endif %}
+                            </strong>
+                            <span class="owner-email">{{ book.owner.email }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estatísticas do Livro -->
+                <div class="book-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon condition">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">{{ book.get_condition_display }}</div>
+                            <div class="stat-label">Condição</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon status">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">{{ book.get_status_display }}</div>
+                            <div class="stat-label">Status</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon date">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">{{ book.created|date:"d/m/Y" }}</div>
+                            <div class="stat-label">Cadastrado</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon favorites">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">{{ book.favorited_by.count }}</div>
+                            <div class="stat-label">Favoritos</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descrição -->
                 {% if book.description %}
-                <div class="card border-0 mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold text-dark mb-3">
-                            <i class="fas fa-book me-2"></i>Sobre este livro
-                        </h5>
-                        <p class="text-muted lh-lg mb-0">{{ book.description|linebreaks }}</p>
+                <div class="description-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-book-open me-2"></i>Sobre o Livro
+                    </h3>
+                    <div class="description-content">
+                        {{ book.description|linebreaks }}
                     </div>
                 </div>
                 {% endif %}
@@ -265,47 +204,4 @@
         </div>
     </div>
 </div>
-
-<!-- Modal de Solicitação de Empréstimo -->
-{% if user.is_authenticated and user != book.owner and book.status == 'AVAILABLE' %}
-<div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <!-- ✅ FORM CORRIGIDO COM ACTION CORRETA -->
-            <form method="post" action="#">
-                {% csrf_token %}
-                <input type="hidden" name="book_id" value="{{ book.id }}">
-                
-                <div class="modal-header">
-                    <h5 class="modal-title" id="requestModalLabel">Solicitar Empréstimo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Você está solicitando o empréstimo do livro:</p>
-                    <h6 class="text-center mb-3 text-primary">"{{ book.title }}"</h6>
-                    
-                    <div class="mb-3">
-                        <label for="message" class="form-label fw-semibold">Mensagem para o proprietário:</label>
-                        <textarea class="form-control" id="message" name="message" rows="4" 
-                                placeholder="Olá! Gostaria de solicitar o empréstimo deste livro..."
-                                style="resize: none;"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="duration" class="form-label fw-semibold">Duração do empréstimo:</label>
-                        <select class="form-select" id="duration" name="duration">
-                            <option value="7">1 semana</option>
-                            <option value="14" selected>2 semanas</option>
-                            <option value="30">1 mês</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Enviar Solicitação</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endif %}
 {% endblock %}

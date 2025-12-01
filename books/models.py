@@ -3,6 +3,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.db.models import Q
 from django.template.defaultfilters import slugify
+import uuid
 
 from stdimage import StdImageField
 
@@ -11,9 +12,10 @@ class Base(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    is_visible = models.BooleanField(default=True)
 
     class Meta:
-        abstract = True
+        abstract = True 
 
 
 class Category(models.Model):
@@ -29,12 +31,11 @@ class BookQuerySet(models.QuerySet):
             return self.none()
         lookups = Q(title__icontains=query) |\
         Q(author__icontains=query) |\
-        Q(owner__full_name__icontains=query) |\
         Q(slug__icontains=query) |\
         Q(category__icontains=query)
         return self.filter(lookups)
     
-    def filter_by_params(self, title=None, author=None, owner=None, status=None, condition=None, popularity=None, category=None):
+    def filter_by_params(self, title=None, author=None, status=None, condition=None, popularity=None, category=None):
         query = self.all()
 
         if title:
@@ -42,9 +43,6 @@ class BookQuerySet(models.QuerySet):
         
         if author:
             query = query.filter(author__icontains=author)
-
-        if owner:
-            query = query.filter(owner__full_name__icontains=owner)
         
         if status:
             query = query.filter(status=status)
@@ -58,10 +56,8 @@ class BookQuerySet(models.QuerySet):
         if popularity:
             if popularity == "newest":
                 query = query.order_by('-created')
-            elif popularity == "views":
-                query = query.order_by('-access_count')
             elif popularity == "favorites":
-                query = query.order_by('-favorite_count')
+                query = query.order_by('-favorited_by')
             elif popularity == "oldest":
                 query = query.order_by('created')        
         return query
@@ -79,21 +75,31 @@ class BookManager(models.Manager):
 
 
 class Book(Base):
+    NEW = 'nw'
+    GOOD = 'gd'
+    FAIR = 'fr'
+    DAMAGED = 'dm'
+
+    AVAILABLE = 'av'
+    UNAVAILABLE = 'un'
+    RESERVED = 'rs'
+
     CONDITION_CHOICES = (
-        ('NEW', 'New'),
-        ('GOOD', 'Good'),
-        ('FAIR', 'Regular'),
-        ('DAMAGED', 'Damaged')
+        (NEW, 'Novo'),
+        (GOOD, 'Bom'),
+        (FAIR, 'Desgastado'),
+        (DAMAGED, 'Danificado')
     )
 
     STATUS_CHOICES = (
-        ('AVAILABLE', 'Available'),
-        ('UNAVAILABLE', 'Unavailable'),
-        ('RESERVED', 'Reserved'),
+        (AVAILABLE, 'Disponível'),
+        (UNAVAILABLE, 'Indisponível'),
+        (RESERVED, 'Reservado'),
     )
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200, help_text="Título do livro")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_books', on_delete=models.CASCADE)
+    title = models.CharField(max_length=250, help_text="Título do livro")
     author = models.CharField(max_length=200, blank=True, null=True)
     cover_image = StdImageField(
         upload_to="books/",
@@ -109,19 +115,19 @@ class Book(Base):
         delete_orphans=True
     )
     condition = models.CharField(choices=CONDITION_CHOICES, max_length=7, help_text="Condição do livro")
-    status = models.CharField(choices=STATUS_CHOICES, max_length=12)
-    slug = models.SlugField(null=True, unique=True)
-    category = models.ManyToManyField('Category', related_name='books_categories')
+    status = models.CharField(choices=STATUS_CHOICES, max_length=12, default=AVAILABLE, editable=False)
+    slug = models.SlugField(max_length=255, blank=True)
+    category = models.ManyToManyField('Category', related_name='books_categories', null=True, blank=True)
     favorited_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favorite_books',blank=True, editable=False)
 
     def __str__(self):
         return self.title
     
     def get_categories(self):
-        return self.category
+        return self.category.all
 
     def get_absolute_url(self):
-        return reverse(viewname="books:detail", args=[self.pk, self.slug])
+        return reverse(viewname="books:detail", args=[self.pk])
         
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -129,41 +135,4 @@ class Book(Base):
         return super().save(*args, **kwargs)
     
     objects = BookManager()
-
-
-class Loan(models.Model):
-    LOAN_STATUS_CHOICES = (
-        ('PENDING', 'Pending'),
-        ('ACTIVE', 'Active'),
-        ('COMPLETED', 'Completed'),
-        ('CANCELLED', 'Cancelled'),
-        ('OVERDUE', 'Overdue'),
-    )
-    
-    approved_date = models.DateTimeField(null=True, blank=True)
-    start_date = models.DateField(blank=True, null=True)
-    due_date = models.DateField(blank=True, null=True)
-    returned_date = models.DateField(blank=True, null=True)
-    borrower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='loans_taken')
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    max_loan_period = models.PositiveIntegerField(default=14, help_text="Duração máxima do emprestimo em dias")
-    requires_deposit = models.BooleanField(default=True)
-    deposit_amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Valor cobrado para o empréstimo"
-    )
-    allows_renewal = models.BooleanField(default=True)
-    status = models.CharField(choices=LOAN_STATUS_CHOICES, max_length=9, default='PENDING')
-    custom_terms = models.TextField(help_text="Condições adicionais para o emprestimo")
-
-    def __str__(self):
-        return f"Loan: {self.book.title} to {self.borrower.email}"
-    
-    @property
-    def lender(self):
-        return self.book.owner
-
 

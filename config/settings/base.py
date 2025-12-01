@@ -34,7 +34,9 @@ INSTALLED_APPS = [
 
     'usuarios',
     'core',
-    'books'
+    'books',
+    'loans',
+    'orders',
 ]
 
 MIDDLEWARE = [
@@ -104,18 +106,30 @@ TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
-USE_TZ = True
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+USE_TZ = True  
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "localhost",
+    "django-docker",
+    "172.17.0.1",
+]
+
+
+# ALLAUTH GENERAL CONFIG
 AUTH_USER_MODEL = 'usuarios.CustomUser'
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+
+# ALLAUTH LOGIN CONFIG
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 2
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
 LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = LOGIN_REDIRECT_URL

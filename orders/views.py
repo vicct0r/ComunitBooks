@@ -12,8 +12,8 @@ from books.models import Book
 
 
 class OrderCancelView(LoginRequiredMixin, generic.View):
-    def post(self, request, uuid):
-        order = Order.objects.get(id=uuid)
+    def post(self, request, order_id):
+        order = Order.objects.get(id=order_id)
         services.cancel_order(order)
         messages.success(request, 'O pedido foi cancelado.')
         return redirect('orders:submitted')
@@ -30,7 +30,7 @@ class OrderCreateView(LoginRequiredMixin, SuccessMessageMixin, generic.CreateVie
         book = get_object_or_404(Book, id=self.kwargs.get('book_id'))
 
         if Order.objects.filter(borrower=self.request.user, book=book, status=Order.SUBMITTED).exists():
-            messages.info(f'Você já possui um pedido em andamento para o livro {book.title} de {book.owner.email}!')
+            messages.info(self.request, f'Você já possui um pedido em andamento para o livro {book.title} de {book.owner.email}!')
             return redirect(reverse('loans:submitted'))
 
         order = form.save(commit=False)

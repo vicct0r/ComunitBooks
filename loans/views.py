@@ -10,49 +10,52 @@ from .services.loan_service import LoanService
 from orders.models import Order
 
 
-class LoanCreateView(LoginRequiredMixin, generic.CreateView):
-    """
-    **Accept or Deny Orders Request**
-    - Accept: Create Loan instance
-    - Deny: Update Order status and do not create Loan instance
-    """
+class LoanCreateView(LoginRequiredMixin, generic.View):
 
-    template_name = 'loans/create.html'
-    model = Loan
-    fields = ['deposit_amount', 'allows_renewal', 'custom_terms'] 
+    def post(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        action = self.request.POST.get('action')
 
-    def form_valid(self, form):
-        _action = self.request.POST.get('action')
-        action = True if _action == "approve" else False
-        
-        order = get_object_or_404(Order, id=self.kwargs.get('order_id'))
-        
         if Loan.objects.filter(book=order.book, status__in=[Loan.ACTIVE, Loan.OVERDUE]).exists() and action:
             messages.warning(self.request,f"O livro {order.book.title} não está disponível para emprestimo!")
             return redirect(reverse('orders:submitted'))
 
-        if action:
-            loan = form.save(commit=False)
-            loan.borrower=order.borrower
-            loan.book=order.book
-            loan.owner=order.book.owner if order.book.owner else None
-            loan.max_loan_period=order.required_days
-            loan.save()
+        if action == 'approve':
+            loan = Loan.objects.create(
+                borrower=order.borrower,
+                book=order.book,
+                owner=order.book.owner if order.book.owner else None,
+                max_loan_period=order.required_days,
+            )
 
             loan_service.update_order_status(order, action)
-            messages.success(self.request, "Pedido aprovado, emprestimo criado!")
+            messages.success(request, "Pedido aprovado, emprestimo criado!")
             notification.approve(loan)
-            return super().form_valid(form)
         else:
             loan_service.update_order_status(order, action) 
-            messages.info(self.request, "Este pedido foi recusado e arquivado!")
-            return redirect(reverse('orders:submitted'))
-
-    def get_success_url(self):
-        return reverse('orders:submitted')
+            messages.info(request, "Este pedido foi recusado e arquivado!")
+        return redirect(reverse('orders:submitted'))
 
 
-class LoansSubmittedListView(LoginRequiredMixin, generic.ListView):
+class LoanStatusMixin:
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_id = self.request.user.id
+
+        loans_with_actions = []
+        for loan in context['loans']:
+            loans_with_actions.append({
+                'loan': loan,
+                'allowed_actions': LoanService.allowed_actions(loan, user_id=user_id)
+            })
+        
+        context['usuario'] = user_id
+        context['allowed_actions'] = loans_with_actions
+        return context
+
+
+class LoansSubmittedListView(LoginRequiredMixin, LoanStatusMixin, generic.ListView):
     template_name = 'loans/submitted.html'
     model = Loan
     context_object_name = 'loans'
@@ -65,7 +68,7 @@ class LoansSubmittedListView(LoginRequiredMixin, generic.ListView):
         .order_by('-approved_date')
 
 
-class LoansReceivedListView(LoginRequiredMixin, generic.ListView):
+class LoansReceivedListView(LoginRequiredMixin, LoanStatusMixin, generic.ListView):
     template_name = 'loans/received.html'
     model = Loan
     context_object_name = 'loans'
@@ -80,11 +83,10 @@ class LoansReceivedListView(LoginRequiredMixin, generic.ListView):
 
 class LoanStatusUpdate(LoginRequiredMixin, generic.View):
     
-    def post(self, request, pk):
+    def post(self, request, loan_id):
         action = request.POST.get('action')
         user = request.user
-        loan_id = pk
-        loan = Loan.objects.get(id=pk)
+        loan = Loan.objects.get(id=loan_id)
         
         if action == "send":
             message = LoanService.send_book(loan_id)

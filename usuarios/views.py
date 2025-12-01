@@ -20,7 +20,7 @@ class UserProfileView(LoginRequiredMixin, generic.DetailView):
     template_name = 'usuarios/my_profile.html'
     model = get_user_model()
     context_object_name = 'user'
-    lookup_field = 'user_id'
+    pk_url_kwarg = 'user_id'
 
     def get_context_data(self, **kwargs):
         user = self.request.user
@@ -36,7 +36,7 @@ class UserUpdateView(LoginRequiredMixin, generic.UpdateView):
     template_name = 'usuarios/change_user_info.html'
     model = get_user_model()
     form_class = CustomUserChangeForm
-    lookup_field = 'user_id'
+    pk_url_kwarg = 'user_id'
 
     def get_success_url(self):
-        return reverse('user:profile', kwargs={'pk': self.request.user.id})
+        return reverse('user:profile', kwargs={'user_id': self.request.user.id})

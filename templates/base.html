@@ -88,11 +88,11 @@
                                     <div class="user-email">{{ user.email }}</div>
                                 </div>
                                 <div class="dropdown-divider"></div>
-                                <a href="{% url 'user:profile' pk=user.id %}" class="dropdown-item">
+                                <a href="{% url 'user:profile' user_id=user.id %}" class="dropdown-item">
                                     <i class="fas fa-user"></i>
                                     Meu Perfil
                                 </a>
-                                <a href="{% url 'books:user_library' pk=user.id %}" class="dropdown-item">
+                                <a href="{% url 'books:user_library' user_id=user.id %}" class="dropdown-item">
                                     <i class="fas fa-book"></i>
                                     Meus Livros
                                 </a>

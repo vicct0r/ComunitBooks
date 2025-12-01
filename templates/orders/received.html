@@ -1,328 +1,253 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Pedidos Recebidos{% endblock %}
+{% block title %}Pedidos Recebidos - CommunityBooks{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/orders.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <div class="row">
+    <div class="row mb-5">
         <div class="col-12">
-            <!-- Cabeçalho -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="display-5 fw-bold text-primary mb-2">
+                    <h1 class="display-5 fw-bold text-dark mb-2">
                         <i class="fas fa-inbox me-3"></i>Pedidos Recebidos
                     </h1>
-                    <p class="lead text-muted mb-0">Gerencie os pedidos de empréstimo dos seus livros</p>
+                    <p class="lead text-muted">Gerencie os pedidos de empréstimo dos seus livros</p>
                 </div>
                 <div class="text-end">
-                    <span class="badge bg-primary fs-6 px-3 py-2">
+                    <span class="badge bg-primary fs-6 px-3 py-2 order-count-badge">
                         <i class="fas fa-clipboard-list me-2"></i>
-                        {{ orders.count }} pedido(s)
+                        {{ orders|length }} pedido{{ orders|length|pluralize }}
                     </span>
                 </div>
             </div>
-
-            <!-- Filtros -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body">
-                    <form method="get" class="row g-3 align-items-end">
-                        <!-- Filtro por Livro -->
-                        <div class="col-md-4">
-                            <label for="book_filter" class="form-label fw-semibold">
-                                <i class="fas fa-book me-1"></i>Filtrar por Livro
-                            </label>
-                            <select name="book" id="book_filter" class="form-select">
-                                <option value="">Todos os livros</option>
-                                {% for book in user_books %}
-                                {% with book_id_str=book.id|stringformat:"i" %}
-                                <option value="{{ book.id }}" 
-                                    {% if request.GET.book == book_id_str %}selected{% endif %}>
-                                    {{ book.title }}
-                                </option>
-                                {% endwith %}
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- Filtro por Status -->
-                        <div class="col-md-3">
-                            <label for="status_filter" class="form-label fw-semibold">
-                                <i class="fas fa-filter me-1"></i>Filtrar por Status
-                            </label>
-                            <select name="status" id="status_filter" class="form-select">
-                                <option value="">Todos os status</option>
-                                <option value="pr" {% if request.GET.status == 'pr' %}selected{% endif %}>Pendentes</option>
-                                <option value="ap" {% if request.GET.status == 'ap' %}selected{% endif %}>Aprovados</option>
-                                <option value="dn" {% if request.GET.status == 'dn' %}selected{% endif %}>Recusados</option>
-                            </select>
-                        </div>
-
-                        <!-- Filtro por Duração -->
-                        <div class="col-md-3">
-                            <label for="duration_filter" class="form-label fw-semibold">
-                                <i class="fas fa-calendar me-1"></i>Duração
-                            </label>
-                            <select name="duration" id="duration_filter" class="form-select">
-                                <option value="">Qualquer duração</option>
-                                <option value="7" {% if request.GET.duration == '7' %}selected{% endif %}>1 semana</option>
-                                <option value="14" {% if request.GET.duration == '14' %}selected{% endif %}>2 semanas</option>
-                                <option value="21" {% if request.GET.duration == '21' %}selected{% endif %}>3 semanas</option>
-                                <option value="30" {% if request.GET.duration == '30' %}selected{% endif %}>1 mês</option>
-                            </select>
-                        </div>
-
-                        <!-- Botões -->
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-search me-1"></i>Filtrar
-                            </button>
-                        </div>
-
-                        <!-- Limpar Filtros -->
-                        {% if request.GET.book or request.GET.status or request.GET.duration %}
-                        <div class="col-12">
-                            <a href="?" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-times me-1"></i>Limpar Filtros
-                            </a>
-                        </div>
-                        {% endif %}
-                    </form>
-                </div>
-            </div>
-
-            <!-- Indicadores de Filtro Ativo -->
-            {% if request.GET.book or request.GET.status or request.GET.duration %}
-            <div class="alert alert-info d-flex align-items-center mb-4">
-                <i class="fas fa-info-circle me-2"></i>
-                <div>
-                    <strong>Filtros ativos:</strong>
-                    {% if request.GET.book %}
-                    {% with book_id=request.GET.book %}
-                    {% for book in user_books %}
-                    {% if book.id|stringformat:"i" == book_id %}
-                    <span class="badge bg-primary ms-2">Livro: {{ book.title }}</span>
-                    {% endif %}
-                    {% endfor %}
-                    {% endwith %}
-                    {% endif %}
-                    {% if request.GET.status %}
-                    <span class="badge bg-info ms-2">
-                        Status:
-                        {% if request.GET.status == 'pr' %}Pendente
-                        {% elif request.GET.status == 'ap' %}Aprovado
-                        {% elif request.GET.status == 'dn' %}Recusado
-                        {% endif %}
-                    </span>
-                    {% endif %}
-                    {% if request.GET.duration %}
-                    <span class="badge bg-success ms-2">
-                        Duração: {{ request.GET.duration }} dia{{ request.GET.duration|pluralize }}
-                    </span>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
-            {% if orders %}
-            <!-- Lista de Pedidos -->
-            <div class="row">
-                {% for order in orders %}
-                <div class="col-12 mb-4">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-transparent border-0 pb-0">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <span class="badge 
-                                    {% if order.status == 'pr' %}bg-warning text-dark
-                                    {% elif order.status == 'ap' %}bg-success
-                                    {% elif order.status == 'dn' %}bg-danger
-                                    {% else %}bg-light text-dark{% endif %} 
-                                    fs-6 px-3 py-2">
-                                    <i class="fas 
-                                        {% if order.status == 'pr' %}fa-clock
-                                        {% elif order.status == 'ap' %}fa-check-circle
-                                        {% elif order.status == 'dn' %}fa-times-circle
-                                        {% else %}fa-question{% endif %} me-1">
-                                    </i>
-                                    {{ order.get_status_display }}
-                                </span>
-                                <small class="text-muted">{{ order.date_created|date:"d/m/Y H:i" }}</small>
-                            </div>
-                        </div>
-
-                        <div class="card-body">
-                            <div class="row">
-                                <!-- Informações do Livro -->
-                                <div class="col-md-6 mb-4">
-                                    <h5 class="fw-bold text-dark mb-3">
-                                        <i class="fas fa-book me-2 text-primary"></i>Livro Solicitado
-                                    </h5>
-                                    <div class="d-flex align-items-start">
-                                        <div class="flex-shrink-0 me-3">
-                                            {% if order.book.cover_image %}
-                                            <img src="{{ order.book.cover_image.url }}" alt="{{ order.book.title }}"
-                                                class="rounded shadow"
-                                                style="width: 80px; height: 100px; object-fit: cover;">
-                                            {% else %}
-                                            <img src="{% static 'images/book_icon.png' %}" alt="{{ order.book.title }}"
-                                                class="rounded shadow"
-                                                style="width: 80px; height: 100px; object-fit: cover;">
-                                            {% endif %}
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="fw-bold text-dark mb-1">{{ order.book.title }}</h6>
-                                            {% if order.book.author %}
-                                            <p class="text-muted small mb-2">por {{ order.book.author }}</p>
-                                            {% endif %}
-                                            <span class="badge bg-light text-dark border small">
-                                                <i class="fas fa-user me-1"></i>Seu livro
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Informações do Solicitante -->
-                                <div class="col-md-6 mb-4">
-                                    <h5 class="fw-bold text-dark mb-3">
-                                        <i class="fas fa-user me-2 text-primary"></i>Solicitante
-                                    </h5>
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0 me-3">
-                                            {% if order.borrower.img %}
-                                            <img src="{{ order.borrower.img.url }}" alt="{{ order.borrower.full_name }}"
-                                                class="rounded-circle"
-                                                style="width: 50px; height: 50px; object-fit: cover;">
-                                            {% else %}
-                                            <img src="{% static 'images/default_user.avif' %}"
-                                                alt="{{ order.borrower.full_name }}" class="rounded-circle"
-                                                style="width: 50px; height: 50px; object-fit: cover;">
-                                            {% endif %}
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <strong class="d-block text-dark">
-                                                {% if order.borrower.full_name %}
-                                                {{ order.borrower.full_name }}
-                                                {% else %}
-                                                {{ order.borrower.email }}
-                                                {% endif %}
-                                            </strong>
-                                            <small class="text-muted">{{ order.borrower.email }}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Detalhes do Pedido -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <strong class="text-dark d-block mb-1">
-                                            <i class="fas fa-calendar me-2 text-primary"></i>Duração Solicitada
-                                        </strong>
-                                        <span class="badge bg-primary fs-6 px-3 py-2">
-                                            {{ order.required_days }} dia{{ order.required_days|pluralize }}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <strong class="text-dark d-block mb-1">
-                                            <i class="fas fa-comment me-2 text-primary"></i>Mensagem
-                                        </strong>
-                                        {% if order.description %}
-                                        <p class="text-muted mb-0">{{ order.description }}</p>
-                                        {% else %}
-                                        <p class="text-muted fst-italic mb-0">Nenhuma mensagem fornecida</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Ações -->
-                            {% if order.status == 'pr' %}
-                            <div class="border-top pt-3 mt-3">
-                                <div class="d-flex justify-content-end gap-3">
-                                    <!-- Form para Aceitar -->
-                                    <form action="{% url 'loans:loan_create' order.id %}" method="post"
-                                        class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" name="action" value="approve"
-                                            class="btn btn-success px-4">
-                                            <i class="fas fa-check me-2"></i>Aceitar Pedido
-                                        </button>
-                                    </form>
-
-                                    <!-- Form para Recusar -->
-                                    <form action="{% url 'loans:loan_create' order.id %}" method="post"
-                                        class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" name="action" value="deny" class="btn btn-danger px-4">
-                                            <i class="fas fa-times me-2"></i>Recusar Pedido
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            {% else %}
-            <!-- Estado Vazio -->
-            <div class="text-center py-5">
-                <div class="mb-4">
-                    <i class="fas fa-inbox fa-4x text-muted"></i>
-                </div>
-                <h3 class="text-muted mb-3">
-                    {% if request.GET.book or request.GET.status or request.GET.duration %}
-                    Nenhum pedido encontrado com os filtros aplicados
-                    {% else %}
-                    Nenhum pedido recebido
-                    {% endif %}
-                </h3>
-                <p class="text-muted mb-4">
-                    {% if request.GET.book or request.GET.status or request.GET.duration %}
-                    Tente ajustar os filtros para ver mais resultados.
-                    {% else %}
-                    Quando outros usuários solicitarem empréstimos dos seus livros, os pedidos aparecerão aqui.
-                    {% endif %}
-                </p>
-                {% if request.GET.book or request.GET.status or request.GET.duration %}
-                <a href="?" class="btn btn-primary btn-lg">
-                    <i class="fas fa-times me-2"></i>Limpar Filtros
-                </a>
-                {% else %}
-                <a href="{% url 'books:library' %}" class="btn btn-primary btn-lg">
-                    <i class="fas fa-book me-2"></i>Explorar Livros
-                </a>
-                {% endif %}
-            </div>
-            {% endif %}
         </div>
     </div>
+
+    {% if orders %}
+    <div class="row">
+        {% for order in orders %}
+        <div class="col-12 mb-4">
+            <div class="order-card card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="order-status-badge badge 
+                            {% if order.status == 'pr' %}bg-warning text-dark
+                            {% elif order.status == 'ap' %}bg-success
+                            {% elif order.status == 'dn' %}bg-danger
+                            {% else %}bg-light text-dark{% endif %} 
+                            fs-6 px-3 py-2">
+                            <i class="fas 
+                                {% if order.status == 'pr' %}fa-clock
+                                {% elif order.status == 'ap' %}fa-check-circle
+                                {% elif order.status == 'dn' %}fa-times-circle
+                                {% else %}fa-question{% endif %} me-1"></i>
+                            {{ order.get_status_display }}
+                        </span>
+                        <small class="text-muted">{{ order.date_created|date:"d/m/Y H:i" }}</small>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h5 class="fw-bold text-dark mb-3">
+                                <i class="fas fa-book me-2 text-primary"></i>Livro Solicitado
+                            </h5>
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if order.book.cover_image %}
+                                    <img src="{{ order.book.cover_image.optimized.url }}" 
+                                         alt="{{ order.book.title }}"
+                                         class="order-book-cover rounded shadow"
+                                         loading="lazy">
+                                    {% else %}
+                                    <div class="order-book-placeholder rounded shadow d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-book-open text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold text-dark mb-1">{{ order.book.title }}</h6>
+                                    {% if order.book.author %}
+                                    <p class="text-muted small mb-2">por {{ order.book.author }}</p>
+                                    {% endif %}
+                                    <span class="badge bg-light text-dark border small">
+                                        <i class="fas fa-user me-1"></i>Seu livro
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <h5 class="fw-bold text-dark mb-3">
+                                <i class="fas fa-user me-2 text-primary"></i>Solicitante
+                            </h5>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if order.borrower.img %}
+                                    <img src="{{ order.borrower.img.url }}" 
+                                         alt="{{ order.borrower.get_full_name }}"
+                                         class="order-user-avatar rounded-circle"
+                                         loading="lazy">
+                                    {% else %}
+                                    <div class="order-user-placeholder rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong class="d-block text-dark">
+                                        {% if order.borrower.get_full_name %}
+                                        {{ order.borrower.get_full_name }}
+                                        {% else %}
+                                        {{ order.borrower.username }}
+                                        {% endif %}
+                                    </strong>
+                                    <small class="text-muted">{{ order.borrower.email }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong class="text-dark d-block mb-1">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>Duração Solicitada
+                                </strong>
+                                <span class="badge bg-primary fs-6 px-3 py-2 order-duration-badge">
+                                    {{ order.required_days }} dia{{ order.required_days|pluralize }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong class="text-dark d-block mb-1">
+                                    <i class="fas fa-comment me-2 text-primary"></i>Mensagem
+                                </strong>
+                                {% if order.description %}
+                                <p class="text-muted mb-0 order-message">{{ order.description }}</p>
+                                {% else %}
+                                <p class="text-muted fst-italic mb-0 order-message">Nenhuma mensagem fornecida</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if order.status == 'pr' %}
+                    <div class="order-actions border-top pt-3 mt-3">
+                        <div class="d-flex justify-content-end gap-3">
+                            <!-- Form para Aceitar (vai para LoanCreateView) -->
+                            <form action="{% url 'loans:create' order.id %}" method="post" class="d-inline approve-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="btn btn-success px-4 order-action-btn approve-btn">
+                                    <i class="fas fa-check me-2"></i>Aceitar Pedido
+                                </button>
+                            </form>
+
+                            <!-- Form para Recusar (vai para LoanCreateView com action=deny) -->
+                            <form action="{% url 'loans:create' order.id %}" method="post" class="d-inline deny-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="deny">
+                                <button type="submit" class="btn btn-danger px-4 order-action-btn deny-btn">
+                                    <i class="fas fa-times me-2"></i>Recusar Pedido
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="empty-state text-center py-5">
+                <div class="empty-icon mb-4">
+                    <i class="fas fa-inbox display-1 text-muted"></i>
+                </div>
+                <h3 class="empty-title h4 text-dark mb-3">Nenhum pedido recebido</h3>
+                <p class="empty-text text-muted mb-4">Quando outros usuários solicitarem empréstimos dos seus livros, os pedidos aparecerão aqui.</p>
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                    <a href="{% url 'books:library' %}" class="btn btn-primary">
+                        <i class="fas fa-book me-2"></i>Explorar Livros
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-    .card {
-        border-radius: 12px;
-        transition: transform 0.2s ease-in-out;
-    }
-
-    .card:hover {
-        transform: translateY(-2px);
-    }
-
-    .border-top {
-        border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
-    }
-
-    .form-label {
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-    }
-</style>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Confirmação para ação de ACEITAR
+    document.querySelectorAll('.approve-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (!confirm('Tem certeza que deseja ACEITAR este pedido?\n\nUm empréstimo será criado automaticamente.')) {
+                return false;
+            }
+            
+            // Adicionar feedback visual
+            const originalText = this.innerHTML;
+            this.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Aceitando...`;
+            this.disabled = true;
+            
+            // Submeter o formulário
+            const form = this.closest('.approve-form');
+            setTimeout(() => {
+                form.submit();
+            }, 500);
+        });
+    });
+    
+    // Confirmação para ação de RECUSAR
+    document.querySelectorAll('.deny-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (!confirm('Tem certeza que deseja RECUSAR este pedido?\n\nO solicitante será notificado.')) {
+                return false;
+            }
+            
+            // Adicionar feedback visual
+            const originalText = this.innerHTML;
+            this.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Recusando...`;
+            this.disabled = true;
+            
+            // Submeter o formulário
+            const form = this.closest('.deny-form');
+            setTimeout(() => {
+                form.submit();
+            }, 500);
+        });
+    });
+    
+    // Animação dos cards
+    const cards = document.querySelectorAll('.order-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+            card.style.transition = 'all 0.5s ease';
+        }, 100 * index);
+    });
+});
+</script>
 {% endblock %}

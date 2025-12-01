@@ -22,7 +22,7 @@ def approve(loan):
         Para visualizar todos os detalhes da transação, incluindo informações de contato 
         para agendamento de retirada/entrega, acesse a sua área de pedidos:
 
-        {DOMAIN}{reverse('loans:orders_made_list')}
+        {DOMAIN}{reverse('orders:submitted')}
 
         ─────────────────────────────────────────────────────
         Agradecemos por usar nossa plataforma!
@@ -61,7 +61,7 @@ def sent(loan):
         Para visualizar todos os detalhes da transação e informações de contato 
         do remetente, acesse a sua área de pedidos:
 
-        {DOMAIN}{reverse('loans:user_loans_list')}
+        {DOMAIN}{reverse('loans:submitted')}
 
         ─────────────────────────────────────────────────────
         DICAS IMPORTANTES:
@@ -100,7 +100,7 @@ def delivered(loan):
         Agora é aguardar o prazo de leitura e a devolução.
 
         Para gerenciar este empréstimo ou ver outros pedidos:
-        {DOMAIN}{reverse('loans:books_loans_list')}
+        {DOMAIN}{reverse('loans:received')}
 
         Obrigado por fazer parte desta comunidade de leitores!
 
@@ -141,7 +141,7 @@ def returned(loan):
         Para visualizar todos os detalhes ou entrar em contato com 
         {loan.borrower.full_name}, acesse sua área de pedidos:
 
-        {DOMAIN}{reverse('loans:orders_received_list')}
+        {DOMAIN}{reverse('orders:received')}
 
         ─────────────────────────────────────────────────────
         DICAS PARA O RECEBIMENTO:

@@ -79,7 +79,7 @@
                             {% else %}
                                 <!-- Menu do Proprietário -->
                                 <div class="owner-actions">
-                                    <a href="{% url 'books:update' pk=book.id %}" class="btn btn-outline-primary">
+                                    <a href="{% url 'books:update' book.id %}" class="btn btn-outline-primary">
                                         <i class="fas fa-edit me-2"></i>Editar Livro
                                     </a>
                                 </div>

@@ -1,4 +1,5 @@
-from loans.models import Order, Loan
+from loans.models import Loan
+from orders.models import Order
 
 def orders_received(user) -> int:
     return Order.objects.filter(owner=user, status=Order.SUBMITTED).count()

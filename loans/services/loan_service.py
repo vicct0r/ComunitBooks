@@ -1,10 +1,24 @@
 from django.db import transaction
 from django.utils import timezone
 from django.utils.timezone import timedelta
+from django.db import transaction
 
 from books.models import Book
 from ..models import Loan
-import notification
+from . import notification
+from orders.models import Order
+from books.models import Book
+
+
+def update_order_status(order: 'Order', accepted=False):
+    """
+    Aceitar ou Recusar um pedido.
+    """
+    with transaction.atomic():
+        order.status = Order.APPROVED if accepted else Order.DENIED
+        order.book.status = Book.RESERVED if accepted else order.book.status
+        order.save()
+        order.book.save()
 
 
 class LoanService:

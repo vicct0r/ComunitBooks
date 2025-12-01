@@ -39,7 +39,7 @@ class BooksFiltersMixin:
 class BookCreateView(LoginRequiredMixin, generic.CreateView):
     template_name = 'books/create.html'
     model = Book
-    fields = ['title', 'author', 'cover_image', 'condition', 'status', 'category']
+    fields = ['title', 'author', 'cover_image', 'condition', 'category']
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -48,7 +48,7 @@ class BookCreateView(LoginRequiredMixin, generic.CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('books:user_library', kwargs={'pk': self.request.user.pk})
+        return reverse('books:user_library', kwargs={'user_id': self.request.user.pk})
 
 
 class PublicBookListView(BooksFiltersMixin, generic.ListView):
@@ -88,7 +88,7 @@ class PublicBookDetailView(generic.DetailView):
     model = Book
     context_object_name = 'book'
     queryset = Book.objects.select_related('owner')
-    lookup_field = 'book_id'
+    pk_url_kwarg = 'book_id'
 
 
 class FavoriteBookView(LoginRequiredMixin, View):
@@ -109,10 +109,11 @@ class BookUpdateView(LoginRequiredMixin, generic.UpdateView):
     template_name = 'books/update.html'
     model = Book
     fields = ['title', 'author', 'cover_image', 'condition', 'category', 'is_visible']
+    pk_url_kwarg = 'book_id'
 
     def form_valid(self, form):
         messages.success(self.request, 'O livro foi atualizado com sucesso!')
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse('books:detail', kwargs={'pk': self.kwargs.get('book_id')})
+        return reverse('books:detail', kwargs={'book_id': self.kwargs.get('book_id')})

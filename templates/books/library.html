@@ -216,7 +216,7 @@
                     {% if categories %}
                     <div class="book-categories mb-3">
                         <div class="d-flex flex-wrap gap-1">
-                            {% for category in book.category.all %}
+                            {% for category in book.get_categories %}
                             <span class="badge bg-light text-dark border small">
                                 <i class="fas fa-tag me-1"></i>{{ category.name }}
                             </span>

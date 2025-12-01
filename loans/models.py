@@ -1,40 +1,9 @@
 from django.db import models
 from django.db.models import Q
 from django.conf import settings
+import uuid
 
 from books.models import Book
-
-
-class Order(models.Model):
-    SUBMITTED = 'pr'
-    APPROVED = 'ap'
-    DENIED = 'dn'
-    CANCELED = 'cn'
-
-    ORDER_STATUS_CHOICES = (
-        (SUBMITTED, 'Enviado'),
-        (APPROVED, 'Aprovado'),
-        (CANCELED, 'Cancelado'),
-        (DENIED, 'Negado')
-    )
-
-    LOAN_PERIOD_CHOICES = (
-        (7, '1 semana'),
-        (14, '2 semanas'),
-        (21, '3 semanas'),
-        (30, '1 mês')
-    )
-
-    borrower = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='order_borrower', on_delete=models.CASCADE)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='order_owner', on_delete=models.CASCADE, blank=True, null=True)
-    book = models.ForeignKey(Book, related_name='book_orders', on_delete=models.CASCADE)
-    date_created = models.DateTimeField(auto_now_add=True)
-    description = models.TextField(blank=True, null=True)
-    required_days = models.PositiveIntegerField(choices=LOAN_PERIOD_CHOICES, default=7)
-    status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=SUBMITTED)
-
-    def __str__(self):
-        return f"Borrower: {self.borrower} - Book: {self.book.title}"
 
 
 class Loan(models.Model):
@@ -56,6 +25,7 @@ class Loan(models.Model):
         (OVERDUE, 'Atraso'),
     )
     
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     borrower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='loan_borrower')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='loan_owner')
     book = models.ForeignKey(Book, related_name='book_loans', on_delete=models.CASCADE)

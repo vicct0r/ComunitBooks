@@ -3,8 +3,11 @@ from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.views import generic, View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import get_user_model
 
 from .models import Book, Category
+
+User = get_user_model()
 
 
 class BooksFiltersMixin:
@@ -48,7 +51,7 @@ class BookCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse('books:user_library', kwargs={'pk': self.request.user.pk})
 
 
-class AllBookListView(BooksFiltersMixin, generic.ListView):
+class PublicBookListView(BooksFiltersMixin, generic.ListView):
     template_name = 'books/library.html'
     model = Book
     context_object_name = 'books'
@@ -65,9 +68,14 @@ class UserBookListView(BooksFiltersMixin, generic.ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        if self.kwargs.get('pk'):
-            return super().get_queryset().filter(is_visible=True, owner=self.kwargs.get('pk'))
-        return super().get_queryset().filter(is_visible=True, owner=self.request.user.id)
+        query = super().get_queryset()
+        user = self.request.user
+        owner = User.objects.get(id=self.kwargs.get('user_id'))
+
+        if user == owner:
+            return query.filter(owner=self.request.user.id)
+        return query.filter(is_visible=True, owner=owner)
+        
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -75,15 +83,15 @@ class UserBookListView(BooksFiltersMixin, generic.ListView):
         return context
     
 
-class BookDetailView(generic.DetailView):
+class PublicBookDetailView(generic.DetailView):
     template_name = 'books/detail.html'
     model = Book
     context_object_name = 'book'
     queryset = Book.objects.select_related('owner')
-    lookup_field = 'slug'
+    lookup_field = 'book_id'
 
 
-class BookFavoriteView(LoginRequiredMixin, View):
+class FavoriteBookView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         book_id = request.POST.get('book_id')
         book = get_object_or_404(Book, id=book_id)
@@ -107,4 +115,4 @@ class BookUpdateView(LoginRequiredMixin, generic.UpdateView):
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse('books:detail', kwargs={'pk': self.kwargs.get('pk')})
+        return reverse('books:detail', kwargs={'pk': self.kwargs.get('book_id')})

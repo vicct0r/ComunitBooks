@@ -3,6 +3,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.db.models import Q
 from django.template.defaultfilters import slugify
+import uuid
 
 from stdimage import StdImageField
 
@@ -96,6 +97,7 @@ class Book(Base):
         (RESERVED, 'Reservado'),
     )
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_books', on_delete=models.CASCADE)
     title = models.CharField(max_length=250, help_text="Título do livro")
     author = models.CharField(max_length=200, blank=True, null=True)
@@ -113,8 +115,8 @@ class Book(Base):
         delete_orphans=True
     )
     condition = models.CharField(choices=CONDITION_CHOICES, max_length=7, help_text="Condição do livro")
-    status = models.CharField(choices=STATUS_CHOICES, max_length=12, default=AVAILABLE)
-    slug = models.SlugField(null=True, unique=True)
+    status = models.CharField(choices=STATUS_CHOICES, max_length=12, default=AVAILABLE, editable=False)
+    slug = models.SlugField(max_length=255, blank=True)
     category = models.ManyToManyField('Category', related_name='books_categories', null=True, blank=True)
     favorited_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favorite_books',blank=True, editable=False)
 
@@ -122,7 +124,7 @@ class Book(Base):
         return self.title
     
     def get_categories(self):
-        return self.category
+        return self.category.all
 
     def get_absolute_url(self):
         return reverse(viewname="books:detail", args=[self.pk])

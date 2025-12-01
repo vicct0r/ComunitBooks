@@ -54,7 +54,7 @@
                         {% if user.is_authenticated %}
                             {% if user != book.owner %}
                                 {% if book.status == 'av' %}
-                                <a href="{% url 'loans:order_create' book.id %}" class="btn btn-primary btn-lg btn-borrow">
+                                <a href="{% url 'orders:create' book.id %}" class="btn btn-primary btn-lg btn-borrow">
                                     <i class="fas fa-handshake me-2"></i>Solicitar Empréstimo
                                 </a>
                                 {% elif book.status == 'un' %}

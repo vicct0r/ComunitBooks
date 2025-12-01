@@ -220,7 +220,7 @@
                                     </div>
                                     <div class="metric-value">{{ loans_received }}</div>
                                     <p class="metric-description">Livros que você emprestou</p>
-                                    <a href="{% url 'loans:books_loans_list' %}" class="metric-link">
+                                    <a href="{% url 'loans:submitted' %}" class="metric-link">
                                         Gerenciar <i class="fas fa-arrow-right"></i>
                                     </a>
                                 </div>
@@ -232,7 +232,7 @@
                                     </div>
                                     <div class="metric-value">{{ orders_received }}</div>
                                     <p class="metric-description">Pedidos recebidos</p>
-                                    <a href="{% url 'loans:orders_request_list' %}" class="metric-link">
+                                    <a href="{% url 'loans:received' %}" class="metric-link">
                                         Ver pedidos <i class="fas fa-arrow-right"></i>
                                     </a>
                                 </div>
@@ -334,7 +334,7 @@
                                     </div>
                                     {% endfor %}
                                     {% if user.order_owner.count > 5 %}
-                                    <a href="{% url 'loans:orders_request_list' %}" class="activity-more">
+                                    <a href="{% url 'loans:received' %}" class="activity-more">
                                         Ver todos os {{ user.order_owner.count }} pedidos
                                     </a>
                                     {% endif %}
@@ -365,7 +365,7 @@
                                     </div>
                                     {% endfor %}
                                     {% if user.order_borrower.count > 5 %}
-                                    <a href="{% url 'loans:orders_made_list' %}" class="activity-more">
+                                    <a href="{% url 'loans:submitted' %}" class="activity-more">
                                         Ver todos os {{ user.order_borrower.count }} pedidos
                                     </a>
                                     {% endif %}

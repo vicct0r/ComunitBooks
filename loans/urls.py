@@ -4,12 +4,7 @@ from . import views
 app_name = 'loans'
 
 urlpatterns = [
-    path('order/book/<int:book_id>/', views.OrderRequestCreateView.as_view(), name='order_create'),
-    path('order/<int:pk>/cancel/', views.OrderCancelView.as_view(), name='cancel_order'),
-    path('order/my-orders/', views.OrdersMadeListView.as_view(), name='orders_made_list'),
-    path('order/requested-orders/', views.OrdersRequestedListView.as_view(), name='orders_request_list'),
-    path('order/answer/<int:order_id>/', views.LoanCreateView.as_view(), name='loan_create'),
-    path('request/list/', views.LoansListView.as_view(), name='user_loans_list'),
-    path('books/list/', views.BookLoansListView.as_view(), name='books_loans_list'),
+    path('submitted/', views.LoansListView.as_view(), name='submitted'),
+    path('received/', views.BookLoansListView.as_view(), name='received'),
     path('update/<int:pk>/', views.LoanStatusUpdate.as_view(), name='update_status')
 ]

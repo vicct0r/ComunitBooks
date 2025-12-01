@@ -1,91 +1,13 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 from django.contrib import messages
-from django.contrib.messages.views import SuccessMessageMixin
-
 from django.views import generic
-from .models import Order, Loan
 
-from .services import notification
-from .services import loan_service
+from .models import Loan
+from .services import notification, loan_service
 from .services.loan_service import LoanService
-from books.models import Book
-
-
-class OrderCancelView(LoginRequiredMixin, generic.View):
-
-    def post(self, request, pk):
-        order = Order.objects.get(id=pk)
-        loan_service.cancel_order(order)
-        messages.success(request, 'O pedido foi cancelado.')
-        return redirect('loans:orders_made_list')
-
-
-class OrderRequestCreateView(LoginRequiredMixin, SuccessMessageMixin, generic.CreateView):
-    template_name = 'orders/order_creation.html'
-    model = Order
-    fields = ['description', 'required_days']
-    success_url = reverse_lazy('loans:orders_made_list')
-    success_message = 'Pedido enviado com sucesso!'
-    
-    def form_valid(self, form):
-        book = get_object_or_404(Book, id=self.kwargs.get('book_id'))
-
-        if Order.objects.filter(borrower=self.request.user, book=book, status=Order.SUBMITTED).exists():
-            messages.info(f'Você já possui um pedido em andamento para o livro {book.title} de {book.owner.email}!')
-            return redirect(reverse('loans:orders_made_list'))
-
-        order = form.save(commit=False)
-        order.book = book
-        order.borrower = self.request.user
-        order.owner = book.owner
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['book'] = get_object_or_404(Book, id=self.kwargs.get('book_id'))
-        return context
-
-
-class OrdersFilterMixin:
-
-    def get_queryset(self):
-        query = super().get_queryset()
-        
-        if self.request.GET.get('book'):
-            query = query.filter(book_id=self.request.GET.get('book'))
-        if self.request.GET.get('status'):
-            query = query.filter(status=self.request.GET.get('status'))
-        if self.request.GET.get('duration'):
-            query = query.filter(required_days=self.request.GET.get('duration'))
-        return query
-
-
-class OrdersMadeListView(LoginRequiredMixin, OrdersFilterMixin, generic.ListView):
-    template_name = 'orders/order_list.html'
-    model = Order
-    context_object_name = 'orders'
-    
-    def get_queryset(self):
-        query = super().get_queryset()
-        return query.select_related('owner', 'book').filter(borrower=self.request.user).order_by('-date_created')
-    
-
-class OrdersRequestedListView(LoginRequiredMixin, OrdersFilterMixin, generic.ListView):
-    template_name = 'orders/requested_orders.html'
-    model = Order
-    context_object_name = 'orders'
-
-    def get_queryset(self):
-        query = super().get_queryset()
-        return query.select_related('owner', 'book').filter(owner=self.request.user).order_by('-date_created')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['user_books'] = Book.objects.filter(owner=self.request.user) 
-        return context
+from orders.models import Order
 
 
 class LoanCreateView(LoginRequiredMixin, generic.CreateView):
@@ -95,12 +17,11 @@ class LoanCreateView(LoginRequiredMixin, generic.CreateView):
     - Deny: Update Order status and do not create Loan instance
     """
 
-    template_name = 'loans/create_loan.html'
+    template_name = 'loans/create.html'
     model = Loan
     fields = ['deposit_amount', 'allows_renewal', 'custom_terms'] 
 
     def form_valid(self, form):
-
         _action = self.request.POST.get('action')
         action = True if _action == "approve" else False
         
@@ -108,7 +29,7 @@ class LoanCreateView(LoginRequiredMixin, generic.CreateView):
         
         if Loan.objects.filter(book=order.book, status__in=[Loan.ACTIVE, Loan.OVERDUE]).exists() and action:
             messages.warning(self.request,f"O livro {order.book.title} não está disponível para emprestimo!")
-            return redirect(reverse('loans:orders_request_list'))
+            return redirect(reverse('orders:submitted'))
 
         if action:
             loan = form.save(commit=False)
@@ -125,14 +46,14 @@ class LoanCreateView(LoginRequiredMixin, generic.CreateView):
         else:
             loan_service.update_order_status(order, action) 
             messages.info(self.request, "Este pedido foi recusado e arquivado!")
-            return redirect(reverse('loans:orders_request_list'))
-    
+            return redirect(reverse('orders:submitted'))
+
     def get_success_url(self):
-        return reverse('loans:orders_request_list')
+        return reverse('orders:submitted')
 
 
 class LoansSubmittedListView(LoginRequiredMixin, generic.ListView):
-    template_name = 'loans/loans_submitted.html'
+    template_name = 'loans/submitted.html'
     model = Loan
     context_object_name = 'loans'
 
@@ -144,8 +65,8 @@ class LoansSubmittedListView(LoginRequiredMixin, generic.ListView):
         .order_by('-approved_date')
 
 
-class LoansRequestedListView(LoginRequiredMixin, generic.ListView):
-    template_name = 'loans/loans_requested.html'
+class LoansReceivedListView(LoginRequiredMixin, generic.ListView):
+    template_name = 'loans/received.html'
     model = Loan
     context_object_name = 'loans'
 
@@ -187,7 +108,7 @@ class LoanStatusUpdate(LoginRequiredMixin, generic.View):
             messages.error(request, "Ação inválida")
         
         if user == loan.borrower:
-            return redirect('loans:user_loans_list')
+            return redirect('loans:submitted')
         
         if user == loan.owner:
-            return redirect('loans:books_loans_list')
+            return redirect('loans:received')

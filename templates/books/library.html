@@ -73,11 +73,8 @@
                                 <option value="newest" {% if request.GET.popularity == 'newest' %}selected{% endif %}>
                                     Recentes
                                 </option>
-                                <option value="views" {% if request.GET.popularity == 'views' %}selected{% endif %}>
-                                    Mais visualizados
-                                </option>
                                 <option value="favorites" {% if request.GET.popularity == 'favorites' %}selected{% endif %}>
-                                    Mais favoritados
+                                    Mais populares
                                 </option>
                                 <option value="oldest" {% if request.GET.popularity == 'oldest' %}selected{% endif %}>
                                     Mais antigos
@@ -90,13 +87,13 @@
                             <label for="status" class="form-label fw-semibold">Status</label>
                             <select class="form-select" id="status" name="status">
                                 <option value="">Todos os status</option>
-                                <option value="AVAILABLE" {% if request.GET.status == 'AVAILABLE' %}selected{% endif %}>
+                                <option value="av" {% if request.GET.status == 'av' %}selected{% endif %}>
                                     Disponível
                                 </option>
-                                <option value="UNAVAILABLE" {% if request.GET.status == 'UNAVAILABLE' %}selected{% endif %}>
+                                <option value="un" {% if request.GET.status == 'un' %}selected{% endif %}>
                                     Indisponível
                                 </option>
-                                <option value="RESERVED" {% if request.GET.status == 'RESERVED' %}selected{% endif %}>
+                                <option value="rs" {% if request.GET.status == 'rs' %}selected{% endif %}>
                                     Reservado
                                 </option>
                             </select>
@@ -107,16 +104,16 @@
                             <label for="condition" class="form-label fw-semibold">Condição</label>
                             <select class="form-select" id="condition" name="condition">
                                 <option value="">Todas as condições</option>
-                                <option value="NEW" {% if request.GET.condition == 'NEW' %}selected{% endif %}>
+                                <option value="nw" {% if request.GET.condition == 'nw' %}selected{% endif %}>
                                     Novo
                                 </option>
-                                <option value="GOOD" {% if request.GET.condition == 'GOOD' %}selected{% endif %}>
+                                <option value="gd" {% if request.GET.condition == 'gd' %}selected{% endif %}>
                                     Boa
                                 </option>
-                                <option value="FAIR" {% if request.GET.condition == 'FAIR' %}selected{% endif %}>
+                                <option value="fr" {% if request.GET.condition == 'fr' %}selected{% endif %}>
                                     Regular
                                 </option>
-                                <option value="DAMAGED" {% if request.GET.condition == 'DAMAGED' %}selected{% endif %}>
+                                <option value="dm" {% if request.GET.condition == 'dm' %}selected{% endif %}>
                                     Danificado
                                 </option>
                             </select>
@@ -165,15 +162,15 @@
                     <!-- Badge de Status -->
                     <div class="book-status-badge position-absolute top-0 end-0 m-2">
                         <span class="badge 
-                            {% if book.status == 'AVAILABLE' %}bg-success
-                            {% elif book.status == 'UNAVAILABLE' %}bg-warning text-dark
-                            {% elif book.status == 'RESERVED' %}bg-info
+                            {% if book.status == 'av' %}bg-success
+                            {% elif book.status == 'un' %}bg-warning text-dark
+                            {% elif book.status == 'rs' %}bg-info
                             {% else %}bg-secondary{% endif %} 
                             px-2 py-1">
                             <i class="fas 
-                                {% if book.status == 'AVAILABLE' %}fa-check-circle
-                                {% elif book.status == 'UNAVAILABLE' %}fa-clock
-                                {% elif book.status == 'RESERVED' %}fa-user-clock
+                                {% if book.status == 'av' %}fa-check-circle
+                                {% elif book.status == 'un' %}fa-clock
+                                {% elif book.status == 'rs' %}fa-user-clock
                                 {% else %}fa-question-circle{% endif %} 
                                 me-1"></i>
                             {{ book.get_status_display }}
@@ -183,17 +180,17 @@
                     <!-- Badge de Condição -->
                     <div class="book-condition-badge position-absolute top-0 start-0 m-2">
                         <span class="badge 
-                            {% if book.condition == 'NEW' %}bg-success
-                            {% elif book.condition == 'GOOD' %}bg-primary
-                            {% elif book.condition == 'FAIR' %}bg-warning text-dark
-                            {% elif book.condition == 'DAMAGED' %}bg-danger
+                            {% if book.condition == 'nw' %}bg-success
+                            {% elif book.condition == 'gd' %}bg-primary
+                            {% elif book.condition == 'fr' %}bg-warning text-dark
+                            {% elif book.condition == 'dm' %}bg-danger
                             {% else %}bg-secondary{% endif %} 
                             px-2 py-1">
                             <i class="fas 
-                                {% if book.condition == 'NEW' %}fa-star
-                                {% elif book.condition == 'GOOD' %}fa-thumbs-up
-                                {% elif book.condition == 'FAIR' %}fa-balance-scale
-                                {% elif book.condition == 'DAMAGED' %}fa-exclamation-triangle
+                                {% if book.condition == 'nw' %}fa-star
+                                {% elif book.condition == 'gd' %}fa-thumbs-up
+                                {% elif book.condition == 'fr' %}fa-balance-scale
+                                {% elif book.condition == 'dm' %}fa-exclamation-triangle
                                 {% else %}fa-book{% endif %} 
                                 me-1"></i>
                             {{ book.get_condition_display }}

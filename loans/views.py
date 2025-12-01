@@ -8,6 +8,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.views import generic
 from .models import Order, Loan
 
+from .services import notification
 from .services import loan_service
 from .services.loan_service import LoanService
 from books.models import Book
@@ -83,7 +84,7 @@ class OrdersRequestedListView(LoginRequiredMixin, OrdersFilterMixin, generic.Lis
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user_books'] = Book.objects.filter(owner=self.request.user)
+        context['user_books'] = Book.objects.filter(owner=self.request.user) 
         return context
 
 
@@ -130,51 +131,30 @@ class LoanCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse('loans:orders_request_list')
 
 
-class LoanStatusMixin:
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_id = self.request.user.id
-
-        loans_with_actions = []
-        for loan in context['loans']:
-            loans_with_actions.append({
-                'loan': loan,
-                'allowed_actions': LoanService.allowed_actions(loan, user_id=user_id)
-            })
-        
-        context['usuario'] = user_id
-        context['loans_with_actions'] = loans_with_actions
-        return context
-    
-    def get_queryset(self):
-        query = super().get_queryset()
-        
-        if self.request.GET.get('status'):
-            query = query.filter(status=self.request.GET.get('status'))
-        if self.request.GET.get('duration'):
-            query = query.filter(required_days=self.request.GET.get('duration'))
-        return query
-
-
-class LoansListView(LoginRequiredMixin, LoanStatusMixin, generic.ListView):
-    template_name = 'loans/user_loans_list.html'
+class LoansSubmittedListView(LoginRequiredMixin, generic.ListView):
+    template_name = 'loans/loans_submitted.html'
     model = Loan
     context_object_name = 'loans'
 
     def get_queryset(self):
         query = super().get_queryset()
-        return query.filter(borrower=self.request.user).order_by('-approved_date')
+        return query \
+        .filter(borrower=self.request.user) \
+        .exclude(status__in=[Loan.COMPLETED, Loan.CANCELLED]) \
+        .order_by('-approved_date')
 
 
-class BookLoansListView(LoginRequiredMixin, LoanStatusMixin, generic.ListView):
-    template_name = 'loans/books_loans_list.html'
+class LoansRequestedListView(LoginRequiredMixin, generic.ListView):
+    template_name = 'loans/loans_requested.html'
     model = Loan
     context_object_name = 'loans'
 
     def get_queryset(self):
         query = super().get_queryset()
-        return query.filter(owner=self.request.user).order_by('-approved_date')
+        return query \
+        .filter(owner=self.request.user) \
+        .exclude(status__in=[Loan.COMPLETED, Loan.CANCELLED]) \
+        .order_by('-approved_date')
 
 
 class LoanStatusUpdate(LoginRequiredMixin, generic.View):

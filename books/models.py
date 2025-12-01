@@ -14,7 +14,7 @@ class Base(models.Model):
     is_visible = models.BooleanField(default=True)
 
     class Meta:
-        abstract = True
+        abstract = True 
 
 
 class Category(models.Model):
@@ -55,10 +55,8 @@ class BookQuerySet(models.QuerySet):
         if popularity:
             if popularity == "newest":
                 query = query.order_by('-created')
-            elif popularity == "views":
-                query = query.order_by('-access_count')
             elif popularity == "favorites":
-                query = query.order_by('-favorite_count')
+                query = query.order_by('-favorited_by')
             elif popularity == "oldest":
                 query = query.order_by('created')        
         return query
@@ -115,7 +113,7 @@ class Book(Base):
         delete_orphans=True
     )
     condition = models.CharField(choices=CONDITION_CHOICES, max_length=7, help_text="Condição do livro")
-    status = models.CharField(choices=STATUS_CHOICES, max_length=12)
+    status = models.CharField(choices=STATUS_CHOICES, max_length=12, default=AVAILABLE)
     slug = models.SlugField(null=True, unique=True)
     category = models.ManyToManyField('Category', related_name='books_categories', null=True, blank=True)
     favorited_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favorite_books',blank=True, editable=False)

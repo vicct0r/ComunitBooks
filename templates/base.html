@@ -13,171 +13,205 @@
     <link rel="icon" type="image/x-icon" href="{% static 'images/bk.png' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body class="d-flex flex-column min-vh-100">
 
-    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(135deg, #4361ee, #7209b7);">
-    <div class="container">
-        <a class="navbar-brand fw-bold fs-3 d-flex align-items-center" href="{% url 'core:home' %}">
-            <span class="me-2">
-                <img src="{% static 'images/www.png' %}" alt="Ícone BookShare" 
-                     style="height: 1.5em; width: auto; vertical-align: middle;">
-            </span> 
-            CommunityBooks
-        </a>
+    <!-- Navbar Moderno -->
+    <nav class="navbar navbar-expand-lg navbar-modern">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="{% url 'core:home' %}">
+                <div class="brand-wrapper">
+                    <img src="{% static 'images/www.png' %}" alt="CommunityBooks" class="brand-logo">
+                    <span class="brand-text">CommunityBooks</span>
+                </div>
+            </a>
 
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" 
+                    aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+            <!-- Menu Content -->
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <!-- Navigation Links -->
+                <ul class="navbar-nav nav-links">
                     <li class="nav-item">
-                        <a class="nav-link px-3 py-2 rounded-3 mx-1 {% if request.resolver_match.url_name == 'library' %}active bg-white bg-opacity-10 fw-semibold{% endif %}" 
+                        <a class="nav-link {% if request.resolver_match.url_name == 'library' %}active{% endif %}" 
                            href="{% url 'books:library' %}">
-                            <i class="fas fa-search me-2"></i>Explorar
+                            <i class="fas fa-search me-2"></i>
+                            <span>Explorar</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3 py-2 rounded-3 mx-1 {% if request.resolver_match.url_name == 'create' %}active bg-white bg-opacity-10 fw-semibold{% endif %}" 
+                        <a class="nav-link {% if request.resolver_match.url_name == 'create' %}active{% endif %}" 
                            href="{% url 'books:create' %}">
-                            <i class="fas fa-plus me-2"></i>Cadastrar Livro
+                            <i class="fas fa-plus me-2"></i>
+                            <span>Cadastrar Livro</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3 py-2 rounded-3 mx-1" href="#">
-                            <i class="fas fa-users me-2"></i>Comunidade
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-users me-2"></i>
+                            <span>Comunidade</span>
                         </a>
                     </li>
                 </ul>
 
-                <ul class="navbar-nav ms-auto">
+                <!-- User Menu -->
+                <div class="navbar-actions">
                     {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center py-2 px-3 rounded-3" 
-                           href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <div class="me-2">
-                                <i class="fas fa-user-circle fs-5"></i>
-                            </div>
-                            <span class="d-none d-sm-inline text-capitalize">
-                                {% if user.full_name %}
-                                    {{ user.full_name|truncatechars:15 }}
-                                {% else %}
-                                    {{ user.email|truncatechars:15 }}
-                                {% endif %}
-                            </span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
-                            <li class="dropdown-header text-white rounded-top-3 p-3 border-0" 
-                                style="background: linear-gradient(135deg, #4361ee, #7209b7); margin: -1px -1px 0 -1px;">
-                                <div class="fw-bold text-capitalize">
-                                    {% if user.full_name %}
-                                        {{ user.full_name }}
-                                    {% else %}
-                                        {{ user.email }}
-                                    {% endif %}
+                    <div class="user-menu">
+                        <div class="user-dropdown">
+                            <button class="user-trigger" type="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user-circle"></i>
                                 </div>
-                                <div class="small text-white text-opacity-75">{{ user.email }}</div>
-                            </li>
-                            <li><hr class="dropdown-divider my-2 mx-0"></li>
-                            <li>
-                                <a class="dropdown-item rounded-2 mx-2 py-2" href="{% url 'user:profile' pk=user.id %}">
-                                    <i class="fas fa-user me-2 text-primary"></i>Meu Perfil
+                                <span class="user-name">
+                                    {% if user.full_name %}
+                                        {{ user.full_name|truncatechars:15 }}
+                                    {% else %}
+                                        {{ user.email|truncatechars:15 }}
+                                    {% endif %}
+                                </span>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </button>
+                            <div class="dropdown-menu user-dropdown-menu">
+                                <div class="user-info">
+                                    <div class="user-name">
+                                        {% if user.full_name %}
+                                            {{ user.full_name }}
+                                        {% else %}
+                                            {{ user.email }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="user-email">{{ user.email }}</div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a href="{% url 'user:profile' pk=user.id %}" class="dropdown-item">
+                                    <i class="fas fa-user"></i>
+                                    Meu Perfil
                                 </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-2 mx-2 py-2" href="{% url 'books:user_library' pk=user.id %}">
-                                    <i class="fas fa-book me-2 text-primary"></i>Meus Livros
+                                <a href="{% url 'books:user_library' pk=user.id %}" class="dropdown-item">
+                                    <i class="fas fa-book"></i>
+                                    Meus Livros
                                 </a>
-                            </li>
-                            <li><hr class="dropdown-divider my-2 mx-0"></li>
-                            <li>
-                                <a class="dropdown-item rounded-2 mx-2 py-2" href="{% url 'account_email' %}">
-                                    <i class="fas fa-envelope me-2 text-primary"></i>Gerenciar E-mail
+                                <div class="dropdown-divider"></div>
+                                <a href="{% url 'account_email' %}" class="dropdown-item">
+                                    <i class="fas fa-envelope"></i>
+                                    Gerenciar E-mail
                                 </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-2 mx-2 py-2" href="{% url 'account_change_password' %}">
-                                    <i class="fas fa-key me-2 text-primary"></i>Alterar Senha
+                                <a href="{% url 'account_change_password' %}" class="dropdown-item">
+                                    <i class="fas fa-key"></i>
+                                    Alterar Senha
                                 </a>
-                            </li>
-                            <li><hr class="dropdown-divider my-2 mx-0"></li>
-                            <li>
-                                <a class="dropdown-item rounded-2 mx-2 py-2 text-danger" href="{% url 'account_logout' %}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                <div class="dropdown-divider"></div>
+                                <a href="{% url 'account_logout' %}" class="dropdown-item logout-item">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Sair
                                 </a>
-                            </li>
-                        </ul>
-                    </li>
+                            </div>
+                        </div>
+                    </div>
                     {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link px-3 py-2 rounded-3 mx-1" href="{% url 'account_login' %}">
-                            <i class="fas fa-sign-in-alt me-2"></i>Entrar
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary btn-sm ms-2 px-3 py-2 rounded-3" href="{% url 'user:signup' %}">
-                            <i class="fas fa-user-plus me-2"></i>Registrar
-                        </a>
-                    </li>
+                    <div class="auth-buttons">
+                        <a href="{% url 'account_login' %}" class="btn btn-link">Entrar</a>
+                        <a href="{% url 'user:signup' %}" class="btn btn-primary">Registrar</a>
+                    </div>
                     {% endif %}
-                </ul>
+                </div>
             </div>
         </div>
     </nav>
 
+    <!-- Sistema de Mensagens Overlay -->
     {% if messages %}
-    <div class="position-fixed top-0 start-50 translate-middle-x mt-5 z-3" style="min-width: min(100%, 400px);">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-lg border-0 rounded-3 mb-2 message-alert" 
-             role="alert">
-            <div class="d-flex align-items-start">
-                <div class="flex-shrink-0 me-3 pt-1"> 
-                    {% if message.tags == 'success' %}
-                    <i class="fas fa-check-circle fs-5"></i>
-                    {% elif message.tags == 'error' or message.tags == 'danger' %}
-                    <i class="fas fa-exclamation-circle fs-5"></i>
-                    {% elif message.tags == 'warning' %}
-                    <i class="fas fa-exclamation-triangle fs-5"></i>
-                    {% elif message.tags == 'info' %}
-                    <i class="fas fa-info-circle fs-5"></i>
-                    {% else %}
-                    <i class="fas fa-bell fs-5"></i>
-                    {% endif %}
+    <div class="messages-overlay">
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="message-toast message-{{ message.tags }} show">
+                <div class="message-content">
+                    <div class="message-icon">
+                        {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <i class="fas fa-exclamation-circle"></i>
+                        {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {% elif message.tags == 'info' %}
+                        <i class="fas fa-info-circle"></i>
+                        {% else %}
+                        <i class="fas fa-bell"></i>
+                        {% endif %}
+                    </div>
+                    <div class="message-text">
+                        <div class="message-title">
+                            {% if message.tags == 'success' %}Sucesso!
+                            {% elif message.tags == 'error' or message.tags == 'danger' %}Erro!
+                            {% elif message.tags == 'warning' %}Atenção!
+                            {% elif message.tags == 'info' %}Informação!
+                            {% else %}Notificação!{% endif %}
+                        </div>
+                        <div class="message-body">{{ message }}</div>
+                    </div>
+                    <button type="button" class="message-close" data-dismiss="message">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <div class="flex-grow-1 fw-medium text-break">
-                    {{ message }}
-                </div>
-                <button type="button" class="btn-close flex-shrink-0 ms-3" data-bs-dismiss="alert"></button>
+                <div class="message-progress"></div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     {% endif %}
 
-    <main class="flex-grow-1 py-4">
+    <main class="flex-grow-1">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-dark text-white py-4 mt-auto">
-        <div class="container text-center">
-            <p class="mb-0">© 2025 BookShare. Compartilhe histórias, não apenas livros.</p>
+    <footer class="bg-dark text-white mt-5">
+        <div class="container py-4">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 CommunityBooks. Compartilhe histórias, não apenas livros.</p>
+            </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Sistema de Mensagens JavaScript -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Adiciona classe active ao link do menu atual
-            const currentPath = window.location.pathname;
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.getAttribute('href') === currentPath) {
-                    // O template tag do Django já cuida dos links principais.
-                    // Esta lógica deve ser usada apenas se o Django falhar ou para links dinâmicos.
-                    // link.classList.add('active', 'bg-white', 'bg-opacity-10', 'fw-semibold');
-                }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fechar mensagens manualmente
+        document.querySelectorAll('.message-close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                const toast = this.closest('.message-toast');
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
             });
         });
+
+        // Auto-dismiss para mensagens de sucesso/info
+        document.querySelectorAll('.message-success, .message-info').forEach(toast => {
+            setTimeout(() => {
+                if (toast.classList.contains('show')) {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
+        });
+
+        // Progress bar animation
+        document.querySelectorAll('.message-toast').forEach(toast => {
+            const progressBar = toast.querySelector('.message-progress');
+            if (toast.classList.contains('message-success') || toast.classList.contains('message-info')) {
+                progressBar.style.animation = 'progress 5s linear forwards';
+            }
+        });
+    });
     </script>
+
+    {% block extra_js %}
+    {% endblock %}
 </body>
 </html>

@@ -55,7 +55,7 @@ class AllBookListView(BooksFiltersMixin, generic.ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return super().get_queryset().filter(is_visible=True)
+        return super().get_queryset().filter(is_visible=True).order_by('-created')
 
 
 class UserBookListView(BooksFiltersMixin, generic.ListView):

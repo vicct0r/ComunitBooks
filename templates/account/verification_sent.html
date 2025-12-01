@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Verifique seu Email{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <!-- Card de Verificação -->
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-5">
+                    <!-- Ícone -->
+                    <div class="text-center mb-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-paper-plane text-primary fs-2"></i>
+                        </div>
+                    </div>
+
+                    <!-- Título -->
+                    <h2 class="text-center fw-bold mb-3">Verifique seu Email</h2>
+                    
+                    <!-- Mensagem -->
+                    <div class="text-center text-muted mb-4">
+                        <p class="mb-3">
+                            Enviamos um email para <strong>{{ email }}</strong> para verificação.
+                        </p>
+                        <p class="mb-3">
+                            Siga o link fornecido para finalizar o processo de cadastro.
+                        </p>
+                        
+                        <!-- Avisos importantes -->
+                        <div class="alert alert-light border rounded-3 mt-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-info-circle text-primary mt-1 me-3"></i>
+                                <div class="small">
+                                    <strong>Não encontrou o email?</strong><br>
+                                    Verifique sua pasta de spam. Entre em contato conosco se não receber 
+                                    o email de verificação dentro de alguns minutos.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'account_login' %}" class="btn btn-primary btn-lg py-3 rounded-3 fw-semibold">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Fazer Login
+                        </a>
+                        <a href="{% url 'core:home' %}" class="btn btn-outline-secondary py-2 rounded-3">
+                            <i class="fas fa-home me-2"></i>
+                            Voltar para Home
+                        </a>
+                    </div>
+
+                    <!-- Reenviar email -->
+                    <div class="text-center mt-4">
+                        <small class="text-muted">
+                            Não recebeu o email? 
+                            <a href="{% url 'account_email' %}" class="text-decoration-none">Solicitar novo link</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

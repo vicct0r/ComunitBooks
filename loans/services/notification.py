@@ -1,9 +1,10 @@
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.conf import settings
+from django.utils import timezone
 
-SENDER_EMAIL = settings.SENDER_EMAIL
 DOMAIN = 'community.tornac-dev.com.br'
+EMAIL_HOST_USER = 'dev@localhost'
 
 def approve(loan):
     message = f"""
@@ -33,7 +34,7 @@ def approve(loan):
     return send_mail(
         subject=f"Pedido Aprovado: Seu pedido para o livro '{loan.book.title}' foi aceito!",
         message=message.strip(),
-        from_email=SENDER_EMAIL,
+        from_email=EMAIL_HOST_USER,
         recipient_list=[loan.borrower.email],
         fail_silently=False
     )
@@ -75,7 +76,7 @@ def sent(loan):
     return send_mail(
         subject=f"Emprestimo atualizado: O livro '{loan.book.title}' foi enviado para o seu endereço!",
         message=message.strip(),
-        from_email=SENDER_EMAIL,
+        from_email=EMAIL_HOST_USER,
         recipient_list=[loan.borrower.email],
         fail_silently=False
     )
@@ -109,8 +110,8 @@ def delivered(loan):
     return send_mail(
         subject=f"Emprestimo Atualizado: Seu livro '{loan.book.title}' foi entregue!",
         message=message.strip(),
-        from_email=SENDER_EMAIL,
-        recipient_list=[loan.borrower.email],
+        from_email=EMAIL_HOST_USER,
+        recipient_list=[loan.owner.email],
         fail_silently=False
     )
 
@@ -127,7 +128,7 @@ def returned(loan):
         • Livro: {loan.book.title}
         • Devolvido por: {loan.borrower.full_name}
         • Status: Em transporte de volta
-        • Data do envio: {loan.updated_at.strftime('%d/%m/%Y')}
+        • Data do envio: {timezone.now()}
         ─────────────────────────────────────────────────────
 
         {loan.borrower.full_name} confirmou o envio do livro de volta 
@@ -156,8 +157,8 @@ def returned(loan):
     return send_mail(
         subject=f"Encomenda: Seu livro '{loan.book.title}' está à caminho do seu endereço!",
         message=message.strip(),
-        from_email=SENDER_EMAIL,
-        recipient_list=[loan.borrower.email],
+        from_email=EMAIL_HOST_USER,
+        recipient_list=[loan.owner.email],
         fail_silently=False
     )
 
@@ -181,7 +182,7 @@ def completed(loan):
     return send_mail(
         subject=f"Emprestimo fechado: O emprestimo '{loan.id}' foi fechado!",
         message=message.strip(),
-        from_email=SENDER_EMAIL,
+        from_email=EMAIL_HOST_USER,
         recipient_list=[loan.borrower.email],
         fail_silently=False
     )

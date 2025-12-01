@@ -1,191 +1,302 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Cadastrar-se{% endblock %}
+{% block title %}Cadastrar-se - CommunityBooks{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
 
 {% block content %}
+<div class="auth-container">
+    <div class="auth-background">
+        <!-- Background com elementos decorativos -->
+        <div class="auth-shape auth-shape-1"></div>
+        <div class="auth-shape auth-shape-2"></div>
+        <div class="auth-shape auth-shape-3"></div>
+    </div>
 
-<div class="auth-section py-5">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
-                <!-- Card de Registro -->
-                <div class="auth-card card shadow-lg border-0">
-                    <div class="card-header bg-transparent border-0 pt-5 pb-4">
-                        <div class="text-center">
-                            <span class="auth-icon display-4 mb-3">📚</span>
-                            <h2 class="auth-title mb-2">Junte-se à BookShare</h2>
-                            <p class="auth-subtitle text-muted">Compartilhe histórias, conecte-se com leitores</p>
+        <div class="auth-layout">
+            <!-- Lado Esquerdo: Conteúdo de Apresentação -->
+            <div class="auth-hero">
+                <div class="auth-hero-content">
+                    <a href="{% url 'core:home' %}" class="auth-logo">
+                        <div class="logo-wrapper">
+                            <img src="{% static 'images/www.png' %}" alt="CommunityBooks" class="logo-icon">
+                            <span class="logo-text">CommunityBooks</span>
+                        </div>
+                    </a>
+
+                    <div class="hero-main">
+                        <h1 class="hero-title">
+                            Junte-se à nossa
+                            <span class="gradient-text">comunidade</span>
+                            de leitores
+                        </h1>
+                        
+                        <p class="hero-description">
+                            Compartilhe histórias, descubra novos livros e conecte-se com leitores apaixonados. 
+                            Sua próxima grande leitura está esperando por você.
+                        </p>
+
+                        <div class="hero-features">
+                            <div class="feature-item">
+                                <i class="fas fa-book-open feature-icon"></i>
+                                <span>Compartilhe sua biblioteca</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-users feature-icon"></i>
+                                <span>Conecte-se com leitores</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-exchange-alt feature-icon"></i>
+                                <span>Empréstimos seguros</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="card-body px-4 px-md-5 pb-5">
-                        <form method="post" novalidate class="auth-form">
-                            {% csrf_token %}
-                            
-                            {% if form.non_field_errors %}
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                {% for error in form.non_field_errors %}
-                                    {{ error }}
-                                {% endfor %}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            {% endif %}
 
+                    <div class="hero-footer">
+                        <p>Já faz parte da comunidade?</p>
+                        <a href="{% url 'account_login' %}" class="btn-login-link">
+                            Fazer Login <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lado Direito: Formulário -->
+            <div class="auth-form-section">
+                <div class="auth-form-container">
+                    <div class="auth-form-header">
+                        <h2 class="form-title">Criar Conta</h2>
+                        <p class="form-subtitle">Preencha seus dados para começar</p>
+                    </div>
+
+                    <form method="post" novalidate class="auth-form" id="signupForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div class="alert-content">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="form-grid">
                             <!-- Nome Completo -->
-                            <div class="mb-3">
-                                <div class="form-floating">
+                            <div class="form-group">
+                                <label for="id_full_name" class="form-label">
+                                    Nome Completo *
+                                </label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-user input-icon"></i>
                                     <input type="text" 
-                                           class="form-control {% if form.full_name.errors %}is-invalid{% endif %}" 
+                                           class="form-input {% if form.full_name.errors %}input-error{% endif %}" 
                                            id="id_full_name" 
                                            name="full_name" 
                                            placeholder="Seu nome completo"
                                            value="{{ form.full_name.value|default:'' }}"
                                            required>
-                                    <label for="id_full_name">Nome Completo *</label>
-                                    {% if form.full_name.errors %}
-                                    <div class="invalid-feedback">
-                                        {% for error in form.full_name.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
                                 </div>
+                                {% if form.full_name.errors %}
+                                <div class="error-message">
+                                    {% for error in form.full_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                             </div>
 
                             <!-- Email -->
-                            <div class="mb-3">
-                                <div class="form-floating">
+                            <div class="form-group">
+                                <label for="id_email" class="form-label">
+                                    Email *
+                                </label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-envelope input-icon"></i>
                                     <input type="email" 
-                                           class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                                           class="form-input {% if form.email.errors %}input-error{% endif %}" 
                                            id="id_email" 
                                            name="email" 
                                            placeholder="seu@email.com"
                                            value="{{ form.email.value|default:'' }}"
                                            required>
-                                    <label for="id_email">Email *</label>
-                                    {% if form.email.errors %}
-                                    <div class="invalid-feedback">
-                                        {% for error in form.email.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
                                 </div>
+                                {% if form.email.errors %}
+                                <div class="error-message">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                             </div>
 
                             <!-- Telefone -->
-                            <div class="mb-3">
-                                <div class="form-floating">
+                            <div class="form-group">
+                                <label for="id_telefone" class="form-label">
+                                    Telefone *
+                                </label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-phone input-icon"></i>
                                     <input type="tel" 
-                                           class="form-control {% if form.telefone.errors %}is-invalid{% endif %}" 
+                                           class="form-input {% if form.telefone.errors %}input-error{% endif %}" 
                                            id="id_telefone" 
                                            name="telefone" 
                                            placeholder="(11) 99999-9999"
                                            value="{{ form.telefone.value|default:'' }}"
                                            required>
-                                    <label for="id_telefone">Telefone *</label>
-                                    {% if form.telefone.errors %}
-                                    <div class="invalid-feedback">
-                                        {% for error in form.telefone.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-                                    <div class="form-text">Usaremos para combinar empréstimos</div>
+                                </div>
+                                {% if form.telefone.errors %}
+                                <div class="error-message">
+                                    {% for error in form.telefone.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="input-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    Usaremos apenas para combinar empréstimos
                                 </div>
                             </div>
 
-                            <!-- Senha 1 -->
-                            <div class="mb-3">
-                                <div class="form-floating">
+                            <!-- Senha -->
+                            <div class="form-group">
+                                <label for="id_password1" class="form-label">
+                                    Senha *
+                                </label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-lock input-icon"></i>
                                     <input type="password" 
-                                           class="form-control {% if form.password1.errors %}is-invalid{% endif %}" 
+                                           class="form-input {% if form.password1.errors %}input-error{% endif %}" 
                                            id="id_password1" 
                                            name="password1" 
-                                           placeholder="Senha"
+                                           placeholder="Crie uma senha segura"
                                            required>
-                                    <label for="id_password1">Senha *</label>
-                                    {% if form.password1.errors %}
-                                    <div class="invalid-feedback">
-                                        {% for error in form.password1.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-                                    {% if form.password1.help_text %}
-                                    <div class="form-text">{{ form.password1.help_text }}</div>
-                                    {% endif %}
+                                    <button type="button" class="password-toggle" data-target="id_password1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                 </div>
+                                {% if form.password1.errors %}
+                                <div class="error-message">
+                                    {% for error in form.password1.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Dicas de senha -->
+                                <div class="password-strength">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill" id="passwordStrength"></div>
+                                    </div>
+                                    <div class="strength-text" id="passwordStrengthText">Força da senha</div>
+                                </div>
+                                
+                                {% if form.password1.help_text %}
+                                <div class="input-help">
+                                    <i class="fas fa-lightbulb"></i>
+                                    {{ form.password1.help_text }}
+                                </div>
+                                {% endif %}
                             </div>
 
-                            <!-- Senha 2 -->
-                            <div class="mb-4">
-                                <div class="form-floating">
+                            <!-- Confirmar Senha -->
+                            <div class="form-group">
+                                <label for="id_password2" class="form-label">
+                                    Confirmar Senha *
+                                </label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-lock input-icon"></i>
                                     <input type="password" 
-                                           class="form-control {% if form.password2.errors %}is-invalid{% endif %}" 
+                                           class="form-input {% if form.password2.errors %}input-error{% endif %}" 
                                            id="id_password2" 
                                            name="password2" 
-                                           placeholder="Confirmar Senha"
+                                           placeholder="Digite a senha novamente"
                                            required>
-                                    <label for="id_password2">Confirmar Senha *</label>
-                                    {% if form.password2.errors %}
-                                    <div class="invalid-feedback">
-                                        {% for error in form.password2.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
+                                    <button type="button" class="password-toggle" data-target="id_password2">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                 </div>
-                            </div>
-
-                            <!-- Termos -->
-                            <div class="form-check mb-4">
-                                <input class="form-check-input" type="checkbox" id="termsCheck" required>
-                                <label class="form-check-label small text-muted" for="termsCheck">
-                                    Concordo com os <a href="#" class="text-decoration-none">Termos de Serviço</a> 
-                                    e <a href="#" class="text-decoration-none">Política de Privacidade</a>
-                                </label>
-                            </div>
-
-                            <!-- Botão Submit -->
-                            <button type="submit" class="btn btn-primary btn-lg w-100 py-3 auth-submit-btn">
-                                <span class="btn-text">Criar Minha Conta</span>
-                                <div class="btn-loading spinner-border spinner-border-sm d-none" role="status">
-                                    <span class="visually-hidden">Carregando...</span>
+                                {% if form.password2.errors %}
+                                <div class="error-message">
+                                    {% for error in form.password2.errors %}
+                                        {{ error }}
+                                    {% endfor %}
                                 </div>
-                            </button>
-                        </form>
-
-                        <!-- Link de Login -->
-                        <div class="text-center mt-4 pt-3 border-top">
-                            <p class="mb-0 small text-muted">
-                                Já tem uma conta?
-                                <a href="{% url 'account_login' %}" class="text-decoration-none fw-semibold">Fazer Login</a>
-                            </p>
+                                {% endif %}
+                            </div>
                         </div>
-                    </div>
+
+                        <!-- Termos e Condições -->
+                        <div class="form-group terms-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="termsCheck" required class="checkbox-input">
+                                <span class="checkbox-checkmark"></span>
+                                <span class="checkbox-label">
+                                    Concordo com os 
+                                    <a href="#" class="link">Termos de Serviço</a> 
+                                    e 
+                                    <a href="#" class="link">Política de Privacidade</a>
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- Botão de Submit -->
+                        <button type="submit" class="btn btn-primary auth-submit-btn" id="submitBtn">
+                            <span class="btn-text">Criar Minha Conta</span>
+                            <div class="btn-loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+
+                        <!-- Login Rápido -->
+                        <div class="auth-divider">
+                            <span>ou</span>
+                        </div>
+
+                        <div class="quick-login">
+                            <p class="quick-login-text">Já tem uma conta?</p>
+                            <a href="{% url 'account_login' %}" class="btn btn-secondary">
+                                Fazer Login
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('.auth-form');
-    const submitBtn = document.querySelector('.auth-submit-btn');
+    const form = document.getElementById('signupForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
     
-    if (form) {
-        form.addEventListener('submit', function() {
-            const btnText = submitBtn.querySelector('.btn-text');
-            const btnLoading = submitBtn.querySelector('.btn-loading');
+    // Toggle de senha
+    document.querySelectorAll('.password-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            const icon = this.querySelector('i');
             
-            btnText.classList.add('d-none');
-            btnLoading.classList.remove('d-none');
-            submitBtn.disabled = true;
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
         });
-    }
+    });
     
     // Máscara para telefone
     const phoneInput = document.getElementById('id_telefone');
@@ -207,115 +318,71 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.value = value;
         });
     }
+    
+    // Validação de força da senha
+    const passwordInput = document.getElementById('id_password1');
+    const strengthBar = document.getElementById('passwordStrength');
+    const strengthText = document.getElementById('passwordStrengthText');
+    
+    if (passwordInput && strengthBar && strengthText) {
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            let text = 'Muito fraca';
+            let color = '#ef4444';
+            
+            if (password.length >= 8) strength += 25;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 25;
+            if (password.match(/\d/)) strength += 25;
+            if (password.match(/[^a-zA-Z\d]/)) strength += 25;
+            
+            strengthBar.style.width = strength + '%';
+            
+            if (strength >= 75) {
+                text = 'Forte';
+                color = '#10b981';
+            } else if (strength >= 50) {
+                text = 'Média';
+                color = '#f59e0b';
+            } else if (strength >= 25) {
+                text = 'Fraca';
+                color = '#f97316';
+            }
+            
+            strengthBar.style.backgroundColor = color;
+            strengthText.textContent = text;
+            strengthText.style.color = color;
+        });
+    }
+    
+    // Submit handler
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const termsCheck = document.getElementById('termsCheck');
+            
+            if (!termsCheck.checked) {
+                e.preventDefault();
+                termsCheck.focus();
+                return;
+            }
+            
+            btnText.style.opacity = '0';
+            btnLoading.style.display = 'flex';
+            submitBtn.disabled = true;
+        });
+    }
+    
+    // Validação em tempo real
+    const inputs = document.querySelectorAll('.form-input');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() !== '') {
+                this.classList.add('input-filled');
+            } else {
+                this.classList.remove('input-filled');
+            }
+        });
+    });
 });
 </script>
-
-<style>
-.auth-section {
-    background: linear-gradient(135deg, var(--bg-light) 0%, #f1f3f9 100%);
-    min-height: 100vh;
-}
-
-.auth-card {
-    border-radius: 20px;
-    border: none;
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.95);
-}
-
-.auth-icon {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.auth-title {
-    font-weight: 800;
-    color: var(--text-dark);
-    font-size: 1.8rem;
-}
-
-.auth-subtitle {
-    font-size: 1rem;
-}
-
-.form-floating > .form-control {
-    height: calc(3.5rem + 2px);
-    line-height: 1.25;
-    border-radius: 12px;
-    border: 2px solid #e9ecef;
-    transition: var(--transition);
-}
-
-.form-floating > .form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
-}
-
-.form-floating > label {
-    color: var(--text-light);
-    font-weight: 500;
-    padding: 1rem 0.75rem;
-}
-
-.form-floating > .form-control:focus ~ label {
-    color: var(--primary-color);
-}
-
-.auth-submit-btn {
-    border-radius: 50px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    transition: var(--transition);
-    position: relative;
-    overflow: hidden;
-}
-
-.auth-submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
-}
-
-.auth-submit-btn:active {
-    transform: translateY(0);
-}
-
-.form-check-input {
-    width: 1.1em;
-    height: 1.1em;
-    margin-top: 0.15em;
-    border: 2px solid #dee2e6;
-}
-
-.form-check-input:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.form-check-input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
-}
-
-.alert {
-    border-radius: 12px;
-    border: none;
-    font-weight: 500;
-}
-
-@media (max-width: 576px) {
-    .auth-card {
-        margin: 1rem;
-    }
-    
-    .card-body {
-        padding: 1.5rem !important;
-    }
-    
-    .auth-title {
-        font-size: 1.5rem;
-    }
-}
-</style>
 {% endblock %}

@@ -1,8 +1,43 @@
+# Git e Controle de Versão
 .git
-__pycache__
-*.pyc
-venv
+.gitignore
+
+# Python e Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Ambientes Virtuais e Dependências
+venv/
+.venv/
+env/
+dist/
+build/
+*.egg-info/
+
+# Variáveis de Ambiente e Segredos
 .env
+*.pod
+*.pem
+*.key
+
+# Banco de Dados Local (SQLite)
 db.sqlite3
-staticfiles
-media
+*.db
+
+# Arquivos de Sistema e IDEs
+.DS_Store
+.vscode/
+.idea/
+
+# Arquivos Estáticos e Media (O container deve gerar os seus próprios)
+staticfiles/
+media/
+
+# Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore

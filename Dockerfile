@@ -1,23 +1,27 @@
 FROM python:3.12-slim
 
-# Instala dependências de sistema primeiro
-RUN apt-get update && apt-get install -y \
-    netcat-openbsd \
-    libpq-dev \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    netcat-openbsd \
+    libpq-dev \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip
-
-COPY requirements/docker.txt /app/
-RUN pip install --no-cache-dir -r docker.txt
+COPY requirements/docker.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app/
+
+RUN useradd -m django-user && \
+    chown -R django-user:django-user /app
+USER django-user
 
 EXPOSE 8000
 

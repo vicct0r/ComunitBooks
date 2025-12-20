@@ -123,6 +123,7 @@ class Book(Base):
     def __str__(self):
         return self.title
     
+    @property
     def get_categories(self):
         return self.category.all
 

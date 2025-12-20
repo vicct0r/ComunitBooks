@@ -136,3 +136,20 @@ LOGOUT_REDIRECT_URL = LOGIN_REDIRECT_URL
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+CELERY_BROKER_URL = env('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND')
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "search_overdue_loans": {
+        "task": "loans.tasks.update_loan_status_overdue",
+        "schedule": crontab(minute="*/1"),
+    },
+
+    "notify_due_date": {
+        "task": "loans.tasks.notify_due_date",
+        "schedule": crontab(minute="*/1"),
+    },
+}

@@ -41,12 +41,13 @@ class CustomUser(AbstractUser):
     telefone = models.CharField('Telefone', max_length=15)
     is_staff = models.BooleanField('Membro da Equipe', default=False)
     img = StdImageField(
-                        'Imagem', 
-                        upload_to='profiles', 
-                        variations={'thumb':{'width':360, 'height':360, 'crop':True}},
-                        blank=True,
-                        null=True
+        'Imagem', 
+        upload_to='profiles', 
+        variations={'thumb':{'width':360, 'height':360, 'crop':True}},
+        blank=True,
+        null=True
     )
+    score = models.IntegerField(default=0, editable=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone']

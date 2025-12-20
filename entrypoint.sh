@@ -12,4 +12,4 @@ python manage.py migrate --no-input
 python manage.py collectstatic --no-input
 
 # Iniciar servidor
-gunicorn --bind 0.0.0.0:8000 --workers 3 config.wsgi:application  
+python manage.py runserver 0.0.0.0:8000 

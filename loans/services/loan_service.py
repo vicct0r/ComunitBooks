@@ -9,6 +9,8 @@ from . import notification
 from orders.models import Order
 from books.models import Book
 
+from usuarios.services import UserService
+
 
 def update_order_status(order: 'Order', accepted=False):
     """
@@ -49,6 +51,7 @@ class LoanService:
         loan.book.status = Book.UNAVAILABLE
         loan.save()
         loan.book.save()
+        UserService.increase_user_score(loan.owner.id, quantity=1)
         notification.sent(loan)
         return f"Envio confirmado. Emprestimo estará ativo assim que chegar para {loan.borrower.email}."
 
@@ -73,12 +76,19 @@ class LoanService:
     def borrower_return_book(loan_id: int) -> str:
         loan = Loan.objects.select_for_update().get(id=loan_id)
 
-        if not loan.status == Loan.ACTIVE:
-            raise ValueError('Action not allowed.')
+        if not loan.status in [Loan.ACTIVE, Loan.OVERDUE]:
+            raise ValueError('Action not allowed')
 
         loan.status = Loan.IN_RETURN
         loan.save()
         loan.book.save()
+
+        # se User devolveu mais cedo, então + pontos
+        if loan.due_date > timezone.now().date():
+            UserService.increase_user_score(loan.borrower.id, quantity=2)
+        else:
+            UserService.increase_user_score(loan.borrower.id, quantity=1)
+
         notification.returned(loan)
         return f"Devolução do livro {loan.book.title} foi efetuada."
 
@@ -100,6 +110,10 @@ class LoanService:
     
     @staticmethod
     def allowed_actions(loan: Loan, user_id=None) -> list[str]:
+        """
+        Delegando ações para Owner e Borrower de acordo com o estado do Loan_obj
+        """
+
         status = loan.status
         is_owner = (user_id == loan.owner.id)
         is_borrower = (user_id == loan.borrower.id)
@@ -117,7 +131,7 @@ class LoanService:
         elif is_borrower:
             if status == Loan.ON_ROUTE:
                 return ['confirm_delivery']
-            elif status == Loan.ACTIVE:
+            elif status in [Loan.ACTIVE, Loan.OVERDUE]:
                 return ['return_book']  
             elif status == Loan.APPROVED:
                 return ['waiting_confirm'] 

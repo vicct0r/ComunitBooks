@@ -918,3 +918,201 @@
         align-self: center;
     }
 }
+
+/* ===== ESTILOS PARA PONTUAÇÃO ===== */
+
+/* Badge de pontuação no avatar */
+.profile-score-badge {
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #333;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 2px solid white;
+    z-index: 2;
+}
+
+.profile-score-badge i {
+    margin-right: 2px;
+    font-size: 0.8rem;
+}
+
+/* Pontuação no meta */
+.profile-meta-item:nth-child(2) {
+    color: #FFA500;
+    font-weight: 600;
+}
+
+.profile-meta-item:nth-child(2) i {
+    color: #FFD700;
+}
+
+/* Item de pontuação destacado na grid de stats */
+.stats-grid .stat-item.highlight {
+    background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+    border: 2px solid #FFD700;
+}
+
+.stats-grid .stat-item.highlight .stat-value {
+    color: #FF8F00;
+    font-size: 2rem;
+}
+
+.stats-grid .stat-item.highlight .stat-label {
+    color: #FF8F00;
+    font-weight: 600;
+}
+
+/* Trust indicator para pontuação */
+.trust-item.score {
+    color: #FFA500;
+}
+
+.trust-item.score i {
+    color: #FFD700;
+}
+
+/* Card de métrica para pontuação */
+.metric-card.highlight {
+    border: 2px solid #FFD700;
+    background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+}
+
+.metric-card.highlight .metric-icon {
+    color: #FFA500;
+}
+
+/* Card de engajamento destacado */
+.engagement-card.highlight {
+    border: 2px solid #FFD700;
+    background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+}
+
+.engagement-card.highlight .engagement-icon {
+    background: #FFD700;
+    color: #333;
+}
+
+/* Badge de pontuação na seção de confiança */
+.trust-badge i.fa-star {
+    color: #FFD700;
+}
+
+.trust-badge:nth-child(2) {
+    background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+    border: 1px solid #FFD700;
+    color: #FF8F00;
+}
+
+/* Estatística de comunidade para pontuação */
+.community-stat:nth-child(2) i {
+    color: #FFD700;
+}
+
+.community-stat:nth-child(2) h3 {
+    color: #FF8F00;
+}
+
+/* Progresso da pontuação */
+.score-progress {
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 10px;
+}
+
+.progress-bar {
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    border-radius: 5px;
+    transition: width 1s ease-in-out;
+}
+
+.score-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.score-info span:first-child {
+    color: #FF8F00;
+    font-weight: 600;
+}
+
+/* Dicas de pontuação */
+.score-tips {
+    margin-top: 10px;
+    padding: 10px;
+    background: #E3F2FD;
+    border-radius: 8px;
+    border-left: 4px solid #2196F3;
+    font-size: 0.9rem;
+    color: #1565C0;
+}
+
+.score-tips i {
+    color: #2196F3;
+    margin-right: 8px;
+}
+
+/* Animação de pulso para pontuação */
+@keyframes pulseScore {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+    }
+}
+
+/* Responsividade para o badge de pontuação */
+@media (max-width: 768px) {
+    .profile-score-badge {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+        bottom: -8px;
+        right: -8px;
+    }
+    
+    .stats-grid .stat-item.highlight .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .profile-meta-item:nth-child(2) {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-score-badge {
+        width: 30px;
+        height: 30px;
+        font-size: 0.7rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

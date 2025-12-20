@@ -32,7 +32,7 @@ def approve(loan):
         """
 
     return send_mail(
-        subject=f"Pedido Aprovado: Seu pedido para o livro '{loan.book.title}' foi aceito!",
+        subject=f"Empréstimo (Update): {loan.id}",
         message=message.strip(),
         from_email=EMAIL_HOST_USER,
         recipient_list=[loan.borrower.email],
@@ -74,7 +74,7 @@ def sent(loan):
         """
     
     return send_mail(
-        subject=f"Emprestimo atualizado: O livro '{loan.book.title}' foi enviado para o seu endereço!",
+        subject=f"Empréstimo (Update): {loan.id}",
         message=message.strip(),
         from_email=EMAIL_HOST_USER,
         recipient_list=[loan.borrower.email],
@@ -108,7 +108,7 @@ def delivered(loan):
         """
     
     return send_mail(
-        subject=f"Emprestimo Atualizado: Seu livro '{loan.book.title}' foi entregue!",
+        subject=f"Empréstimo (Update): {loan.id}",
         message=message.strip(),
         from_email=EMAIL_HOST_USER,
         recipient_list=[loan.owner.email],
@@ -155,7 +155,7 @@ def returned(loan):
         """
     
     return send_mail(
-        subject=f"Encomenda: Seu livro '{loan.book.title}' está à caminho do seu endereço!",
+        subject=f"Empréstimo (Update): {loan.id}",
         message=message.strip(),
         from_email=EMAIL_HOST_USER,
         recipient_list=[loan.owner.email],
@@ -180,9 +180,67 @@ def completed(loan):
         """
     
     return send_mail(
-        subject=f"Emprestimo fechado: O emprestimo '{loan.id}' foi fechado!",
+        subject=f"Empréstimo (Update): {loan.id}",
         message=message.strip(),
         from_email=EMAIL_HOST_USER,
         recipient_list=[loan.borrower.email],
         fail_silently=False
     )
+
+
+def due_date_tomorrow_info(loan):
+    message = f"""
+        Olá, {loan.borrower.full_name},
+
+        Este é apenas um lembrete 🙂  
+
+        O prazo de devolução do livro "{loan.book.title}" vence AMANHÃ: ({loan.due_date.strftime('%d/%m/%Y')}).
+
+        Para evitar atrasos e possíveis penalidades, pedimos que realize a devolução dentro do prazo.
+        Caso já esteja tudo certo, pode desconsiderar esta mensagem.
+
+        Qualquer dúvida, estamos à disposição.
+
+        Atenciosamente,
+        Equipe CommunityBooks
+    """
+
+    return send_mail(
+        subject=f"Empréstimo (Info): {loan.id}",
+        message=message.strip(),
+        from_email=EMAIL_HOST_USER,
+        recipient_list=[loan.borrower.email],
+        fail_silently=False
+    )
+
+
+def overdue_loan_info(loan):
+    message = f"""
+        Olá, {loan.borrower.full_name},
+
+        Este é um aviso importante referente ao empréstimo do livro "{loan.book.title}".
+
+        Identificamos que o prazo de devolução, previsto para {loan.due_date.strftime('%d/%m/%Y')}, foi ultrapassado e o livro ainda não consta como devolvido em nosso sistema.
+
+        Conforme as regras da plataforma CommunityBooks, atrasos na devolução implicam em penalidades, incluindo a redução da pontuação do usuário, que pode impactar futuras solicitações de empréstimo.
+
+        Solicitamos que a devolução seja realizada o quanto antes para evitar novas penalizações.
+        Caso o livro já tenha sido devolvido, pedimos que desconsidere esta mensagem — o status será atualizado assim que confirmado pelo proprietário.
+
+        Em caso de dúvidas ou necessidade de suporte, nossa equipe está à disposição.
+
+        Atenciosamente,  
+        Equipe CommunityBooks  
+    """
+
+    return send_mail(
+        subject=f"Empréstimo (Atraso): {loan.id}",
+        message=message.strip(),
+        from_email=EMAIL_HOST_USER,
+        recipient_list=[loan.borrower.email],
+        fail_silently=False
+    )
+
+
+
+

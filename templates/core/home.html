@@ -132,34 +132,37 @@
         {% if recent_books %}
         <div class="books-showcase">
             {% for book in recent_books %}
-            <div class="book-showcase-card">
-                <div class="book-cover">
-                    {% if book.cover_image %}
-                    <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="book-image">
-                    {% else %}
-                    <div class="book-placeholder">
-                        <i class="fas fa-book"></i>
+            <a href="{{ book.get_absolute_url }}" class="book-showcase-card-link">
+                <div class="book-showcase-card">
+                    <div class="book-cover">
+                        {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="book-image">
+                        {% else %}
+                        <div class="book-placeholder">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        {% endif %}
+                        <div class="book-overlay">
+                            <span class="overlay-text">
+                                <i class="fas fa-eye me-1"></i>
+                                Ver detalhes
+                            </span>
+                        </div>
                     </div>
-                    {% endif %}
-                    <div class="book-overlay">
-                        <a href="{{ book.get_absolute_url }}" class="btn btn-sm btn-light">
-                            Ver detalhes
-                        </a>
+                    <div class="book-info">
+                        <h3 class="book-title">{{ book.title|truncatewords:6 }}</h3>
+                        {% if book.author %}
+                        <p class="book-author">{{ book.author }}</p>
+                        {% endif %}
+                        <div class="book-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-user"></i>
+                                {{ book.owner.full_name|default:book.owner.email }}
+                            </span>
+                        </div>
                     </div>
                 </div>
-                <div class="book-info">
-                    <h3 class="book-title">{{ book.title|truncatewords:6 }}</h3>
-                    {% if book.author %}
-                    <p class="book-author">{{ book.author }}</p>
-                    {% endif %}
-                    <div class="book-meta">
-                        <span class="meta-item">
-                            <i class="fas fa-user"></i>
-                            {{ book.owner.full_name|default:book.owner.email }}
-                        </span>
-                    </div>
-                </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
         {% else %}
@@ -348,11 +351,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }, observerOptions);
     
     // Observar elementos para animação
-    document.querySelectorAll('.feature-card, .book-showcase-card, .benefit-card, .testimonial-card').forEach(el => {
+    document.querySelectorAll('.feature-card, .book-showcase-card-link, .benefit-card, .testimonial-card').forEach(el => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(30px)';
         el.style.transition = 'all 0.6s ease-out';
         observer.observe(el);
+    });
+    
+    // Efeito hover nos cards de livros
+    document.querySelectorAll('.book-showcase-card-link').forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px)';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
     });
 });
 </script>

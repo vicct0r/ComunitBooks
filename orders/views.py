@@ -7,14 +7,14 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.views import generic
 
 from .models import Order
-from . import services
+from .services import OrdersPolicy
 from books.models import Book
 
 
 class OrderCancelView(LoginRequiredMixin, generic.View):
     def post(self, request, order_id):
         order = Order.objects.get(id=order_id)
-        services.cancel_order(order)
+        OrdersPolicy.cancel_order(order)
         messages.success(request, 'O pedido foi cancelado.')
         return redirect('orders:submitted')
 
@@ -27,11 +27,16 @@ class OrderCreateView(LoginRequiredMixin, SuccessMessageMixin, generic.CreateVie
     success_message = 'Pedido enviado com sucesso!'
     
     def form_valid(self, form):
+        NOT_SUCCESS_REDIRECT = redirect(reverse('orders:submitted'))
         book = get_object_or_404(Book, id=self.kwargs.get('book_id'))
 
         if Order.objects.filter(borrower=self.request.user, book=book, status=Order.SUBMITTED).exists():
             messages.info(self.request, f'Você já possui um pedido em andamento para o livro {book.title} de {book.owner.email}!')
-            return redirect(reverse('loans:submitted'))
+            return NOT_SUCCESS_REDIRECT
+
+        if not OrdersPolicy.check_orders_limit(self.request.user):
+            messages.warning(self.request, f'Você não pode emitir mais pedidos! Limite de emprestimos alcançado.')
+            return NOT_SUCCESS_REDIRECT
 
         order = form.save(commit=False)
         order.book = book

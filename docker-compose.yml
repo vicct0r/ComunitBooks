@@ -5,33 +5,49 @@ services:
       POSTGRES_DB: db01
       POSTGRES_USER: victor
       POSTGRES_PASSWORD: 12345Victor
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    env_file:
-      - .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U victor -d db01"]
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 10s
 
-  django-web:
-    build: .
+  django_web:
     container_name: django-docker
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
-      - .:/app  # Monta o código fonte
+      - .:/app
       - ./staticfiles:/app/staticfiles
       - ./media:/app/media
+    env_file: .env
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - .env
+
+  redis:
+    image: redis:alpine
+
+  celery:
+    command: celery -A config worker -l info
+    build: .
+    volumes:
+      - .:/app
+    env_file: .env
+    depends_on:
+      redis:
+        condition: service_started
+
+  celery-beat:
+    command: celery -A config beat -l info
+    build: .
+    volumes:
+      - .:/app
+    env_file: .env
+    depends_on:
+      redis:
+        condition: service_started
 
 volumes:
   postgres_data:

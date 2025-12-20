@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Cadastrar-se - CommunityBooks{% endblock %}
+{% block title %}Cadastrar-se{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/auth.css' %}">
@@ -21,13 +21,6 @@
             <!-- Lado Esquerdo: Conteúdo de Apresentação -->
             <div class="auth-hero">
                 <div class="auth-hero-content">
-                    <a href="{% url 'core:home' %}" class="auth-logo">
-                        <div class="logo-wrapper">
-                            <img src="{% static 'images/www.png' %}" alt="CommunityBooks" class="logo-icon">
-                            <span class="logo-text">CommunityBooks</span>
-                        </div>
-                    </a>
-
                     <div class="hero-main">
                         <h1 class="hero-title">
                             Junte-se à nossa

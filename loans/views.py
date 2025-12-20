@@ -15,10 +15,11 @@ class LoanCreateView(LoginRequiredMixin, generic.View):
     def post(self, request, order_id):
         order = get_object_or_404(Order, id=order_id)
         action = self.request.POST.get('action')
+        NOT_SUCCESS_REDIRECT = redirect(reverse('orders:submitted'))
 
         if Loan.objects.filter(book=order.book, status__in=[Loan.ACTIVE, Loan.OVERDUE]).exists() and action:
-            messages.warning(self.request,f"O livro {order.book.title} não está disponível para emprestimo!")
-            return redirect(reverse('orders:submitted'))
+            messages.warning(self.request, f"O livro {order.book.title} não está disponível para emprestimo!")
+            return NOT_SUCCESS_REDIRECT
 
         if action == 'approve':
             loan = Loan.objects.create(
@@ -34,7 +35,7 @@ class LoanCreateView(LoginRequiredMixin, generic.View):
         else:
             loan_service.update_order_status(order, action) 
             messages.info(request, "Este pedido foi recusado e arquivado!")
-        return redirect(reverse('orders:submitted'))
+        return NOT_SUCCESS_REDIRECT
 
 
 class LoanStatusMixin:

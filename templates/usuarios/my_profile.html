@@ -23,6 +23,12 @@
                         </div>
                         {% endif %}
                         
+                        <!-- Badge de Pontuação no avatar -->
+                        <div class="profile-score-badge">
+                            <i class="fas fa-star"></i>
+                            <span>{{ user.score|default:"0" }}</span>
+                        </div>
+                        
                         {% if user.is_verified %}
                         <div class="profile-verified">
                             <i class="fas fa-check-circle"></i>
@@ -48,6 +54,11 @@
                             <span class="profile-meta-item">
                                 <i class="fas fa-calendar"></i>
                                 Membro desde {{ user.date_joined|date:"m/Y" }}
+                            </span>
+                            <!-- Pontuação no meta (ao lado do telefone) -->
+                            <span class="profile-meta-item">
+                                <i class="fas fa-star"></i>
+                                Pontuação: {{ user.score|default:"0" }}
                             </span>
                             {% if user.telefone and user == request.user %}
                             <span class="profile-meta-item">

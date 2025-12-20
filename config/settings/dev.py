@@ -64,3 +64,6 @@ LOGGING = {
         },
     }
 }
+
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'

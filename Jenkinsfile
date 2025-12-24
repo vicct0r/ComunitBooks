@@ -10,6 +10,7 @@ pipeline{
 
         stage('Rebuild Aplication'){
             steps{
+                sh 'cd /home/tornac/Desktop/ComunitBooks'
                 sh 'docker compose down'
                 sh 'docker compose up -d redis db'
                 sh 'docker compose run --rm django_web python manage.py migrate'

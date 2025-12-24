@@ -1,24 +1,363 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Creation{% endblock %}
+{% block title %}Cadastrar Novo Livro - CommunityBooks{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/create-book.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-8">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h4 class="card-title mb-3">Criar</h4>
-
-        <form method="post" action="." enctype="multipart/form-data">
-          {% csrf_token %}
-          {{ form|crispy }}
-          <button type="submit" class="btn btn-primary mt-2">Create</button>
-        </form>
-
-      </div>
+<section class="create-book-hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="back-link-wrapper">
+                <a href="{% url 'books:user_library' user_id=request.user.pk %}" class="back-link">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Voltar para minha biblioteca
+                </a>
+            </div>
+            
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <i class="fas fa-book-medical me-2"></i>
+                    Compartilhe uma nova história
+                </div>
+                <h1 class="hero-title">Cadastrar <span class="hero-highlight">novo livro</span></h1>
+                <p class="hero-description">
+                    Adicione um livro à comunidade para que outros leitores possam descobri-lo e trocar experiências.
+                </p>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
+</section>
+
+<section class="create-book-section">
+    <div class="container">
+        <div class="form-wrapper">
+            <div class="form-card">
+                <div class="form-header">
+                    <h2 class="form-title">
+                        <i class="fas fa-edit me-2"></i>
+                        Informações do livro
+                    </h2>
+                    <p class="form-subtitle">Preencha os detalhes para cadastrar seu livro</p>
+                </div>
+                
+                <div class="form-body">
+                    <form method="post" action="." enctype="multipart/form-data" id="book-create-form" class="book-form">
+                        {% csrf_token %}
+                        
+                        <!-- Mensagens de erro do formulário -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger mb-4">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Corrija os erros abaixo antes de continuar.
+                        </div>
+                        {% endif %}
+                        
+                        <div class="form-grid">
+                            <!-- Título -->
+                            <div class="form-group full-width">
+                                <label for="{{ form.title.id_for_label }}" class="form-label">
+                                    <i class="fas fa-heading me-1"></i>
+                                    Título do livro *
+                                </label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-book form-icon"></i>
+                                    {{ form.title }}
+                                </div>
+                                {% if form.title.errors %}
+                                <div class="error-message">
+                                    {{ form.title.errors|join:", " }}
+                                </div>
+                                {% endif %}
+                                <small class="form-help">Máximo de 250 caracteres</small>
+                            </div>
+                            
+                            <!-- Autor -->
+                            <div class="form-group">
+                                <label for="{{ form.author.id_for_label }}" class="form-label">
+                                    <i class="fas fa-user-edit me-1"></i>
+                                    Autor
+                                </label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-user form-icon"></i>
+                                    {{ form.author }}
+                                </div>
+                                {% if form.author.errors %}
+                                <div class="error-message">
+                                    {{ form.author.errors|join:", " }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Condição -->
+                            <div class="form-group">
+                                <label for="{{ form.condition.id_for_label }}" class="form-label">
+                                    <i class="fas fa-star me-1"></i>
+                                    Condição *
+                                </label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-heart form-icon"></i>
+                                    {{ form.condition }}
+                                </div>
+                                {% if form.condition.errors %}
+                                <div class="error-message">
+                                    {{ form.condition.errors|join:", " }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Imagem da Capa -->
+                        <div class="form-group">
+                            <label for="{{ form.cover_image.id_for_label }}" class="form-label">
+                                <i class="fas fa-image me-1"></i>
+                                Capa do livro
+                            </label>
+                            <div class="image-upload-area" id="image-upload-area">
+                                <div class="upload-placeholder">
+                                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                    <p class="upload-text">Arraste e solte uma imagem ou clique para selecionar</p>
+                                    <p class="upload-subtext">Recomendado: 400x560px • JPG, PNG</p>
+                                </div>
+                                {{ form.cover_image }}
+                                <div class="image-preview" id="image-preview">
+                                    {% if form.cover_image.value %}
+                                    <div class="preview-wrapper">
+                                        <img src="{{ form.cover_image.value.url }}" alt="Preview" class="preview-image">
+                                        <button type="button" class="remove-image" aria-label="Remover imagem">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if form.cover_image.errors %}
+                            <div class="error-message">
+                                {{ form.cover_image.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Categorias -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-tags me-1"></i>
+                                Categorias
+                            </label>
+                            <div class="categories-container">
+                                {{ form.category }}
+                            </div>
+                            {% if form.category.errors %}
+                            <div class="error-message">
+                                {{ form.category.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Ações do Formulário -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary submit-btn">
+                                <i class="fas fa-plus-circle me-2"></i>
+                                Cadastrar Livro
+                            </button>
+                            <a href="{% url 'books:user_library' user_id=request.user.pk %}" 
+                               class="btn btn-outline-secondary cancel-btn">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="form-footer">
+                    <div class="form-tips">
+                        <h4 class="tips-title">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Dicas para um bom cadastro
+                        </h4>
+                        <ul class="tips-list">
+                            <li>
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Use fotos claras e bem iluminadas da capa
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Descreva bem a condição real do livro
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Selecione categorias relevantes para facilitar a busca
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Estilizar os campos do Django para combinar com o design
+    const styleFormFields = () => {
+        // Aplicar classes CSS aos inputs/selects do Django
+        document.querySelectorAll('#id_title, #id_author, #id_condition').forEach(field => {
+            field.classList.add('form-control');
+            field.setAttribute('placeholder', field.name === 'title' ? 'Ex: O Pequeno Príncipe' : 
+                                            field.name === 'author' ? 'Ex: Antoine de Saint-Exupéry' : 
+                                            'Selecione a condição...');
+        });
+        
+        // Para o campo condition (select)
+        const conditionField = document.getElementById('id_condition');
+        if (conditionField) {
+            const emptyOption = conditionField.querySelector('option[value=""]');
+            if (!emptyOption) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Selecione a condição...';
+                conditionField.insertBefore(option, conditionField.firstChild);
+            }
+        }
+        
+        // Para o campo de categoria (multiple select)
+        const categoryField = document.getElementById('id_category');
+        if (categoryField) {
+            categoryField.classList.add('form-control');
+            categoryField.setAttribute('multiple', 'multiple');
+            categoryField.style.height = '120px';
+            
+            // Converter para checkboxes se preferir
+            // (comentado por enquanto, mas pode ser útil)
+            /*
+            const categoriesContainer = document.querySelector('.categories-container');
+            const options = Array.from(categoryField.options);
+            
+            categoriesContainer.innerHTML = '';
+            const checkboxesContainer = document.createElement('div');
+            checkboxesContainer.className = 'category-checkboxes';
+            
+            options.forEach(option => {
+                if (option.value) {
+                    const checkboxId = `category_${option.value}`;
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.className = 'category-checkbox';
+                    checkboxDiv.innerHTML = `
+                        <input type="checkbox" name="category" value="${option.value}" id="${checkboxId}" 
+                               class="form-check-input">
+                        <label for="${checkboxId}" class="form-check-label">${option.text}</label>
+                    `;
+                    checkboxesContainer.appendChild(checkboxDiv);
+                }
+            });
+            
+            categoriesContainer.appendChild(checkboxesContainer);
+            categoryField.style.display = 'none';
+            */
+        }
+        
+        // Para o campo de imagem
+        const imageField = document.getElementById('id_cover_image');
+        if (imageField) {
+            imageField.classList.add('file-input');
+            
+            // Upload de imagem com preview
+            const imagePreview = document.getElementById('image-preview');
+            const uploadArea = document.getElementById('image-upload-area');
+            
+            // Drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                uploadArea.classList.add('highlight');
+            }
+            
+            function unhighlight() {
+                uploadArea.classList.remove('highlight');
+            }
+            
+            uploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                imageField.files = files;
+                handleFiles(files);
+            }
+            
+            imageField.addEventListener('change', function() {
+                handleFiles(this.files);
+            });
+            
+            function handleFiles(files) {
+                if (!files.length) return;
+                
+                const file = files[0];
+                if (!file.type.match('image.*')) {
+                    alert('Por favor, selecione apenas imagens.');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.innerHTML = `
+                        <div class="preview-wrapper">
+                            <img src="${e.target.result}" alt="Preview" class="preview-image">
+                            <button type="button" class="remove-image" aria-label="Remover imagem">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Adicionar funcionalidade para remover imagem
+                    const removeBtn = imagePreview.querySelector('.remove-image');
+                    if (removeBtn) {
+                        removeBtn.addEventListener('click', function() {
+                            imagePreview.innerHTML = '';
+                            imageField.value = '';
+                        });
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            // Clique na área de upload
+            uploadArea.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-image')) return;
+                imageField.click();
+            });
+        }
+    };
+    
+    // Aplicar estilos quando o DOM estiver pronto
+    styleFormFields();
+    
+    // Validação do formulário
+    const form = document.getElementById('book-create-form');
+    if (form) {
+        // Remover validação anterior para não interferir com o Django
+        // O Django já valida no servidor
+    }
+});
+</script>
 {% endblock %}

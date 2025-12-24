@@ -1,420 +1,520 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Livros{% endblock %}
+{% block title %}Biblioteca Comunitária{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/library.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <!-- Header da Página -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="display-5 fw-bold text-dark mb-2">Biblioteca</h1>
-                    <p class="lead text-muted">Descubra livros incríveis compartilhados pela comunidade</p>
-                </div>
-                <div class="text-end">
-                    <span class="badge bg-primary fs-6">{{ books|length }} livro{{ books|length|pluralize }}</span>
+<div class="library-container">
+    <!-- HEADER -->
+    <header class="library-header">
+        <div class="header-content">
+            <div class="header-main">
+                <h1>Biblioteca Comunitária</h1>
+                <p class="header-subtitle">Descubra livros incríveis compartilhados pela comunidade</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <span class="stat-number">{{ books|length }}</span>
+                    <span class="stat-label">livro{{ books|length|pluralize }}</span>
                 </div>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Barra de Pesquisa Avançada -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <form method="GET" action="" class="row g-3 align-items-end">
-                        <!-- Título -->
-                        <div class="col-md-4">
-                            <label for="title" class="form-label fw-semibold">Título do livro</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="fas fa-book text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0" id="title" name="title" 
-                                       placeholder="Buscar por título..." 
-                                       value="{{ request.GET.title|default:'' }}">
-                            </div>
-                        </div>
-                        
-                        <!-- Autor -->
-                        <div class="col-md-4">
-                            <label for="author" class="form-label fw-semibold">Autor</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="fas fa-user text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0" id="author" name="author" 
-                                       placeholder="Buscar por autor..." 
-                                       value="{{ request.GET.author|default:'' }}">
-                            </div>
-                        </div>
-
-                        <!-- Categoria -->
-                        <div class="col-md-4">
-                            <label for="category" class="form-label fw-semibold">Categoria</label>
-                            <select class="form-select" id="category" name="category">
-                                <option value="">Todas as categorias</option>
-                                {% for category in categories %}
-                                <option value="{{ category.id }}" 
-                                        {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
-                                    {{ category.name }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- Filtros Adicionais - Linha 2 -->
-                        <div class="col-md-4">
-                            <label for="popularity" class="form-label fw-semibold">Ordenar por</label>
-                            <select class="form-select" id="popularity" name="popularity">
-                                <option value="newest" {% if request.GET.popularity == 'newest' %}selected{% endif %}>
-                                    Recentes
-                                </option>
-                                <option value="favorites" {% if request.GET.popularity == 'favorites' %}selected{% endif %}>
-                                    Mais populares
-                                </option>
-                                <option value="oldest" {% if request.GET.popularity == 'oldest' %}selected{% endif %}>
-                                    Mais antigos
-                                </option>
-                            </select>
-                        </div>
-
-                        <!-- Status -->
-                        <div class="col-md-4">
-                            <label for="status" class="form-label fw-semibold">Status</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="">Todos os status</option>
-                                <option value="av" {% if request.GET.status == 'av' %}selected{% endif %}>
-                                    Disponível
-                                </option>
-                                <option value="un" {% if request.GET.status == 'un' %}selected{% endif %}>
-                                    Indisponível
-                                </option>
-                                <option value="rs" {% if request.GET.status == 'rs' %}selected{% endif %}>
-                                    Reservado
-                                </option>
-                            </select>
-                        </div>
-
-                        <!-- Condição -->
-                        <div class="col-md-4">
-                            <label for="condition" class="form-label fw-semibold">Condição</label>
-                            <select class="form-select" id="condition" name="condition">
-                                <option value="">Todas as condições</option>
-                                <option value="nw" {% if request.GET.condition == 'nw' %}selected{% endif %}>
-                                    Novo
-                                </option>
-                                <option value="gd" {% if request.GET.condition == 'gd' %}selected{% endif %}>
-                                    Boa
-                                </option>
-                                <option value="fr" {% if request.GET.condition == 'fr' %}selected{% endif %}>
-                                    Regular
-                                </option>
-                                <option value="dm" {% if request.GET.condition == 'dm' %}selected{% endif %}>
-                                    Danificado
-                                </option>
-                            </select>
-                        </div>
-
-                        <!-- Botões -->
-                        <div class="col-12 mt-3">
-                            <div class="d-flex gap-2 justify-content-between align-items-center">
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search me-2"></i>Buscar
-                                    </button>
-                                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.popularity or request.GET.status or request.GET.condition %}
-                                    <a href="?" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times me-2"></i>Limpar Filtros
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- FILTROS -->
+    <section class="filters-section">
+        <div class="filters-toggle">
+            <button class="filters-toggle-btn" id="toggleFilters">
+                <i class="fas fa-filter"></i>
+                <span>Filtros</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
         </div>
-    </div>
 
-    <!-- Resto do template permanece igual -->
-    <!-- Grid de Livros -->
-    {% if books %}
-    <div class="row g-4">
-        {% for book in books %}
-        <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="book-card card h-100 shadow-sm border-0">
-                <!-- Imagem da Capa -->
-                <div class="book-cover-wrapper position-relative">
-                    {% if book.cover_image %}
-                    <img src="{{ book.cover_image.url }}" class="book-cover-img card-img-top"
-                        alt="Capa do livro {{ book.title }}" loading="lazy">
-                    {% else %}
-                    <div class="book-cover-placeholder d-flex align-items-center justify-content-center">
-                        <img src="{% static 'images/book_icon.png' %}" class="img-fluid" style="max-height: 120px;"
-                            alt="Capa do livro {{ book.title }}" loading="lazy">
-                    </div>
-                    {% endif %}
-
-                    <!-- Badge de Status -->
-                    <div class="book-status-badge position-absolute top-0 end-0 m-2">
-                        <span class="badge 
-                            {% if book.status == 'av' %}bg-success
-                            {% elif book.status == 'un' %}bg-warning text-dark
-                            {% elif book.status == 'rs' %}bg-info
-                            {% else %}bg-secondary{% endif %} 
-                            px-2 py-1">
-                            <i class="fas 
-                                {% if book.status == 'av' %}fa-check-circle
-                                {% elif book.status == 'un' %}fa-clock
-                                {% elif book.status == 'rs' %}fa-user-clock
-                                {% else %}fa-question-circle{% endif %} 
-                                me-1"></i>
-                            {{ book.get_status_display }}
-                        </span>
-                    </div>
-
-                    <!-- Badge de Condição -->
-                    <div class="book-condition-badge position-absolute top-0 start-0 m-2">
-                        <span class="badge 
-                            {% if book.condition == 'nw' %}bg-success
-                            {% elif book.condition == 'gd' %}bg-primary
-                            {% elif book.condition == 'fr' %}bg-warning text-dark
-                            {% elif book.condition == 'dm' %}bg-danger
-                            {% else %}bg-secondary{% endif %} 
-                            px-2 py-1">
-                            <i class="fas 
-                                {% if book.condition == 'nw' %}fa-star
-                                {% elif book.condition == 'gd' %}fa-thumbs-up
-                                {% elif book.condition == 'fr' %}fa-balance-scale
-                                {% elif book.condition == 'dm' %}fa-exclamation-triangle
-                                {% else %}fa-book{% endif %} 
-                                me-1"></i>
-                            {{ book.get_condition_display }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Corpo do Card -->
-                <div class="card-body d-flex flex-column p-3">
+        <div class="filters-container" id="filtersContainer">
+            <form method="GET" action="" class="filters-form">
+                <div class="filters-grid">
                     <!-- Título -->
-                    <h5 class="book-title card-title fw-bold text-dark mb-2 line-clamp-2">
-                        {{ book.title }}
-                    </h5>
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="fas fa-book"></i>
+                            Título
+                        </label>
+                        <input type="text" 
+                               class="filter-input" 
+                               name="title" 
+                               placeholder="Buscar por título..."
+                               value="{{ request.GET.title|default:'' }}">
+                    </div>
 
                     <!-- Autor -->
-                    {% if book.author %}
-                    <p class="book-author text-muted mb-2 small">
-                        por <strong class="text-dark">{{ book.author }}</strong>
-                    </p>
-                    {% endif %}
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="fas fa-user"></i>
+                            Autor
+                        </label>
+                        <input type="text" 
+                               class="filter-input" 
+                               name="author" 
+                               placeholder="Buscar por autor..."
+                               value="{{ request.GET.author|default:'' }}">
+                    </div>
 
-                    <!-- Categorias Múltiplas -->
-                    {% if categories %}
-                    <div class="book-categories mb-3">
-                        <div class="d-flex flex-wrap gap-1">
-                            {% for category in book.get_categories %}
-                            <span class="badge bg-light text-dark border small">
-                                <i class="fas fa-tag me-1"></i>{{ category.name }}
-                            </span>
+                    <!-- Categoria -->
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="fas fa-tag"></i>
+                            Categoria
+                        </label>
+                        <select class="filter-select" name="category">
+                            <option value="">Todas as categorias</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" 
+                                    {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
                             {% endfor %}
-                        </div>
+                        </select>
                     </div>
+
+                    <!-- Status -->
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="fas fa-circle"></i>
+                            Status
+                        </label>
+                        <select class="filter-select" name="status">
+                            <option value="">Todos os status</option>
+                            <option value="available" {% if request.GET.status == 'available' %}selected{% endif %}>
+                                Disponível
+                            </option>
+                            <option value="borrowed" {% if request.GET.status == 'borrowed' %}selected{% endif %}>
+                                Emprestado
+                            </option>
+                            <option value="reserved" {% if request.GET.status == 'reserved' %}selected{% endif %}>
+                                Reservado
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Ordenação -->
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="fas fa-sort"></i>
+                            Ordenar por
+                        </label>
+                        <select class="filter-select" name="order_by">
+                            <option value="newest" {% if request.GET.order_by == 'newest' %}selected{% endif %}>
+                                Mais recentes
+                            </option>
+                            <option value="popular" {% if request.GET.order_by == 'popular' %}selected{% endif %}>
+                                Mais populares
+                            </option>
+                            <option value="title_asc" {% if request.GET.order_by == 'title_asc' %}selected{% endif %}>
+                                Título (A-Z)
+                            </option>
+                            <option value="title_desc" {% if request.GET.order_by == 'title_desc' %}selected{% endif %}>
+                                Título (Z-A)
+                            </option>
+                        </select>
+                    </div>
+ 
+                    <!-- Condição -->
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="fas fa-star"></i>
+                            Condição
+                        </label>
+                        <select class="filter-select" name="condition">
+                            <option value="">Todas as condições</option>
+                            <option value="new" {% if request.GET.condition == 'nw' %}selected{% endif %}>
+                                Novo
+                            </option>
+                            <option value="good" {% if request.GET.condition == 'gd' %}selected{% endif %}>
+                                Bom
+                            </option>
+                            <option value="regular" {% if request.GET.condition == 'fr' %}selected{% endif %}>
+                                Preservado
+                            </option>
+                            <option value="regular" {% if request.GET.condition == 'dm' %}selected{% endif %}>
+                                Danificado
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filters-actions">
+                    <button type="submit" class="minimal-btn primary">
+                        <i class="fas fa-search"></i>
+                        Aplicar filtros
+                    </button>
+                    
+                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.order_by or request.GET.condition %}
+                    <a href="?" class="minimal-btn">
+                        <i class="fas fa-times"></i>
+                        Limpar filtros
+                    </a>
                     {% endif %}
-
-                    <!-- Estatísticas -->
-                    <div class="book-stats mb-3">
-                        <div class="d-flex gap-3 text-muted small">
-                            {% if book.all.count %}
-                            <span>
-                                <i class="fas fa-eye me-1"></i>{{ book.all.count }}
-                            </span>
-                            {% endif %}
-                            {% if book.favorite_count %}
-                            <span>
-                                <i class="fas fa-heart me-1"></i>{{ book.favorite_count }}
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Dono -->
-                    <div class="book-owner mt-auto pt-2 border-top">
-                        <div class="d-flex align-items-center text-muted small">
-                            <i class="fas fa-user me-2"></i>
-                            <span class="text-truncate">
-                                {% if book.owner.full_name %}
-                                {{ book.owner.full_name }}
-                                {% else %}
-                                {{ book.owner.username }}
-                                {% endif %}
-                            </span>
-                        </div>
-                    </div>
                 </div>
-
-                <!-- Footer do Card -->
-                <div class="card-footer bg-transparent border-top-0 pt-0 px-3 pb-3">
-                    <div class="d-grid">
-                        <a href="{{ book.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-eye me-1"></i>Ver Detalhes
-                        </a>
-                    </div>
-                </div>
-            </div>
+            </form>
         </div>
-        {% endfor %}
-    </div>
+    </section>
 
-    {% else %}
-    <!-- Estado Vazio -->
-    <div class="row">
-        <div class="col-12">
-            <div class="empty-state text-center py-5">
-                <div class="empty-icon mb-4">
-                    <i class="fas fa-book-open display-1 text-muted"></i>
-                </div>
-                <h3 class="empty-title h4 text-dark mb-3">
-                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.popularity or request.GET.status or request.GET.condition %}
-                    Nenhum livro encontrado
-                    {% else %}
-                    Biblioteca vazia
-                    {% endif %}
-                </h3>
-                <p class="empty-text text-muted mb-4">
-                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.popularity or request.GET.status or request.GET.condition %}
-                    Não encontramos livros com os filtros aplicados.
-                    {% else %}
-                    Ainda não há livros cadastrados na plataforma.
-                    {% endif %}
-                </p>
-                <div class="d-flex gap-2 justify-content-center">
-                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.popularity or request.GET.status or request.GET.condition %}
-                    <a href="?" class="btn btn-outline-primary">
-                        <i class="fas fa-times me-2"></i>Limpar Filtros
-                    </a>
-                    {% endif %}
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'books:create' %}" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Cadastrar Livro
-                    </a>
-                    {% else %}
-                    <a href="{% url 'account_login' %}" class="btn btn-primary">
-                        <i class="fas fa-sign-in-alt me-2"></i>Fazer Login
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
+    <!-- TAGS ATIVAS -->
+    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.order_by or request.GET.condition %}
+    <div class="active-filters">
+        <div class="active-filters-header">
+            <span>Filtros ativos:</span>
+        </div>
+        <div class="active-filters-tags">
+            {% if request.GET.title %}
+            <span class="active-filter-tag">
+                Título: {{ request.GET.title }}
+                <a href="?{{ request.GET.urlencode|cut:'&title='|cut:'title='|cut:'&' }}" class="remove-filter">
+                    <i class="fas fa-times"></i>
+                </a>
+            </span>
+            {% endif %}
+            
+            {% if request.GET.author %}
+            <span class="active-filter-tag">
+                Autor: {{ request.GET.author }}
+                <a href="?{{ request.GET.urlencode|cut:'&author='|cut:'author='|cut:'&' }}" class="remove-filter">
+                    <i class="fas fa-times"></i>
+                </a>
+            </span>
+            {% endif %}
+            
+            {% if request.GET.category %}
+            <span class="active-filter-tag">
+                Categoria: {{ request.GET.category }}
+                <a href="?{{ request.GET.urlencode|cut:'&category='|cut:'category='|cut:'&' }}" class="remove-filter">
+                    <i class="fas fa-times"></i>
+                </a>
+            </span>
+            {% endif %}
+            
+            {% if request.GET.status %}
+            <span class="active-filter-tag">
+                Status: {{ request.GET.status|title }}
+                <a href="?{{ request.GET.urlencode|cut:'&status='|cut:'status='|cut:'&' }}" class="remove-filter">
+                    <i class="fas fa-times"></i>
+                </a>
+            </span>
+            {% endif %}
         </div>
     </div>
     {% endif %}
-</div>
-{% endblock %}
 
-{% block extra_css %}
-<style>
-    /* Estilos Específicos para Books */
-    .book-card {
-        transition: all 0.3s ease;
-        border-radius: 12px;
-        overflow: hidden;
-    }
+    <!-- NOVA SEÇÃO: CATEGORIAS POPULARES -->
+    <section class="categories-section">
+        <h2>Categorias populares</h2>
+        <div class="categories-grid">
+            <a href="?category=1" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-wizard"></i>
+                </div>
+                <div class="category-info">
+                    <h3>Fantasia</h3>
+                    <span class="category-count">142 livros</span>
+                </div>
+            </a>
+            
+            <a href="?category=2" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="category-info">
+                    <h3>Romance</h3>
+                    <span class="category-count">98 livros</span>
+                </div>
+            </a>
+            
+            <a href="?category=3" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-microscope"></i>
+                </div>
+                <div class="category-info">
+                    <h3>Ficção Científica</h3>
+                    <span class="category-count">76 livros</span>
+                </div>
+            </a>
+            
+            <a href="?category=4" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <div class="category-info">
+                    <h3>História</h3>
+                    <span class="category-count">54 livros</span>
+                </div>
+            </a>
+        </div>
+    </section>
 
-    .book-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    .book-cover-wrapper {
-        height: 200px;
-        overflow: hidden;
-        background: #f8f9fa;
-    }
-
-    .book-cover-img {
-        height: 100%;
-        width: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .book-card:hover .book-cover-img {
-        transform: scale(1.05);
-    }
-
-    .book-cover-placeholder {
-        height: 100%;
-        background: #f8f9fa;
-    }
-
-    .book-status-badge .badge,
-    .book-condition-badge .badge {
-        font-size: 0.7rem;
-        font-weight: 600;
-    }
-
-    .book-title {
-        font-size: 1.1rem;
-        line-height: 1.4;
-        min-height: 2.8em;
-    }
-
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .book-author {
-        font-size: 0.9rem;
-    }
-
-    .book-owner {
-        font-size: 0.8rem;
-    }
-
-    .book-stats span {
-        font-size: 0.8rem;
-    }
-
-    /* Estados Vazios */
-    .empty-state {
-        max-width: 500px;
-        margin: 0 auto;
-    }
-
-    .empty-icon {
-        opacity: 0.5;
-    }
-
-    /* Responsividade */
-    @media (max-width: 768px) {
-        .book-cover-wrapper {
-            height: 180px;
-        }
-
-        .book-title {
-            font-size: 1rem;
-        }
-
-        .display-5 {
-            font-size: 2rem;
-        }
+    <!-- GRID DE LIVROS -->
+    {% if books %}
+    <section class="books-section">
+        <div class="books-grid">
+            {% for book in books %}
+            <a href="{{ book.get_absolute_url }}" class="book-card">
+                <div class="book-card-cover">
+                    {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" alt="Capa de {{ book.title }}" class="book-cover-image">
+                    {% elif book.cover_url %}
+                    <img src="{{ book.cover_url }}" alt="Capa de {{ book.title }}" class="book-cover-image">
+                    {% else %}
+                    <div class="cover-placeholder">
+                        <span>{{ book.title|slice:":2"|upper }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="book-badges">
+                        <span class="book-status {% if book.status == 'available' %}available{% elif book.status == 'borrowed' %}borrowed{% else %}reserved{% endif %}">
+                            {% if book.status == 'available' %}
+                                <i class="fas fa-check-circle"></i> Disponível
+                            {% elif book.status == 'borrowed' %}
+                                <i class="fas fa-clock"></i> Emprestado
+                            {% else %}
+                                <i class="fas fa-user-clock"></i> Reservado
+                            {% endif %}
+                        </span>
+                        
+                        {% if book.condition %}
+                        <span class="book-condition {% if book.condition == 'new' %}new{% elif book.condition == 'good' %}good{% else %}regular{% endif %}">
+                            {% if book.condition == 'new' %}
+                                <i class="fas fa-star"></i> Novo
+                            {% elif book.condition == 'good' %}
+                                <i class="fas fa-thumbs-up"></i> Boa
+                            {% else %}
+                                <i class="fas fa-check"></i> Regular
+                            {% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="book-card-info">
+                    <h3 class="book-title">{{ book.title|truncatechars:40 }}</h3>
+                    
+                    {% if book.author %}
+                    <p class="book-author">{{ book.author|truncatechars:30 }}</p>
+                    {% endif %}
+                    
+                    <div class="book-meta">
+                        <span class="meta-item">
+                            <i class="fas fa-user-circle"></i>
+                            {{ book.owner.first_name|default:book.owner.username|truncatechars:15 }}
+                        </span>
+                        
+                        {% if book.distance %}
+                        <span class="meta-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ book.distance }}km
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if book.categories.all %}
+                    <div class="book-categories">
+                        {% for category in book.categories.all|slice:":2" %}
+                        <span class="category-tag">{{ category.name }}</span>
+                        {% endfor %}
+                        {% if book.categories.all|length > 2 %}
+                        <span class="category-tag">+{{ book.categories.all|length|add:"-2" }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="book-card-footer">
+                    <span class="view-details">
+                        Ver detalhes
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <!-- ESTADO VAZIO -->
+    <section class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-book-open"></i>
+        </div>
         
-        .col-md-4 {
-            flex: 0 0 auto;
-            width: 100%;
-        }
-    }
+        <div class="empty-content">
+            <h2>
+                {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.order_by or request.GET.condition %}
+                Nenhum livro encontrado
+                {% else %}
+                Biblioteca vazia
+                {% endif %}
+            </h2>
+            
+            <p>
+                {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.order_by or request.GET.condition %}
+                Não encontramos livros com os filtros aplicados. Tente outros critérios de busca.
+                {% else %}
+                Ainda não há livros cadastrados na plataforma. Seja o primeiro a compartilhar!
+                {% endif %}
+            </p>
+            
+            <div class="empty-actions">
+                {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.order_by or request.GET.condition %}
+                <a href="?" class="minimal-btn primary">
+                    <i class="fas fa-times"></i>
+                    Limpar filtros
+                </a>
+                {% endif %}
+                
+                {% if user.is_authenticated %}
+                <a href="{% url 'books:create' %}" class="minimal-btn">
+                    <i class="fas fa-plus"></i>
+                    Cadastrar livro
+                </a>
+                {% else %}
+                <a href="{% url 'account_login' %}" class="minimal-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Fazer login
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
 
-    @media (max-width: 576px) {
-        .book-cover-wrapper {
-            height: 160px;
-        }
+    <!-- NOVA SEÇÃO: LEITORES ATIVOS -->
+    <section class="readers-section">
+        <div class="section-header">
+            <h2>Leitores ativos</h2>
+            <a href="#" class="view-more">Ver todos</a>
+        </div>
+        
+        <div class="readers-grid">
+            <div class="reader-card">
+                <div class="reader-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="reader-info">
+                    <h3>Ana Silva</h3>
+                    <p class="reader-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        São Paulo, SP
+                    </p>
+                    <div class="reader-stats">
+                        <span class="stat">
+                            <i class="fas fa-book"></i>
+                            24 livros
+                        </span>
+                        <span class="stat">
+                            <i class="fas fa-exchange-alt"></i>
+                            18 trocas
+                        </span>
+                    </div>
+                </div>
+                <a href="#" class="reader-profile">
+                    Ver perfil
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="reader-card">
+                <div class="reader-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="reader-info">
+                    <h3>Carlos Santos</h3>
+                    <p class="reader-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Rio de Janeiro, RJ
+                    </p>
+                    <div class="reader-stats">
+                        <span class="stat">
+                            <i class="fas fa-book"></i>
+                            31 livros
+                        </span>
+                        <span class="stat">
+                            <i class="fas fa-exchange-alt"></i>
+                            26 trocas
+                        </span>
+                    </div>
+                </div>
+                <a href="#" class="reader-profile">
+                    Ver perfil
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="reader-card">
+                <div class="reader-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="reader-info">
+                    <h3>Beatriz Lima</h3>
+                    <p class="reader-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Belo Horizonte, MG
+                    </p>
+                    <div class="reader-stats">
+                        <span class="stat">
+                            <i class="fas fa-book"></i>
+                            19 livros
+                        </span>
+                        <span class="stat">
+                            <i class="fas fa-exchange-alt"></i>
+                            15 trocas
+                        </span>
+                    </div>
+                </div>
+                <a href="#" class="reader-profile">
+                    Ver perfil
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle filters
+    const toggleBtn = document.getElementById('toggleFilters');
+    const filtersContainer = document.getElementById('filtersContainer');
+    
+    if (toggleBtn && filtersContainer) {
+        toggleBtn.addEventListener('click', function() {
+            filtersContainer.classList.toggle('show');
+            const icon = this.querySelector('.fa-chevron-down');
+            if (icon) {
+                icon.classList.toggle('rotated');
+            }
+        });
     }
-</style>
+    
+    // Remove individual filter tags
+    document.querySelectorAll('.remove-filter').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = this.getAttribute('href');
+        });
+    });
+    
+    // Book card hover effects
+    document.querySelectorAll('.book-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -1,373 +1,292 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Compartilhe Conhecimento, Conecte Leitores - CommunityBooks{% endblock %}
+{% block title %}Biblioteca Comunitária - Troca de Livros entre Leitores{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="home-hero">
-    <div class="hero-background">
-        <div class="hero-overlay"></div>
-        <div class="hero-pattern"></div>
-    </div>
-    
-    <div class="container">
-        <div class="hero-content">
-            <div class="hero-badge">
-                <i class="fas fa-users me-2"></i>
-                +2.500 leitores ativos
+<div class="minimal-home">
+    <!-- HERO SECTION COM IMAGEM -->
+    <div class="minimal-hero">
+        <div class="hero-background">
+            <div class="hero-image-overlay"></div>
+        </div>
+        <div class="container">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i class="fas fa-users"></i>
+                        +2.500 leitores ativos
+                    </div>
+
+                    <h1 class="hero-title">
+                        Sua comunidade de
+                        <span class="hero-highlight">troca de livros</span>
+                    </h1>
+
+                    <p class="hero-description">
+                        Conecte-se com leitores locais, descubra novas histórias e compartilhe seus livros favoritos.
+                        Leia mais, gaste menos, faça amigos.
+                    </p>
+
+                    <div class="hero-actions">
+                        <a href="{% url 'books:library' %}" class="minimal-btn primary">
+                            <i class="fas fa-search"></i> Explorar Acervo
+                        </a>
+                        {% if not user.is_authenticated %}
+                        <a href="{% url 'user:signup' %}" class="minimal-btn">
+                            <i class="fas fa-rocket"></i> Começar Agora
+                        </a>
+                        {% else %}
+                        <a href="{% url 'books:create' %}" class="minimal-btn">
+                            <i class="fas fa-plus"></i> Adicionar Livro
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="number">{{ total_books|default:"1.247" }}</div>
+                        <div class="label">livros disponíveis</div>
+                    </div>
+                    <div class="stat">
+                        <div class="number">{{ active_users|default:"856" }}</div>
+                        <div class="label">leitores ativos</div>
+                    </div>
+                    <div class="stat">
+                        <div class="number">{{ total_loans|default:"3.421" }}</div>
+                        <div class="label">trocas realizadas</div>
+                    </div>
+                </div>
             </div>
-            
-            <h1 class="hero-title">
-                Sua comunidade de 
-                <span class="hero-highlight">troca de livros</span>
-            </h1>
-            
-            <p class="hero-description">
-                Conecte-se com leitores locais, descubra novas histórias e compartilhe seus livros favoritos. 
-                Leia mais, gaste menos, faça amigos.
-            </p>
-            
-            <div class="hero-actions">
-                <a href="{% url 'books:library' %}" class="btn btn-primary btn-lg hero-btn">
-                    <i class="fas fa-search me-2"></i>
-                    Explorar Acervo
-                </a>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="minimal-content">
+        <div class="content-main">
+            <!-- COMO FUNCIONA -->
+            <section class="minimal-section">
+                <h2>Como funciona</h2>
+                <div class="features-minimal">
+                    <div class="feature-minimal">
+                        <div class="feature-icon">
+                            <i class="fas fa-book-medical"></i>
+                        </div>
+                        <div class="feature-info">
+                            <h3>Cadastre seus livros</h3>
+                            <p>Adicione os livros que você quer compartilhar ao nosso catálogo comunitário.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-minimal">
+                        <div class="feature-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="feature-info">
+                            <h3>Busque no catálogo</h3>
+                            <p>Encontre livros por autor, gênero ou localização na nossa biblioteca.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-minimal">
+                        <div class="feature-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="feature-info">
+                            <h3>Conecte e troque</h3>
+                            <p>Combine empréstimos diretamente com outros leitores da comunidade.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NOVA SEÇÃO: LEITORES DESTAQUE -->
+            <section class="minimal-section">
+                <h2>Leitores em destaque</h2>
+                <div class="highlighted-readers">
+                    <div class="reader-card">
+                        <div class="reader-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="reader-info">
+                            <h3>Maria Silva</h3>
+                            <div class="reader-stats">
+                                <span class="stat"><i class="fas fa-book"></i> 24 livros</span>
+                                <span class="stat"><i class="fas fa-exchange-alt"></i> 18 trocas</span>
+                            </div>
+                            <div class="reader-tags">
+                                <span class="tag">Fantasia</span>
+                                <span class="tag">Romance</span>
+                                <span class="tag">Clássicos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="reader-card">
+                        <div class="reader-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="reader-info">
+                            <h3>João Pereira</h3>
+                            <div class="reader-stats">
+                                <span class="stat"><i class="fas fa-book"></i> 31 livros</span>
+                                <span class="stat"><i class="fas fa-exchange-alt"></i> 22 trocas</span>
+                            </div>
+                            <div class="reader-tags">
+                                <span class="tag">Ficção</span>
+                                <span class="tag">Biografias</span>
+                                <span class="tag">História</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LIVROS RECENTES - EM GRID -->
+            <section class="minimal-section">
+                <div class="section-header">
+                    <h2>Livros recentes</h2>
+                    <a href="{% url 'books:library' %}" class="view-more">Ver todos →</a>
+                </div>
+
+                <div class="books-grid">
+                    {% for book in recent_books|slice:":6" %}
+                    <a href="{{ book.get_absolute_url }}" class="book-card">
+                        <div class="book-card-cover">
+                            {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" alt="Capa de {{ book.title }}"
+                                class="book-cover-image">
+                            {% elif book.cover_url %}
+                            <img src="{{ book.cover_url }}" alt="Capa de {{ book.title }}" class="book-cover-image">
+                            {% else %}
+                            <div class="cover-placeholder">
+                                <span>{{ book.title|slice:":2"|upper }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="book-status-badge {% if book.status == 'available' %}available{% else %}borrowed{% endif %}">
+                                {% if book.status == 'available' %}Disponível{% else %}Emprestado{% endif %}
+                            </div>
+                        </div>
+                        <div class="book-card-info">
+                            <h3>{{ book.title|truncatechars:30 }}</h3>
+                            <p>{{ book.author|default:"Autor não informado"|truncatechars:20 }}</p>
+                            <div class="book-card-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-user-circle"></i>
+                                    {{ book.owner.first_name|default:book.owner.username|truncatechars:10 }}
+                                </span>
+                                {% if book.distance %}
+                                <span class="meta-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ book.distance }}km
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="no-books">
+                        <i class="fas fa-book"></i>
+                        <p>Nenhum livro recente</p>
+                        <a href="{% url 'books:create' %}" class="minimal-btn small">Adicionar primeiro livro</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+
+        <div class="content-sidebar">
+            <!-- NOVA SEÇÃO: EVENTOS PRÓXIMOS -->
+            <div class="info-box">
+                <div class="info-box-header">
+                    <h3>Próximos eventos</h3>
+                    <a href="#" class="info-box-link">Ver todos</a>
+                </div>
+                <div class="events-list">
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="day">25</span>
+                            <span class="month">Dez</span>
+                        </div>
+                        <div class="event-info">
+                            <h4>Clube do Livro: Fantasia</h4>
+                            <p>São Paulo, SP • 18:00</p>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="day">12</span>
+                            <span class="month">Jan</span>
+                        </div>
+                        <div class="event-info">
+                            <h4>Tarde de Troca</h4>
+                            <p>Parque Ibirapuera • 14:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POR QUE PARTICIPAR -->
+            <div class="info-box">
+                <h3>Por que participar?</h3>
+                <ul class="info-list">
+                    <li><i class="fas fa-check-circle"></i> Acesso gratuito a milhares de livros</li>
+                    <li><i class="fas fa-check-circle"></i> Encontre leitores próximos a você</li>
+                    <li><i class="fas fa-check-circle"></i> Sistema de reputação para segurança</li>
+                    <li><i class="fas fa-check-circle"></i> Clubes do livro e eventos</li>
+                </ul>
+            </div>
+
+            <!-- CATEGORIAS POPULARES -->
+            <div class="info-box">
+                <h3>Categorias populares</h3>
+                <div class="tags-minimal">
+                    <span>Ficção</span>
+                    <span>Fantasia</span>
+                    <span>Romance</span>
+                    <span>Distopia</span>
+                    <span>Clássicos</span>
+                    <span>Biografias</span>
+                </div>
+                <div class="stats-minimal">
+                    <div class="stat-item">
+                        <span class="stat-number">428</span>
+                        <span class="stat-label">livros em ficção</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">312</span>
+                        <span class="stat-label">livros em romance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA FINAL -->
+    <div class="minimal-cta">
+        <div class="cta-container">
+            <h2>Pronto para começar sua jornada literária?</h2>
+            <p>Junte-se a milhares de leitores que já descobriram o prazer de compartilhar histórias.</p>
+            <div class="cta-actions">
                 {% if user.is_authenticated %}
-                <a href="{% url 'books:create' %}" class="btn btn-outline-light btn-lg hero-btn">
-                    <i class="fas fa-plus me-2"></i>
-                    Cadastrar Livro
+                <a href="{% url 'books:create' %}" class="minimal-btn primary">
+                    <i class="fas fa-plus"></i> Cadastrar meus livros
                 </a>
                 {% else %}
-                <a href="{% url 'user:signup' %}" class="btn btn-outline-light btn-lg hero-btn">
-                    <i class="fas fa-rocket me-2"></i>
-                    Começar Agora
+                <a href="{% url 'user:signup' %}" class="minimal-btn primary">
+                    <i class="fas fa-user-plus"></i> Criar minha conta
                 </a>
                 {% endif %}
-            </div>
-            
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <div class="stat-number">{{ total_books|default:"1.247" }}</div>
-                    <div class="stat-label">Livros Disponíveis</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">{{ active_users|default:"856" }}</div>
-                    <div class="stat-label">Leitores Ativos</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">{{ total_loans|default:"3.421" }}</div>
-                    <div class="stat-label">Empréstimos Realizados</div>
-                </div>
+                <a href="{% url 'books:library' %}" class="minimal-btn">
+                    <i class="fas fa-search"></i> Explorar acervo
+                </a>
             </div>
         </div>
     </div>
-    
-    <!-- Scroll Indicator -->
-    <div class="scroll-indicator">
-        <div class="scroll-arrow"></div>
-    </div>
-</section>
-
-<!-- Features Grid -->
-<section class="section-features">
-    <div class="container">
-        <div class="section-header center">
-            <h2 class="section-title">Como funciona</h2>
-            <p class="section-subtitle">Simples, seguro e feito por leitores para leitores</p>
-        </div>
-        
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-book-open"></i>
-                </div>
-                <h3 class="feature-title">Cadastre seus livros</h3>
-                <p class="feature-description">
-                    Adicione os livros que você quer compartilhar. É rápido, fácil e você controla tudo.
-                </p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-handshake"></i>
-                </div>
-                <h3 class="feature-title">Conecte-se com leitores</h3>
-                <p class="feature-description">
-                    Receba solicitações de empréstimo e combine encontros com leitores da sua região.
-                </p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-exchange-alt"></i>
-                </div>
-                <h3 class="feature-title">Compartilhe histórias</h3>
-                <p class="feature-description">
-                    Empreste seus livros e descubra novas leituras. Todos ganham com o compartilhamento.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Books Showcase -->
-<section class="section-showcase">
-    <div class="container">
-        <div class="showcase-header">
-            <div class="header-content">
-                <h2 class="section-title">Livros da comunidade</h2>
-                <p class="section-subtitle">Descubra as últimas adições ao nosso acervo coletivo</p>
-            </div>
-            <a href="{% url 'books:library' %}" class="btn btn-outline-primary">
-                Ver todos os livros
-                <i class="fas fa-arrow-right ms-2"></i>
-            </a>
-        </div>
-        
-        {% if recent_books %}
-        <div class="books-showcase">
-            {% for book in recent_books %}
-            <a href="{{ book.get_absolute_url }}" class="book-showcase-card-link">
-                <div class="book-showcase-card">
-                    <div class="book-cover">
-                        {% if book.cover_image %}
-                        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="book-image">
-                        {% else %}
-                        <div class="book-placeholder">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        {% endif %}
-                        <div class="book-overlay">
-                            <span class="overlay-text">
-                                <i class="fas fa-eye me-1"></i>
-                                Ver detalhes
-                            </span>
-                        </div>
-                    </div>
-                    <div class="book-info">
-                        <h3 class="book-title">{{ book.title|truncatewords:6 }}</h3>
-                        {% if book.author %}
-                        <p class="book-author">{{ book.author }}</p>
-                        {% endif %}
-                        <div class="book-meta">
-                            <span class="meta-item">
-                                <i class="fas fa-user"></i>
-                                {{ book.owner.full_name|default:book.owner.email }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="fas fa-books"></i>
-            </div>
-            <h3>Nenhum livro disponível</h3>
-            <p>Seja o primeiro a compartilhar um livro na comunidade!</p>
-            <a href="{% url 'books:create' %}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>
-                Cadastrar primeiro livro
-            </a>
-        </div>
-        {% endif %}
-    </div>
-</section>
-
-<!-- Benefits Section -->
-<section class="section-benefits">
-    <div class="container">
-        <div class="section-header center">
-            <h2 class="section-title">Por que fazer parte?</h2>
-            <p class="section-subtitle">Vantagens de compartilhar livros com a comunidade</p>
-        </div>
-        
-        <div class="benefits-grid">
-            <div class="benefit-card">
-                <div class="benefit-icon">
-                    <i class="fas fa-piggy-bank"></i>
-                </div>
-                <h3>Economia inteligente</h3>
-                <p>Acesse milhares de livros gratuitamente e compartilhe os seus sem custos.</p>
-            </div>
-            
-            <div class="benefit-card">
-                <div class="benefit-icon">
-                    <i class="fas fa-leaf"></i>
-                </div>
-                <h3>Leitura sustentável</h3>
-                <p>Reduza o consumo e dê nova vida aos livros que já foram lidos.</p>
-            </div>
-            
-            <div class="benefit-card">
-                <div class="benefit-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3>Comunidade ativa</h3>
-                <p>Conheça leitores da sua região e compartilhe experiências literárias.</p>
-            </div>
-            
-            <div class="benefit-card">
-                <div class="benefit-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3>Totalmente seguro</h3>
-                <p>Sistema de reputação e avaliações para transações seguras entre membros.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonials -->
-<section class="section-testimonials">
-    <div class="container">
-        <div class="section-header center">
-            <h2 class="section-title">O que os leitores dizem</h2>
-            <p class="section-subtitle">Experiências reais da nossa comunidade</p>
-        </div>
-        
-        <div class="testimonials-grid">
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    <p>"Encontrei livros incríveis que nunca teria comprado. A comunidade é incrível!"</p>
-                </div>
-                <div class="testimonial-author">
-                    <div class="author-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="author-info">
-                        <strong>Marina Silva</strong>
-                        <span>Membro há 1 ano</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    <p>"Já emprestei mais de 20 livros e fiz amizades incríveis com outros leitores."</p>
-                </div>
-                <div class="testimonial-author">
-                    <div class="author-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="author-info">
-                        <strong>Carlos Oliveira</strong>
-                        <span>Membro há 2 anos</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    <p>"Economizei centenas de reais em livros e descobri autores fantásticos."</p>
-                </div>
-                <div class="testimonial-author">
-                    <div class="author-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="author-info">
-                        <strong>Ana Costa</strong>
-                        <span>Membro há 6 meses</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Final CTA -->
-<section class="section-cta">
-    <div class="container">
-        <div class="cta-card">
-            <div class="cta-content">
-                <h2 class="cta-title">Pronto para começar sua jornada literária?</h2>
-                <p class="cta-description">
-                    Junte-se a milhares de leitores que já descobriram o prazer de compartilhar histórias.
-                </p>
-                <div class="cta-actions">
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'books:create' %}" class="btn btn-primary btn-lg">
-                        <i class="fas fa-book me-2"></i>
-                        Cadastrar meus livros
-                    </a>
-                    <a href="{% url 'books:library' %}" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-search me-2"></i>
-                        Explorar acervo
-                    </a>
-                    {% else %}
-                    <a href="{% url 'user:signup' %}" class="btn btn-primary btn-lg">
-                        <i class="fas fa-rocket me-2"></i>
-                        Criar minha conta
-                    </a>
-                    <a href="{% url 'books:library' %}" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-search me-2"></i>
-                        Ver livros disponíveis
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Scroll suave para as seções
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-    
-    // Animação de entrada dos cards
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-    
-    // Observar elementos para animação
-    document.querySelectorAll('.feature-card, .book-showcase-card-link, .benefit-card, .testimonial-card').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'all 0.6s ease-out';
-        observer.observe(el);
-    });
-    
-    // Efeito hover nos cards de livros
-    document.querySelectorAll('.book-showcase-card-link').forEach(link => {
-        link.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-8px)';
-        });
-        
-        link.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
-    });
-});
-</script>
+</div>
 {% endblock %}

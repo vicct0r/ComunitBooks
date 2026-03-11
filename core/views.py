@@ -31,7 +31,7 @@ class HomePageView(generic.TemplateView):
 
         # Contagem de usuários ativos (que possuem livros ou possuem empréstimos)
         active_users = User.objects.filter(
-            Q(owned_books__is_visible=True) | Q(loan_borrower__isnull=False)
+            Q(user_books__is_visible=True) | Q(loan_borrower__isnull=False)
         ).distinct().count()
 
         # Total de empréstimos completados

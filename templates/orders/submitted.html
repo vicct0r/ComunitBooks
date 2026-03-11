@@ -8,23 +8,20 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="display-5 fw-bold text-dark mb-2">
-                        <i class="fas fa-paper-plane me-3"></i>Meus Pedidos
-                    </h1>
-                    <p class="lead text-muted">Acompanhe os pedidos de empréstimo que você enviou</p>
-                </div>
-                <div class="text-end">
-                    <span class="badge bg-primary fs-6 px-3 py-2 order-count-badge">
-                        <i class="fas fa-clipboard-list me-2"></i>
-                        {{ orders|length }} pedido{{ orders|length|pluralize }}
-                    </span>
-                </div>
-            </div>
+<div class="container py-4">
+    <!-- Header -->
+    <div class="page-header mb-4">
+        <div class="page-header-info">
+            <h1>
+                <i class="fas fa-paper-plane me-2 text-primary"></i>Meus Pedidos
+            </h1>
+            <p>Acompanhe os pedidos de empréstimo que você enviou</p>
+        </div>
+        <div>
+            <span class="count-badge">
+                <i class="fas fa-clipboard-list"></i>
+                {{ orders|length }} pedido{{ orders|length|pluralize }}
+            </span>
         </div>
     </div>
 
@@ -125,21 +122,15 @@
     </div>
 
     {% else %}
-    <div class="row">
-        <div class="col-12">
-            <div class="empty-state text-center py-5">
-                <div class="empty-icon mb-4">
-                    <i class="fas fa-paper-plane display-1 text-muted"></i>
-                </div>
-                <h3 class="empty-title h4 text-dark mb-3">Nenhum pedido enviado</h3>
-                <p class="empty-text text-muted mb-4">Quando você solicitar empréstimos de livros, os pedidos aparecerão aqui.</p>
-                <div class="d-flex gap-2 justify-content-center flex-wrap">
-                    <a href="{% url 'books:library' %}" class="btn btn-primary">
-                        <i class="fas fa-book me-2"></i>Explorar Livros
-                    </a>
-                </div>
-            </div>
+    <div class="empty-state-box">
+        <div class="empty-icon">
+            <i class="fas fa-paper-plane"></i>
         </div>
+        <h3>Nenhum pedido enviado</h3>
+        <p>Quando você solicitar empréstimos de livros, os pedidos aparecerão aqui.</p>
+        <a href="{% url 'books:library' %}" class="btn btn-primary">
+            <i class="fas fa-book me-2"></i>Explorar Livros
+        </a>
     </div>
     {% endif %}
 </div>

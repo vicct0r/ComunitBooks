@@ -4,42 +4,41 @@
 {% block title %}Minha Biblioteca{% endblock %}
 
 {% block content %}
-<div class="container py-3">
+<div class="container py-4">
     <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-                <div>
-                    <h1 class="h3 fw-bold text-dark mb-1">
-                        <i class="fas fa-book me-2 text-primary"></i>Minha Biblioteca
-                    </h1>
-                    <p class="text-muted mb-0">Gerencie sua coleção de livros</p>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-primary fs-6">{{ books.count }} livro{{ books.count|pluralize }}</span>
-                    <a href="{% url 'books:create' %}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus me-1"></i>Adicionar
-                    </a>
-                </div>
-            </div>
+    <div class="page-header">
+        <div class="page-header-info">
+            <h1>
+                <i class="fas fa-book me-2 text-primary"></i>Minha Biblioteca
+            </h1>
+            <p>Gerencie sua coleção de livros</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="count-badge">
+                <i class="fas fa-clipboard-list"></i>
+                {{ books.count }} livro{{ books.count|pluralize }}
+            </span>
+            <a href="{% url 'books:create' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Adicionar
+            </a>
         </div>
     </div>
 
-    <!-- Filtros Mobile-Friendly -->
-    <div class="card border-0 shadow-sm mb-4">
+    <!-- Filtros -->
+    <div class="std-card mb-4">
         <div class="card-body p-3">
             <form method="GET" class="row g-2">
                 <div class="col-12 col-sm-6 col-md-3">
-                    <input type="text" class="form-control form-control-sm" name="search" 
-                           placeholder="🔍 Buscar livro..." 
+                    <input type="text" class="form-control form-control-sm" name="search"
+                           placeholder="Buscar livro..."
                            value="{{ request.GET.search|default:'' }}">
                 </div>
-                
+
                 <div class="col-6 col-sm-3 col-md-2">
                     <select class="form-select form-select-sm" name="status">
                         <option value="">Todos status</option>
-                        <option value="av" {% if request.GET.status == 'av' %}selected{% endif %}>Disponível</option>
-                        <option value="un" {% if request.GET.status == 'un' %}selected{% endif %}>Indisponível</option>
+                        <option value="av" {% if request.GET.status == 'av' %}selected{% endif %}>Disponivel</option>
+                        <option value="un" {% if request.GET.status == 'un' %}selected{% endif %}>Indisponivel</option>
                         <option value="rs" {% if request.GET.status == 'rs' %}selected{% endif %}>Reservado</option>
                     </select>
                 </div>
@@ -58,7 +57,7 @@
                     <select class="form-select form-select-sm" name="category">
                         <option value="">Todas categorias</option>
                         {% for category in categories %}
-                        <option value="{{ category.id }}" 
+                        <option value="{{ category.id }}"
                                 {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
                             {{ category.name }}
                         </option>
@@ -88,22 +87,20 @@
     <div class="row g-3">
         {% for book in books %}
         <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card h-100 std-card">
                 <!-- Imagem -->
-                <div class="position-relative" style="height: 160px; overflow: hidden;">
+                <div class="position-relative book-img-container">
                     {% if book.cover_image %}
-                    <img src="{{ book.cover_image.url }}" 
-                         class="card-img-top h-100 w-100" 
-                         style="object-fit: cover;"
+                    <img src="{{ book.cover_image.url }}"
                          alt="{{ book.title }}">
                     {% else %}
-                    <div class="h-100 w-100 bg-light d-flex align-items-center justify-content-center">
-                        <i class="fas fa-book text-muted fa-2x"></i>
+                    <div class="book-img-placeholder">
+                        <i class="fas fa-book fa-2x"></i>
                     </div>
                     {% endif %}
-                    
+
                     <!-- Status Badge -->
-                    <div class="position-absolute top-1 start-1">
+                    <div class="position-absolute top-0 start-0 m-2">
                         <span class="badge {% if book.status == 'av' %}bg-success
                                   {% elif book.status == 'un' %}bg-warning text-dark
                                   {% elif book.status == 'rs' %}bg-info
@@ -113,12 +110,12 @@
                     </div>
                 </div>
 
-                <!-- Conteúdo -->
+                <!-- Conteudo -->
                 <div class="card-body d-flex flex-column p-3">
-                    <h6 class="card-title fw-bold mb-2 lh-sm" style="min-height: 2.5rem;">
+                    <h6 class="card-title fw-bold mb-2 lh-sm">
                         {{ book.title|truncatewords:6 }}
                     </h6>
-                    
+
                     {% if book.author %}
                     <p class="text-muted small mb-2">
                         {{ book.author|truncatewords:3 }}
@@ -172,7 +169,7 @@
                     {% if page_obj.has_previous %}
                     <li class="page-item">
                         <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
-                            ‹
+                            &lsaquo;
                         </a>
                     </li>
                     {% endif %}
@@ -194,7 +191,7 @@
                     {% if page_obj.has_next %}
                     <li class="page-item">
                         <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
-                            ›
+                            &rsaquo;
                         </a>
                     </li>
                     {% endif %}
@@ -206,18 +203,18 @@
 
     {% else %}
     <!-- Estado Vazio -->
-    <div class="text-center py-5">
-        <div class="mb-3">
-            <i class="fas fa-books fa-3x text-muted opacity-50"></i>
+    <div class="empty-state-box">
+        <div class="empty-icon">
+            <i class="fas fa-book-open"></i>
         </div>
-        <h4 class="text-muted mb-2">
+        <h3>
             {% if request.GET.search or request.GET.category or request.GET.status or request.GET.condition %}
             Nenhum livro encontrado
             {% else %}
             Nenhum livro na biblioteca
             {% endif %}
-        </h4>
-        <p class="text-muted mb-3">
+        </h3>
+        <p>
             {% if request.GET.search or request.GET.category or request.GET.status or request.GET.condition %}
             Tente ajustar os filtros de busca.
             {% else %}

@@ -4,26 +4,32 @@
 {% block title %}Sair{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <div class="auth-icon">👋</div>
-            <h1 class="auth-title">Sair</h1>
-            <p class="auth-subtitle">Tem certeza que deseja sair?</p>
+<div class="card-page">
+    <div class="card-page-inner">
+        <div class="card-page-header">
+            <span class="card-page-icon">
+                <i class="fas fa-sign-out-alt"></i>
+            </span>
+            <h1 class="card-page-title">Sair</h1>
+            <p class="card-page-subtitle">Tem certeza que deseja sair?</p>
         </div>
-        
-        <div class="auth-body text-center">
+
+        <div class="card-page-body text-center">
             <form method="post" action="{% url 'account_logout' %}">
                 {% csrf_token %}
                 {% if redirect_field_value %}
                 <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                 {% endif %}
-                
-                <p class="mb-4">Você está prestes a sair da sua conta. Deseja continuar?</p>
-                
-                <div class="d-grid gap-2 d-md-block">
-                    <button class="btn btn-danger me-md-2" type="submit">Sim, Sair</button>
-                    <a class="btn btn-outline-secondary" href="{% url 'core:home' %}">Cancelar</a>
+
+                <p class="text-muted mb-4">Você está prestes a sair da sua conta. Deseja continuar?</p>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-danger" type="submit">
+                        <i class="fas fa-sign-out-alt me-2"></i>Sim, Sair
+                    </button>
+                    <a class="btn btn-secondary" href="{% url 'core:home' %}">
+                        <i class="fas fa-arrow-left me-2"></i>Cancelar
+                    </a>
                 </div>
             </form>
         </div>

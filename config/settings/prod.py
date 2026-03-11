@@ -3,7 +3,7 @@ from .base import *
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'community.tornac-dev.com.br',
+    'community.tornac.cloud',
     'localhost',
     '127.0.0.1'
 ]
@@ -19,20 +19,20 @@ STATICFILES_DIRS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://www.community.tornac-dev.com.br',
-    'https://community.tornac-dev.com.br',
+    'https://www.community.tornac.cloud',
+    'https://community.tornac.cloud',
 ]
 
 SESSION_COOKIE_SECURE = True
 
-EMAIL_HOST = 'smtp.hostinger.com'
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_BACKEND = 'loans.backends.email_backend.EmailBackend'
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-SENDER_EMAIL = DEFAULT_FROM_EMAIL
+#EMAIL_HOST = 'smtp.hostinger.com'
+#EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+#EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_BACKEND = 'loans.backends.email_backend.EmailBackend'
+#DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+#SENDER_EMAIL = DEFAULT_FROM_EMAIL
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

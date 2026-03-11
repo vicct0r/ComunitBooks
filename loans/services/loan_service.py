@@ -52,7 +52,6 @@ class LoanService:
         loan.save()
         loan.book.save()
         UserService.increase_user_score(loan.owner.id, quantity=1)
-        notification.sent(loan)
         return f"Envio confirmado. Emprestimo estará ativo assim que chegar para {loan.borrower.email}."
 
     @staticmethod
@@ -68,7 +67,6 @@ class LoanService:
         loan.due_date = timezone.now().date() + timedelta(days=loan.max_loan_period)
         loan.save()
         loan.book.save()
-        notification.delivered(loan)
         return f"Entrega do livro {loan.book.title} foi confirmada."
 
     @staticmethod
@@ -89,7 +87,6 @@ class LoanService:
         else:
             UserService.increase_user_score(loan.borrower.id, quantity=1)
 
-        notification.returned(loan)
         return f"Devolução do livro {loan.book.title} foi efetuada."
 
     @staticmethod
@@ -105,7 +102,6 @@ class LoanService:
         loan.returned_date = timezone.now()
         loan.save()
         loan.book.save()
-        notification.completed(loan)
         return f"Seu livro {loan.book.title} foi marcado como devolvido."
     
     @staticmethod

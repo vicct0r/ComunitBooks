@@ -25,14 +25,14 @@ CSRF_TRUSTED_ORIGINS = [
 
 SESSION_COOKIE_SECURE = True
 
-#EMAIL_HOST = 'smtp.hostinger.com'
-#EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-#EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-#EMAIL_PORT = 587
-#EMAIL_USE_TLS = True
-#EMAIL_BACKEND = 'loans.backends.email_backend.EmailBackend'
-#DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-#SENDER_EMAIL = DEFAULT_FROM_EMAIL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.resend.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'resend'
+EMAIL_HOST_PASSWORD = env('RESEND_API_KEY')
+DEFAULT_FROM_EMAIL = 'CommunityBooks <noreply@community.tornac.cloud>'
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

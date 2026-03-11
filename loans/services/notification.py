@@ -3,8 +3,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
 
-DOMAIN = 'community.tornac-dev.com.br'
-EMAIL_HOST_USER = 'dev@localhost'
+DOMAIN = 'community.tornac.cloud'
 
 def approve(loan):
     message = f"""
@@ -34,7 +33,7 @@ def approve(loan):
     return send_mail(
         subject=f"Empréstimo (Update): {loan.id}",
         message=message.strip(),
-        from_email=EMAIL_HOST_USER,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[loan.borrower.email],
         fail_silently=False
     )
@@ -76,7 +75,7 @@ def sent(loan):
     return send_mail(
         subject=f"Empréstimo (Update): {loan.id}",
         message=message.strip(),
-        from_email=EMAIL_HOST_USER,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[loan.borrower.email],
         fail_silently=False
     )
@@ -110,7 +109,7 @@ def delivered(loan):
     return send_mail(
         subject=f"Empréstimo (Update): {loan.id}",
         message=message.strip(),
-        from_email=EMAIL_HOST_USER,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[loan.owner.email],
         fail_silently=False
     )
@@ -157,7 +156,7 @@ def returned(loan):
     return send_mail(
         subject=f"Empréstimo (Update): {loan.id}",
         message=message.strip(),
-        from_email=EMAIL_HOST_USER,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[loan.owner.email],
         fail_silently=False
     )
@@ -182,7 +181,7 @@ def completed(loan):
     return send_mail(
         subject=f"Empréstimo (Update): {loan.id}",
         message=message.strip(),
-        from_email=EMAIL_HOST_USER,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[loan.borrower.email],
         fail_silently=False
     )
@@ -208,7 +207,7 @@ def due_date_tomorrow_info(loan):
     return send_mail(
         subject=f"Empréstimo (Info): {loan.id}",
         message=message.strip(),
-        from_email=EMAIL_HOST_USER,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[loan.borrower.email],
         fail_silently=False
     )
@@ -236,7 +235,7 @@ def overdue_loan_info(loan):
     return send_mail(
         subject=f"Empréstimo (Atraso): {loan.id}",
         message=message.strip(),
-        from_email=EMAIL_HOST_USER,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[loan.borrower.email],
         fail_silently=False
     )

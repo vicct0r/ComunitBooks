@@ -7,17 +7,14 @@
 <div class="container py-5">
     <div class="row">
         <div class="col-12">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center align-items-start gap-3 mb-4">
-                <div>
-                    <h1 class="h2 fw-bold text-dark mb-2">
-                        <i class="fas fa-exchange-alt me-2 text-primary"></i>Empréstimos Ativos
-                    </h1>
-                    <p class="text-muted mb-0">Livros que você emprestou para outros usuários</p>
+            <div class="page-header mb-4">
+                <div class="page-header-info">
+                    <h1><i class="fas fa-exchange-alt me-2"></i>Empréstimos Ativos</h1>
+                    <p>Livros que você emprestou para outros usuários</p>
                 </div>
                 <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
-                    <span class="badge bg-primary fs-6 px-3 py-2">
-                        <i class="fas fa-clipboard-list me-2"></i>
-                        {{ allowed_actions|length }} empréstimo{{ allowed_actions|length|pluralize }}
+                    <span class="count-badge">
+                        <i class="fas fa-clipboard-list me-2"></i>{{ allowed_actions|length }} empréstimo{{ allowed_actions|length|pluralize }}
                     </span>
                     <a href="{% url 'orders:received' %}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-inbox me-1"></i>Ver Pedidos Recebidos
@@ -65,10 +62,9 @@
                                             {% if loan_item.loan.book.cover_image %}
                                                 <img src="{{ loan_item.loan.book.cover_image.url }}"
                                                      alt="{{ loan_item.loan.book.title }}"
-                                                     class="rounded shadow" style="width: 60px; height: 80px; object-fit: cover;">
+                                                     class="book-thumb-sm rounded shadow">
                                             {% else %}
-                                                <div class="rounded shadow d-flex align-items-center justify-content-center" 
-                                                     style="width: 60px; height: 80px; background: #f8f9fa; color: #6c757d;">
+                                                <div class="book-placeholder rounded shadow" style="width: 60px; height: 80px;">
                                                     <i class="fas fa-book fa-lg"></i>
                                                 </div>
                                             {% endif %}
@@ -203,22 +199,15 @@
             </div>
 
             {% else %}
-            <div class="text-center py-5">
-                <div class="mb-4">
-                    <i class="fas fa-handshake fa-4x text-muted opacity-50"></i>
-                </div>
-                <h3 class="text-muted mb-3">
-                    Nenhum empréstimo ativo
-                </h3>
-                <p class="text-muted mb-4">
-                    Quando você aprovar pedidos de empréstimo dos seus livros, eles aparecerão aqui.
-                </p>
-
+            <div class="empty-state-box">
+                <i class="fas fa-handshake fa-3x text-muted mb-3"></i>
+                <h4>Nenhum empréstimo ativo</h4>
+                <p class="text-muted">Quando você aprovar pedidos de empréstimo dos seus livros, eles aparecerão aqui.</p>
                 <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-                    <a href="{% url 'orders:received' %}" class="btn btn-primary btn-lg">
+                    <a href="{% url 'orders:received' %}" class="btn btn-primary">
                         <i class="fas fa-inbox me-2"></i>Ver Pedidos Recebidos
                     </a>
-                    <a href="{% url 'books:user_library' request.user.id %}" class="btn btn-outline-primary btn-lg">
+                    <a href="{% url 'books:user_library' request.user.id %}" class="btn btn-outline-primary">
                         <i class="fas fa-book me-2"></i>Minha Biblioteca
                     </a>
                 </div>

@@ -7,19 +7,14 @@
 <div class="container py-5">
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="display-5 fw-bold text-primary mb-2">
-                        <i class="fas fa-book-reader me-3"></i>Meus Empréstimos
-                    </h1>
-                    <p class="lead text-muted mb-0">Livros que você pegou emprestado de outros usuários</p>
+            <div class="page-header mb-4">
+                <div class="page-header-info">
+                    <h1><i class="fas fa-book-reader me-2"></i>Meus Empréstimos</h1>
+                    <p>Livros que você pegou emprestado de outros usuários</p>
                 </div>
-                <div class="text-end">
-                    <span class="badge bg-primary fs-6 px-3 py-2">
-                        <i class="fas fa-clipboard-list me-2"></i>
-                        {{ allowed_actions|length }} livro{{ allowed_actions|length|pluralize }}
-                    </span>
-                </div>
+                <span class="count-badge">
+                    <i class="fas fa-clipboard-list me-2"></i>{{ allowed_actions|length }} livro{{ allowed_actions|length|pluralize }}
+                </span>
             </div>
 
             {% if allowed_actions %}
@@ -59,12 +54,11 @@
                                     <div class="d-flex align-items-start">
                                         <div class="flex-shrink-0 me-3">
                                             {% if loan_item.loan.book.cover_image %}
-                                            <img src="{{ loan_item.loan.book.cover_image.url }}" 
-                                                 alt="{{ loan_item.loan.book.title }}" 
-                                                 class="rounded shadow" style="width: 80px; height: 100px; object-fit: cover;">
+                                            <img src="{{ loan_item.loan.book.cover_image.url }}"
+                                                 alt="{{ loan_item.loan.book.title }}"
+                                                 class="book-thumb rounded shadow">
                                             {% else %}
-                                            <div class="rounded shadow d-flex align-items-center justify-content-center" 
-                                                 style="width: 80px; height: 100px; background: #f8f9fa; color: #6c757d;">
+                                            <div class="book-placeholder rounded shadow">
                                                 <i class="fas fa-book fa-2x"></i>
                                             </div>
                                             {% endif %}
@@ -203,21 +197,15 @@
             </div>
 
             {% else %}
-            <div class="text-center py-5">
-                <div class="mb-4">
-                    <i class="fas fa-book-open fa-4x text-muted"></i>
-                </div>
-                <h3 class="text-muted mb-3">
-                    Nenhum livro em uso no momento
-                </h3>
-                <p class="text-muted mb-4">
-                    Você ainda não possui livros emprestados de outros usuários.
-                </p>
+            <div class="empty-state-box">
+                <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                <h4>Nenhum livro em uso no momento</h4>
+                <p class="text-muted">Você ainda não possui livros emprestados de outros usuários.</p>
                 <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-                    <a href="{% url 'books:library' %}" class="btn btn-primary btn-lg">
+                    <a href="{% url 'books:library' %}" class="btn btn-primary">
                         <i class="fas fa-search me-2"></i>Buscar Livros para Emprestar
                     </a>
-                    <a href="{% url 'orders:submitted' %}" class="btn btn-outline-primary btn-lg">
+                    <a href="{% url 'orders:submitted' %}" class="btn btn-outline-primary">
                         <i class="fas fa-history me-2"></i>Ver Meus Pedidos
                     </a>
                 </div>

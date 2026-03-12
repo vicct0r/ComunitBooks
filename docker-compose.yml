@@ -20,8 +20,8 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-      - staticfiles:/app/staticfiles
-      - media:/app/media
+      - /opt/tornac/media:/app/media
+      - /opt/tornac/staticfiles:/app/staticfiles
     env_file:
       - .env
     depends_on:

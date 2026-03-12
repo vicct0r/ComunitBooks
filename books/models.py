@@ -61,6 +61,9 @@ class BookQuerySet(models.QuerySet):
             elif popularity == "oldest":
                 query = query.order_by('created')        
         return query
+    
+    class Meta:
+        ordering = ['-created_at']
 
 
 class BookManager(models.Manager):

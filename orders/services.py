@@ -15,4 +15,3 @@ class OrdersPolicy:
         MAX_ORDERS_LIMIT = 3
         USER_ACTIVE_LOANS = Loan.objects.filter(borrower=user).exclude(status__in=[Loan.COMPLETED, Loan.CANCELLED]).count()
         return USER_ACTIVE_LOANS < MAX_ORDERS_LIMIT
-    

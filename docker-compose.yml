@@ -12,9 +12,9 @@ services:
     build: .
     command: >
       sh -c "
-      python manage.py migrate &&
-      python manage.py collectstatic --noinput &&
-      gunicorn config.wsgi:application --bind 0.0.0.0:8000
+        python manage.py migrate &&
+        python manage.py collectstatic --noinput &&
+        gunicorn config.wsgi:application --bind 0.0.0.0:8000
       "
     ports:
       - "8000:8000"
@@ -27,6 +27,12 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import socket; s=socket.create_connection((\"localhost\", 8000), timeout=3); s.close()'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   celery_worker:
     build: .
@@ -38,6 +44,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    restart: unless-stopped
 
   celery_beat:
     build: .
@@ -49,3 +56,17 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - /opt/tornac/media:/app/media
+      - /opt/tornac/staticfiles:/app/staticfiles
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped

@@ -10,6 +10,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         gcc \
         libpq-dev \
+        curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip --no-cache-dir

@@ -2,12 +2,6 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = [
-    'community.tornac.cloud',
-    'localhost',
-    '127.0.0.1'
-]
-
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 

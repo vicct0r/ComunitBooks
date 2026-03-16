@@ -38,7 +38,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField('Email', unique=True, max_length=100)
     full_name = models.CharField(max_length=200, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
-    telefone = models.CharField('Telefone', max_length=15)
+    phone = models.CharField('phone', max_length=15, null=True)
     is_staff = models.BooleanField('Membro da Equipe', default=False)
     img = StdImageField(
         'Imagem', 
@@ -47,11 +47,23 @@ class CustomUser(AbstractUser):
         blank=True,
         null=True
     )
+    address = models.OneToOneField('Address', related_name='address_owner', on_delete=models.SET_NULL, null=True)
     score = models.IntegerField(default=0, editable=False)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone']
+    REQUIRED_FIELDS = ['first_name', 'last_name']
     objects = UsuarioManager()
 
     def __str__(self):
         return self.email
+
+
+class Address(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    cep = models.CharField(max_length=9)
+    logradouro = models.CharField(max_length=150)
+    complemento = models.CharField(max_length=100, blank=True, default='')
+    bairro = models.CharField(max_length=100)
+    localidade = models.CharField(max_length=100)
+    estado = models.CharField(max_length=2)
+    regiao = models.CharField(max_length=20)

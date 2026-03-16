@@ -6,7 +6,7 @@ from .models import CustomUser
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ['email', 'full_name', 'telefone']
+        fields = ['email', 'full_name']
         labels = {'email': 'Email'}
 
     def save(self, commit=True):
@@ -21,4 +21,4 @@ class CustomUserCreationForm(UserCreationForm):
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
-        fields = ['full_name', 'img', 'telefone']
+        fields = ['full_name', 'img', 'phone']

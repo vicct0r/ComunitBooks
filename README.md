@@ -1,67 +1,126 @@
-# Enunciado: Sistema de Biblioteca Comunitária
+# ComunitBooks
 
-## 📖 Objetivo
-Desenvolver uma plataforma onde membros de uma comunidade possam compartilhar livros de forma organizada, com regras flexíveis que incentivem a colaboração e garantam a integridade dos acervos pessoais.
+Plataforma de compartilhamento de livros entre membros de uma comunidade. A ideia é simples: emprestar e trocar livros como se fossem amigos — sem burocracia, mas com controle suficiente para evitar abusos.
 
-## 🏷️ Regras de Negócio
+---
 
-### 1. Cadastro de Livros
-- Todo usuário cadastrado pode adicionar livros ao sistema
-- Informações obrigatórias:
-  - Título (mínimo 3 caracteres)
-  - Autor (mínimo 3 caracteres)
-  - Estado de conservação (Novo/Usado/Danificado)
-- O sistema deve:
-  - Criar identificadores únicos e legíveis para cada livro
-  - Classificar automaticamente por gênero com base no título
+## Stack
 
-### 2. Empréstimos
-- Prazo padrão: 14 dias
-- Limites:
-  - Máximo de 3 livros por usuário simultaneamente
-  - 1 renovação permitida (+7 dias)
-- Restrições:
-  - Doadores podem definir regras especiais para seus livros
-  - Usuários com atrasos superiores a 5 dias ficam bloqueados
+- **Backend:** Django 5.2 + Python 3.12
+- **Banco de dados:** PostgreSQL 16 (produção) / SQLite (desenvolvimento)
+- **Cache / Fila:** Redis 7 + Celery
+- **Servidor:** Gunicorn + Nginx
+- **Deploy:** Docker + Docker Compose
+- **E-mail:** Resend (produção) / arquivo local (desenvolvimento)
 
-### 3. Sistema de Reputação
-- Pontos positivos:
-  - +2 pontos por livro doado
-  - +1 ponto por devolução antecipada
-- Pontos negativos:
-  - -5 pontos por atraso na devolução
-- Benefícios:
-  - Acesso a livros exclusivos após atingir 100 pontos
-  - Prioridade em listas de espera
+---
 
-### 4. Notificações
-- Tipos de alertas:
-  1. Aviso de devolução (3 dias antes do prazo)
-  2. Confirmação de empréstimo
-  3. Disponibilidade de livro desejado
-- Canais:
-  - E-mail (obrigatório)
-  - Telegram (opcional)
+## Apps
 
-### 5. Busca e Recomendações
-- Filtros obrigatórios:
-  - Por título/autor
-  - Por gênero literário
-  - Por disponibilidade
-- Sistema de sugestões:
-  - Baseado em livros já emprestados
-  - "Quem pegou X também pegou Y"
+| App | Responsabilidade |
+|---|---|
+| `usuarios` | Usuário customizado (login por e-mail), perfil, endereço, pontuação |
+| `books` | Catálogo de livros, categorias, busca e filtros |
+| `orders` | Solicitações de empréstimo (etapa anterior ao Loan) |
+| `loans` | Ciclo de vida do empréstimo, renovações, atrasos |
+| `core` | Homepage com estatísticas gerais |
 
-## 🎯 Expectativas do Cliente
-"Quero que os usuários sintam que estão pegando livros emprestados de amigos, não de uma biblioteca formal. O sistema deve ser simples o suficiente para minha avó usar, mas inteligente o bastante para evitar abusos."
+---
 
-## 📆 Entregas Esperadas
-1. **Versão Inicial (MVP):**
-   - Cadastro e empréstimo básico de livros
-   - Sistema de reputação simplificado
-2. **Versão 2.0:**
-   - Integração com mensageiros
-   - Clubes de leitura por livro
-3. **Versão 3.0:**
-   - Mapa de livros disponíveis por proximidade
-   - Sistema de trocas além de empréstimos
+## Regras de negócio principais
+
+- Período padrão de empréstimo: **14 dias**, com **1 renovação** permitida (+7 dias)
+- Máximo de **3 empréstimos simultâneos** por usuário
+- Usuários com atraso superior a 5 dias ficam bloqueados
+- Sistema de reputação:
+  - `+2` por livro doado
+  - `+1` por devolução antecipada
+  - `-5` por atraso
+- Tarefas agendadas via Celery Beat (a cada minuto):
+  - Marcação automática de empréstimos em atraso
+  - Notificações de vencimento próximo
+
+---
+
+## Configuração
+
+### Variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto. Veja `.env.local` como referência:
+
+```env
+SECRET_KEY="sua-secret-key"
+DJANGO_SETTINGS_MODULE=config.settings.dev
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+DATABASE_URL=sqlite:///db.sqlite3
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+```
+
+---
+
+## Rodando o projeto
+
+### Com Docker (recomendado)
+
+```bash
+# Produção
+docker-compose up -d
+
+# Desenvolvimento
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+Serviços iniciados: `web`, `db`, `redis`, `celery_worker`, `celery_beat`, `nginx`.
+
+### Localmente (sem Docker)
+
+```bash
+pip install -r requirements/base.txt
+
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+### Comandos úteis
+
+```bash
+# Aplicar migrações
+python manage.py migrate
+
+# Coletar arquivos estáticos
+python manage.py collectstatic --noinput
+
+# Iniciar worker Celery
+celery -A config worker -l info
+
+# Iniciar Celery Beat (tarefas agendadas)
+celery -A config beat -l info
+```
+
+---
+
+## Modelos principais
+
+```
+CustomUser ──< Book (owner)
+CustomUser ──< Loan (borrower / owner)
+CustomUser ──< Order (borrower / owner)
+CustomUser ─O2O─ Address
+
+Book ──< Loan
+Book ──< Order
+Book >──< Category
+```
+
+**Status do Loan:** `APPROVED → ON_ROUTE → ACTIVE → IN_RETURN → COMPLETED / OVERDUE / CANCELLED`
+
+**Status do Order:** `SUBMITTED → APPROVED / DENIED / CANCELLED`
+
+---
+
+## Painel de administração
+
+Disponível em `/admin/` após criar um superusuário.

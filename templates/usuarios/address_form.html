@@ -1,0 +1,387 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Endereço - CommunityBooks{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_edit.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-edit-container">
+    <!-- Cabeçalho -->
+    <div class="profile-edit-header">
+        <h1 class="profile-edit-title">
+            <i class="fas fa-map-marker-alt me-2"></i>
+            Endereço
+        </h1>
+        <p class="profile-edit-subtitle">
+            Atualize seu endereço para se conectar com leitores da sua região
+        </p>
+    </div>
+
+    <!-- Formulário -->
+    <div class="profile-edit-card">
+        <div class="profile-edit-card-header">
+            <h2 class="profile-edit-card-title">
+                <i class="fas fa-home"></i>
+                Informações de Endereço
+            </h2>
+        </div>
+
+        <div class="profile-edit-card-body">
+            <form method="post" id="addressForm">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="form-error-message">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Feedback da consulta CEP -->
+                <div id="cep-feedback"
+                    style="display: none; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem;">
+                </div>
+
+                <!-- CEP -->
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-search-location"></i>
+                        Localização
+                    </h3>
+
+                    <div class="form-group">
+                        <label for="{{ form.cep.id_for_label }}" class="form-label required-field">
+                            CEP
+                        </label>
+                        <div style="display: flex; gap: 0.5rem; align-items: start;">
+                            <input type="text" id="{{ form.cep.id_for_label }}" name="{{ form.cep.name }}"
+                                value="{{ form.cep.value|default:'' }}" class="form-input" placeholder="00000-000"
+                                maxlength="9" style="flex: 1;">
+                            <button type="button" id="btn-buscar-cep" class="btn btn-primary"
+                                style="white-space: nowrap; padding: 0.6rem 1rem;">
+                                <i class="fas fa-search me-1"></i> Buscar
+                            </button>
+                        </div>
+                        {% if form.cep.errors %}
+                        <div class="form-error">
+                            {% for error in form.cep.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <small style="color: var(--text-muted, #888); margin-top: 0.25rem; display: block;">
+                            Digite o CEP e clique em Buscar para preencher automaticamente
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Endereço -->
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-road"></i>
+                        Endereço
+                    </h3>
+
+                    <!-- Logradouro -->
+                    <div class="form-group">
+                        <label for="{{ form.logradouro.id_for_label }}" class="form-label required-field">
+                            Logradouro
+                        </label>
+                        <input type="text" id="{{ form.logradouro.id_for_label }}" name="{{ form.logradouro.name }}"
+                            value="{{ form.logradouro.value|default:'' }}" class="form-input cep-autofill"
+                            placeholder="Rua, Avenida, Travessa..." readonly>
+                        {% if form.logradouro.errors %}
+                        <div class="form-error">
+                            {% for error in form.logradouro.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Complemento -->
+                    <div class="form-group">
+                        <label for="{{ form.complemento.id_for_label }}" class="form-label">
+                            Complemento
+                        </label>
+                        <input type="text" id="{{ form.complemento.id_for_label }}" name="{{ form.complemento.name }}"
+                            value="{{ form.complemento.value|default:'' }}" class="form-input"
+                            placeholder="Apto, Bloco, Casa... (opcional)">
+                        {% if form.complemento.errors %}
+                        <div class="form-error">
+                            {% for error in form.complemento.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Bairro -->
+                    <div class="form-group">
+                        <label for="{{ form.bairro.id_for_label }}" class="form-label required-field">
+                            Bairro
+                        </label>
+                        <input type="text" id="{{ form.bairro.id_for_label }}" name="{{ form.bairro.name }}"
+                            value="{{ form.bairro.value|default:'' }}" class="form-input cep-autofill"
+                            placeholder="Nome do bairro" readonly>
+                        {% if form.bairro.errors %}
+                        <div class="form-error">
+                            {% for error in form.bairro.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Cidade + Estado -->
+                    <div class="address-two-col">
+                        <div class="form-group">
+                            <label for="{{ form.localidade.id_for_label }}" class="form-label required-field">
+                                Cidade
+                            </label>
+                            <input type="text" id="{{ form.localidade.id_for_label }}" name="{{ form.localidade.name }}"
+                                value="{{ form.localidade.value|default:'' }}" class="form-input cep-autofill"
+                                placeholder="Nome da cidade" readonly>
+                            {% if form.localidade.errors %}
+                            <div class="form-error">
+                                {% for error in form.localidade.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.estado.id_for_label }}" class="form-label required-field">
+                                Estado
+                            </label>
+                            <input type="text" id="{{ form.estado.id_for_label }}" name="{{ form.estado.name }}"
+                                value="{{ form.estado.value|default:'' }}"
+                                class="form-input address-estado cep-autofill" placeholder="UF" maxlength="2" readonly>
+                            {% if form.estado.errors %}
+                            <div class="form-error">
+                                {% for error in form.estado.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Região -->
+                    <div class="form-group">
+                        <label for="{{ form.regiao.id_for_label }}" class="form-label required-field">
+                            Região
+                        </label>
+                        <input type="text" id="{{ form.regiao.id_for_label }}" name="{{ form.regiao.name }}"
+                            value="{{ form.regiao.value|default:'' }}" class="form-input cep-autofill"
+                            placeholder="Ex: Sudeste, Sul, Nordeste..." readonly>
+                        {% if form.regiao.errors %}
+                        <div class="form-error">
+                            {% for error in form.regiao.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="form-actions">
+                    <a href="{% url 'user:profile_update' request.user.id %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Voltar
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="btn-salvar" disabled>
+                        <i class="fas fa-save me-2"></i>
+                        Salvar Endereço
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Informações Adicionais -->
+    <div class="profile-edit-info">
+        <div class="info-card">
+            <div class="info-icon">
+                <i class="fas fa-map-pin"></i>
+            </div>
+            <div class="info-content">
+                <h4>Por que informar seu endereço?</h4>
+                <p>Seu endereço conecta você com leitores próximos, facilitando trocas e empréstimos de livros na sua
+                    região.</p>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="info-content">
+                <h4>Privacidade</h4>
+                <p>Apenas sua cidade e bairro são exibidos publicamente. Seu endereço completo é mantido em sigilo.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // ── Elementos ──
+        const cepInput = document.getElementById('{{ form.cep.id_for_label }}');
+        const btnBuscar = document.getElementById('btn-buscar-cep');
+        const btnSalvar = document.getElementById('btn-salvar');
+        const feedback = document.getElementById('cep-feedback');
+
+        // Mapa UF → Região (ViaCEP não retorna região diretamente)
+        const UF_REGIAO = {
+            'AC': 'Norte', 'AL': 'Nordeste', 'AM': 'Norte',
+            'AP': 'Norte', 'BA': 'Nordeste', 'CE': 'Nordeste',
+            'DF': 'Centro-Oeste', 'ES': 'Sudeste', 'GO': 'Centro-Oeste',
+            'MA': 'Nordeste', 'MG': 'Sudeste', 'MS': 'Centro-Oeste',
+            'MT': 'Centro-Oeste', 'PA': 'Norte', 'PB': 'Nordeste',
+            'PE': 'Nordeste', 'PI': 'Nordeste', 'PR': 'Sul',
+            'RJ': 'Sudeste', 'RN': 'Nordeste', 'RO': 'Norte',
+            'RR': 'Norte', 'RS': 'Sul', 'SC': 'Sul',
+            'SE': 'Nordeste', 'SP': 'Sudeste', 'TO': 'Norte',
+        };
+
+        // Campos que são preenchidos pela API
+        const fieldMap = {
+            logradouro: document.getElementById('{{ form.logradouro.id_for_label }}'),
+            bairro: document.getElementById('{{ form.bairro.id_for_label }}'),
+            localidade: document.getElementById('{{ form.localidade.id_for_label }}'),
+            estado: document.getElementById('{{ form.estado.id_for_label }}'),
+            regiao: document.getElementById('{{ form.regiao.id_for_label }}'),
+        };
+
+        // ── Máscara de CEP ──
+        cepInput.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5, 8);
+            }
+            e.target.value = value;
+        });
+
+        // ── Feedback visual ──
+        function showFeedback(message, type) {
+            feedback.textContent = message;
+            feedback.style.display = 'block';
+            if (type === 'success') {
+                feedback.style.background = '#d4edda';
+                feedback.style.color = '#155724';
+                feedback.style.border = '1px solid #c3e6cb';
+            } else if (type === 'error') {
+                feedback.style.background = '#f8d7da';
+                feedback.style.color = '#721c24';
+                feedback.style.border = '1px solid #f5c6cb';
+            } else {
+                feedback.style.background = '#fff3cd';
+                feedback.style.color = '#856404';
+                feedback.style.border = '1px solid #ffeaa7';
+            }
+        }
+
+        function hideFeedback() {
+            feedback.style.display = 'none';
+        }
+
+        // ── Limpar campos da API ──
+        function clearFields() {
+            Object.values(fieldMap).forEach(input => { input.value = ''; });
+            btnSalvar.disabled = true;
+        }
+
+        // ── Preencher campos com dados da API ──
+        function fillFields(data) {
+            fieldMap.logradouro.value = data.logradouro || '';
+            fieldMap.bairro.value = data.bairro || '';
+            fieldMap.localidade.value = data.localidade || '';
+            fieldMap.estado.value = data.uf || '';
+            fieldMap.regiao.value = UF_REGIAO[data.uf] || '';
+
+            // Se a API retornou vazio, libera edição manual
+            if (!data.logradouro) fieldMap.logradouro.removeAttribute('readonly');
+            else fieldMap.logradouro.setAttribute('readonly', '');
+
+            if (!data.bairro) fieldMap.bairro.removeAttribute('readonly');
+            else fieldMap.bairro.setAttribute('readonly', '');
+
+            btnSalvar.disabled = false;
+        }
+
+        // ── Consulta ViaCEP ──
+        async function buscarCep() {
+            const cepRaw = cepInput.value.replace(/\D/g, '');
+
+            if (cepRaw.length !== 8) {
+                showFeedback('CEP deve ter 8 dígitos.', 'error');
+                clearFields();
+                return;
+            }
+
+            hideFeedback();
+            btnBuscar.disabled = true;
+            btnBuscar.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Buscando...';
+
+            try {
+                const resp = await fetch(`https://viacep.com.br/ws/${cepRaw}/json/`);
+
+                if (!resp.ok) {
+                    showFeedback('Erro ao consultar o serviço de CEP. Tente novamente.', 'error');
+                    clearFields();
+                    return;
+                }
+
+                const data = await resp.json();
+
+                if (data.erro) {
+                    showFeedback('CEP não encontrado. Verifique e tente novamente.', 'error');
+                    clearFields();
+                    return;
+                }
+
+                fillFields(data);
+                showFeedback('Endereço encontrado! Confira os dados e preencha o complemento.', 'success');
+
+            } catch (err) {
+                showFeedback('Não foi possível conectar ao serviço de CEP. Verifique sua internet.', 'error');
+                clearFields();
+            } finally {
+                btnBuscar.disabled = false;
+                btnBuscar.innerHTML = '<i class="fas fa-search me-1"></i> Buscar';
+            }
+        }
+
+        // ── Event listeners ──
+        btnBuscar.addEventListener('click', buscarCep);
+
+        // Buscar ao pressionar Enter no campo CEP
+        cepInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarCep();
+            }
+        });
+
+        // Se o form já veio preenchido (ex: POST com erro de validação),
+        // habilitar o botão de salvar
+        const temDados = Object.values(fieldMap).some(input => input.value.trim() !== '');
+        if (temDados) {
+            btnSalvar.disabled = false;
+        }
+
+        // ── Feedback visual nos campos ──
+        const inputs = document.querySelectorAll('.form-input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function () {
+                this.parentNode.classList.add('focused');
+            });
+            input.addEventListener('blur', function () {
+                this.parentNode.classList.remove('focused');
+            });
+            input.addEventListener('input', function () {
+                if (this.value.trim()) {
+                    this.parentNode.classList.add('has-value');
+                } else {
+                    this.parentNode.classList.remove('has-value');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

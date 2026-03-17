@@ -1,11 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
+from django.contrib import messages
+import requests
 
-from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .models import Address
+from .forms import CustomUserCreationForm, CustomUserChangeForm, AddressForm
 from . import services
 
 
@@ -21,6 +24,9 @@ class UserProfileView(LoginRequiredMixin, generic.DetailView):
     model = get_user_model()
     context_object_name = 'user'
     pk_url_kwarg = 'user_id'
+
+    def get_queryset(self):
+        return super().get_queryset().select_related('address')
 
     def get_context_data(self, **kwargs):
         user = self.request.user
@@ -40,3 +46,21 @@ class UserUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_success_url(self):
         return reverse('user:profile', kwargs={'user_id': self.request.user.id})
+
+
+class AttachAddressView(LoginRequiredMixin, generic.View):
+    template_name = 'usuarios/address_form.html'
+
+    def get(self, request, *args, **kwargs):
+        form = AddressForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = AddressForm(request.POST)
+        if not form.is_valid():
+            return render(request, self.template_name, {'form': form})
+
+        address = form.save()
+        request.user.address = address
+        request.user.save(update_fields=['address'])
+        return redirect('user:profile', user_id=request.user.id)

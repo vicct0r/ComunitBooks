@@ -9,7 +9,7 @@
 
 {% block content %}
 <div class="minimal-profile">
-    <!-- CABEÇALHO MINIMALISTA -->
+    <!-- CABEÇALHO -->
     <div class="minimal-header">
         <div class="header-container">
             <div class="user-basic">
@@ -22,25 +22,27 @@
                 {% endif %}
                 <div class="user-core">
                     <h1>{{ user.full_name|default:user.email }}</h1>
+                    {% if user.address %}
                     <div class="user-location">
                         <i class="fas fa-map-marker-alt"></i>
-                        <span>São Paulo, SP • 2.5km</span>
+                        <span>{{ user.address.bairro }}{% if user.address.bairro %}, {% endif %}{{ user.address.localidade }} — {{ user.address.estado }}</span>
                     </div>
+                    {% endif %}
                 </div>
             </div>
-            
+
             <div class="user-stats">
                 <div class="stat">
-                    <div class="number">{{ user.score|default:"85" }}</div>
+                    <div class="number">{{ user.score }}</div>
                     <div class="label">pontos</div>
                 </div>
                 <div class="stat">
-                    <div class="number">8</div>
-                    <div class="label">disponíveis</div>
+                    <div class="number">{{ loans_received }}</div>
+                    <div class="label">empréstimos recebidos</div>
                 </div>
                 <div class="stat">
-                    <div class="number">47</div>
-                    <div class="label">trocas</div>
+                    <div class="number">{{ orders_received }}</div>
+                    <div class="label">pedidos recebidos</div>
                 </div>
             </div>
         </div>
@@ -59,9 +61,6 @@
                     <i class="fas fa-cog"></i> Configurar
                 </a>
                 {% else %}
-                <button class="minimal-btn primary">
-                    <i class="fas fa-comment"></i> Mensagem
-                </button>
                 <a href="{% url 'books:user_library' user_id=user.id %}" class="minimal-btn">
                     <i class="fas fa-book"></i> Biblioteca
                 </a>
@@ -70,44 +69,8 @@
 
             <!-- LIVROS -->
             <section class="minimal-section">
-                <h2>Livros Disponíveis</h2>
-                <div class="books-minimal">
-                    {% for i in "123"|make_list %}
-                    <div class="book-minimal">
-                        <div class="book-minimal-cover">
-                            <div class="cover-placeholder">
-                                <span>{% if i == "1" %}1984{% elif i == "2" %}HP{% else %}OP{% endif %}</span>
-                            </div>
-                        </div>
-                        <div class="book-minimal-info">
-                            <h3>{% if i == "1" %}1984{% elif i == "2" %}Harry Potter{% else %}O Pequeno Príncipe{% endif %}</h3>
-                            <p>{% if i == "1" %}George Orwell{% elif i == "2" %}J.K. Rowling{% else %}Saint-Exupéry{% endif %}</p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                <a href="{% url 'books:user_library' user_id=user.id %}" class="view-more">Ver todos os livros →</a>
-            </section>
-
-            <!-- ATIVIDADES -->
-            <section class="minimal-section">
-                <h2>Atividades</h2>
-                <div class="activities-minimal">
-                    <div class="activity-minimal">
-                        <div class="activity-icon">📚</div>
-                        <div class="activity-text">
-                            <p>Emprestou "O Hobbit" para Maria</p>
-                            <span>Hoje, 14:30</span>
-                        </div>
-                    </div>
-                    <div class="activity-minimal">
-                        <div class="activity-icon">🔔</div>
-                        <div class="activity-text">
-                            <p>Solicitação de "1984" recebida</p>
-                            <span>Ontem, 09:15</span>
-                        </div>
-                    </div>
-                </div>
+                <h2>Livros</h2>
+                <a href="{% url 'books:user_library' user_id=user.id %}" class="view-more">Ver biblioteca completa →</a>
             </section>
         </div>
 
@@ -116,37 +79,24 @@
             <div class="info-box">
                 <h3>Informações</h3>
                 <ul class="info-list">
-                    <li><i class="fas fa-calendar"></i> Membro desde 2023</li>
-                    <li><i class="fas fa-history"></i> Responde em 2.4h</li>
-                    <li><i class="fas fa-map-pin"></i> Centro de SP</li>
-                    <li><i class="fas fa-clock"></i> Fins de semana</li>
+                    <li><i class="fas fa-calendar"></i> Membro desde {{ user.date_joined|date:"M Y" }}</li>
+                    {% if user.address %}
+                    <li><i class="fas fa-map-pin"></i> {{ user.address.localidade }}, {{ user.address.estado }}</li>
+                    <li><i class="fas fa-globe-americas"></i> Região {{ user.address.regiao }}</li>
+                    {% endif %}
+                    {% if user == request.user and user.phone %}
+                    <li><i class="fas fa-phone"></i> {{ user.phone }}</li>
+                    {% endif %}
                 </ul>
             </div>
 
-            <!-- INTERESSES -->
+            <!-- ATIVIDADE -->
             <div class="info-box">
-                <h3>Interesses</h3>
-                <div class="tags-minimal">
-                    <span>Ficção</span>
-                    <span>Clássicos</span>
-                    <span>Fantasia</span>
-                    <span>Distopia</span>
-                </div>
-            </div>
-
-            <!-- DEVOLUÇÕES -->
-            <div class="info-box">
-                <h3>Próximas Devoluções</h3>
-                <div class="returns-minimal">
-                    <div class="return-minimal">
-                        <strong>O Senhor dos Anéis</strong>
-                        <div>João Silva • 15/12</div>
-                    </div>
-                    <div class="return-minimal">
-                        <strong>A Revolução dos Bichos</strong>
-                        <div>Maria Santos • 18/12</div>
-                    </div>
-                </div>
+                <h3>Atividade</h3>
+                <ul class="info-list">
+                    <li><i class="fas fa-paper-plane"></i> {{ loans_submitted }} empréstimos enviados</li>
+                    <li><i class="fas fa-inbox"></i> {{ orders_submitted }} pedidos enviados</li>
+                </ul>
             </div>
         </div>
     </div>

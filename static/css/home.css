@@ -215,6 +215,64 @@
     justify-content: center;
 }
 
+/* Book card restructured - cover link */
+.book-card-cover-link {
+    display: block;
+    text-decoration: none;
+}
+
+.book-card-cover-link:hover .book-cover-image {
+    transform: scale(1.05);
+}
+
+.book-card-title-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.book-card-title-link h3 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.book-card-title-link:hover h3 {
+    color: var(--primary);
+}
+
+/* Owner avatar in card meta */
+.owner-meta-link {
+    text-decoration: none;
+    color: var(--gray-500);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    overflow: hidden;
+}
+
+.owner-meta-link:hover {
+    color: var(--primary);
+}
+
+.owner-meta-link span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 80px;
+}
+
+.owner-avatar-sm {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--gray-200);
+    flex-shrink: 0;
+}
+
 .no-books {
     grid-column: 1 / -1;
     text-align: center;

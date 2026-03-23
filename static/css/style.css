@@ -1053,6 +1053,17 @@ main {
     font-size: var(--font-size-sm);
 }
 
+.minimal-btn.danger {
+    background: var(--danger);
+    color: white;
+}
+
+.minimal-btn.danger:hover {
+    background: #dc2626;
+    color: white;
+    box-shadow: var(--shadow-lg);
+}
+
 /* Book Card - Unified */
 .book-card {
     display: flex;

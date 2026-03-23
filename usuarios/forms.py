@@ -6,7 +6,7 @@ from .models import CustomUser, Address
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ['email', 'full_name']
+        fields = ['email', 'full_name', 'phone']
         labels = {'email': 'Email'}
 
     def save(self, commit=True):

@@ -1,15 +1,15 @@
 /* ===== VARIÁVEIS MODERNAS - DESIGN SYSTEM ===== */
 :root {
     /* CORES */
-    --primary: #4361ee;
-    --primary-dark: #3a56d4;
-    --primary-light: #eef2ff;
-    --secondary: #7209b7;
-    --accent: #f72585;
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #eff6ff;
+    --secondary: #0891b2;
+    --accent: #f59e0b;
     --success: #10b981;
     --warning: #f59e0b;
     --danger: #ef4444;
-    --dark: #1f2937;
+    --dark: #1e293b;
     --light: #f8fafc;
 
     /* GRAYS */
@@ -67,9 +67,9 @@
 
 /* ===== NAVBAR MODERNO ===== */
 .navbar-modern {
-    background: white;
-    border-bottom: 1px solid var(--gray-200);
-    box-shadow: var(--shadow-sm);
+    background: #1e293b;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     padding: 0.75rem 0;
     position: sticky;
     top: 0;
@@ -91,8 +91,8 @@
 .brand-text {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--dark);
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    background: linear-gradient(135deg, #60a5fa, #38bdf8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -110,7 +110,7 @@
     display: flex;
     align-items: center;
     padding: 0.5rem 1rem !important;
-    color: var(--gray-600) !important;
+    color: rgba(255,255,255,0.75) !important;
     font-weight: 500;
     border-radius: var(--radius);
     transition: var(--transition);
@@ -118,14 +118,14 @@
 }
 
 .nav-link:hover {
-    color: var(--primary) !important;
-    background: var(--primary-light);
+    color: white !important;
+    background: rgba(255,255,255,0.1);
     transform: translateY(-1px);
 }
 
 .nav-link.active {
-    color: var(--primary) !important;
-    background: var(--primary-light);
+    color: white !important;
+    background: rgba(255,255,255,0.15);
     font-weight: 600;
 }
 
@@ -151,31 +151,43 @@
     gap: 0.75rem;
     padding: 0.5rem 0.75rem;
     background: none;
-    border: 1px solid var(--gray-200);
+    border: 1px solid rgba(255,255,255,0.2);
     border-radius: var(--radius-lg);
-    color: var(--gray-700);
+    color: rgba(255,255,255,0.9);
     font-weight: 500;
     transition: var(--transition);
     cursor: pointer;
 }
 
 .user-trigger:hover {
-    background: var(--gray-100);
-    border-color: var(--gray-300);
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.35);
 }
 
 .user-avatar {
-    color: var(--primary);
+    color: #60a5fa;
     font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-avatar-img {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.3);
 }
 
 .user-name {
     font-size: 0.875rem;
+    color: rgba(255,255,255,0.9);
 }
 
 .dropdown-arrow {
     font-size: 0.75rem;
-    color: var(--gray-400);
+    color: rgba(255,255,255,0.5);
     transition: var(--transition);
 }
 
@@ -260,7 +272,7 @@
 }
 
 .btn-link {
-    color: var(--gray-600) !important;
+    color: rgba(255,255,255,0.8) !important;
     text-decoration: none;
     font-weight: 500;
     padding: 0.5rem 1rem;
@@ -269,8 +281,8 @@
 }
 
 .btn-link:hover {
-    color: var(--primary) !important;
-    background: var(--primary-light);
+    color: white !important;
+    background: rgba(255,255,255,0.1);
 }
 
 .btn-primary {
@@ -293,12 +305,12 @@
 /* ===== RESPONSIVIDADE AVANÇADA ===== */
 @media (max-width: 991.98px) {
     .navbar-collapse {
-        background: white;
+        background: #1e293b;
         border-radius: var(--radius-lg);
         box-shadow: var(--shadow-lg);
         margin-top: 1rem;
         padding: 1.5rem;
-        border: 1px solid var(--gray-200);
+        border: 1px solid rgba(255,255,255,0.1);
     }
     
     .nav-links {
@@ -344,19 +356,24 @@
     }
 }
 
+/* Toggler icon for dark navbar */
+.navbar-toggler {
+    border-color: rgba(255,255,255,0.3) !important;
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.85%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
 @media (max-width: 575.98px) {
     .container {
         padding-left: 1rem;
         padding-right: 1rem;
     }
-    
+
     .brand-text {
         font-size: 1.1rem;
-    }
-    
-    .navbar-toggler {
-        padding: 0.25rem 0.5rem;
-        border: 1px solid var(--gray-300);
     }
 }
 
@@ -1111,6 +1128,11 @@ main {
     color: white;
 }
 
+.book-status-badge.reserved {
+    background: rgba(245, 158, 11, 0.95);
+    color: white;
+}
+
 .book-card-info {
     display: flex;
     flex-direction: column;
@@ -1149,7 +1171,7 @@ main {
 
 /* Hero Section - Unified */
 .minimal-hero {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, var(--primary), var(--secondary), #0e7490);
     color: white;
     padding: var(--spacing-2xl) 0;
     position: relative;

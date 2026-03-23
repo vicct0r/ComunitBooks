@@ -126,8 +126,8 @@
                                 <span>{{ book.title|slice:":2"|upper }}</span>
                             </div>
                             {% endif %}
-                            <div class="book-status-badge {% if book.status == 'available' %}available{% else %}borrowed{% endif %}">
-                                {% if book.status == 'available' %}Disponível{% else %}Emprestado{% endif %}
+                            <div class="book-status-badge {% if book.status == 'av' %}available{% elif book.status == 'un' %}borrowed{% else %}reserved{% endif %}">
+                                {% if book.status == 'av' %}Disponível{% elif book.status == 'un' %}Indisponível{% else %}Reservado{% endif %}
                             </div>
                         </div>
                         <div class="book-card-info">
@@ -159,36 +159,6 @@
         </div>
 
         <div class="content-sidebar">
-            <!-- NOVA SEÇÃO: EVENTOS PRÓXIMOS -->
-            <div class="info-box">
-                <div class="info-box-header">
-                    <h3>Próximos eventos</h3>
-                    <a href="#" class="info-box-link">Ver todos</a>
-                </div>
-                <div class="events-list">
-                    <div class="event-item">
-                        <div class="event-date">
-                            <span class="day">25</span>
-                            <span class="month">Dez</span>
-                        </div>
-                        <div class="event-info">
-                            <h4>Clube do Livro: Fantasia</h4>
-                            <p>São Paulo, SP • 18:00</p>
-                        </div>
-                    </div>
-                    <div class="event-item">
-                        <div class="event-date">
-                            <span class="day">12</span>
-                            <span class="month">Jan</span>
-                        </div>
-                        <div class="event-info">
-                            <h4>Tarde de Troca</h4>
-                            <p>Parque Ibirapuera • 14:00</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- POR QUE PARTICIPAR -->
             <div class="info-box">
                 <h3>Por que participar?</h3>
@@ -196,7 +166,7 @@
                     <li><i class="fas fa-check-circle"></i> Acesso gratuito a milhares de livros</li>
                     <li><i class="fas fa-check-circle"></i> Encontre leitores próximos a você</li>
                     <li><i class="fas fa-check-circle"></i> Sistema de reputação para segurança</li>
-                    <li><i class="fas fa-check-circle"></i> Clubes do livro e eventos</li>
+                    <li><i class="fas fa-check-circle"></i> Comunidade ativa de leitores</li>
                 </ul>
             </div>
         </div>

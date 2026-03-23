@@ -274,22 +274,22 @@
                     {% endif %}
                     
                     <div class="book-badges">
-                        <span class="book-status {% if book.status == 'available' %}available{% elif book.status == 'borrowed' %}borrowed{% else %}reserved{% endif %}">
-                            {% if book.status == 'available' %}
+                        <span class="book-status {% if book.status == 'av' %}available{% elif book.status == 'un' %}borrowed{% else %}reserved{% endif %}">
+                            {% if book.status == 'av' %}
                                 <i class="fas fa-check-circle"></i> Disponível
-                            {% elif book.status == 'borrowed' %}
-                                <i class="fas fa-clock"></i> Emprestado
+                            {% elif book.status == 'un' %}
+                                <i class="fas fa-clock"></i> Indisponível
                             {% else %}
                                 <i class="fas fa-user-clock"></i> Reservado
                             {% endif %}
                         </span>
-                        
+
                         {% if book.condition %}
-                        <span class="book-condition {% if book.condition == 'new' %}new{% elif book.condition == 'good' %}good{% else %}regular{% endif %}">
-                            {% if book.condition == 'new' %}
+                        <span class="book-condition {% if book.condition == 'nw' %}new{% elif book.condition == 'gd' %}good{% else %}regular{% endif %}">
+                            {% if book.condition == 'nw' %}
                                 <i class="fas fa-star"></i> Novo
-                            {% elif book.condition == 'good' %}
-                                <i class="fas fa-thumbs-up"></i> Boa
+                            {% elif book.condition == 'gd' %}
+                                <i class="fas fa-thumbs-up"></i> Bom
                             {% else %}
                                 <i class="fas fa-check"></i> Regular
                             {% endif %}
@@ -389,96 +389,6 @@
     </section>
     {% endif %}
 
-    <!-- NOVA SEÇÃO: LEITORES ATIVOS -->
-    <section class="readers-section">
-        <div class="section-header">
-            <h2>Leitores ativos</h2>
-            <a href="#" class="view-more">Ver todos</a>
-        </div>
-        
-        <div class="readers-grid">
-            <div class="reader-card">
-                <div class="reader-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="reader-info">
-                    <h3>Ana Silva</h3>
-                    <p class="reader-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        São Paulo, SP
-                    </p>
-                    <div class="reader-stats">
-                        <span class="stat">
-                            <i class="fas fa-book"></i>
-                            24 livros
-                        </span>
-                        <span class="stat">
-                            <i class="fas fa-exchange-alt"></i>
-                            18 trocas
-                        </span>
-                    </div>
-                </div>
-                <a href="#" class="reader-profile">
-                    Ver perfil
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-            
-            <div class="reader-card">
-                <div class="reader-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="reader-info">
-                    <h3>Carlos Santos</h3>
-                    <p class="reader-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        Rio de Janeiro, RJ
-                    </p>
-                    <div class="reader-stats">
-                        <span class="stat">
-                            <i class="fas fa-book"></i>
-                            31 livros
-                        </span>
-                        <span class="stat">
-                            <i class="fas fa-exchange-alt"></i>
-                            26 trocas
-                        </span>
-                    </div>
-                </div>
-                <a href="#" class="reader-profile">
-                    Ver perfil
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-            
-            <div class="reader-card">
-                <div class="reader-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="reader-info">
-                    <h3>Beatriz Lima</h3>
-                    <p class="reader-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        Belo Horizonte, MG
-                    </p>
-                    <div class="reader-stats">
-                        <span class="stat">
-                            <i class="fas fa-book"></i>
-                            19 livros
-                        </span>
-                        <span class="stat">
-                            <i class="fas fa-exchange-alt"></i>
-                            15 trocas
-                        </span>
-                    </div>
-                </div>
-                <a href="#" class="reader-profile">
-                    Ver perfil
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-    </section>
 </div>
 
 <script>

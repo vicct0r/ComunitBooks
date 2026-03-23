@@ -5,7 +5,7 @@
 
 /* ===== HERO SECTION - Using Design System ===== */
 .minimal-hero {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, var(--primary), var(--secondary), #0e7490);
     color: white;
     padding: 4rem 0 3rem;
     margin-bottom: 2rem;

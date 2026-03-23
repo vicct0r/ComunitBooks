@@ -1089,7 +1089,7 @@ main {
     overflow: hidden;
     background: var(--gray-100);
     aspect-ratio: 3 / 4;
-    min-height: 180px;
+    min-height: 140px;
 }
 
 .book-card-cover img,

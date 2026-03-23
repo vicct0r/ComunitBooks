@@ -118,9 +118,9 @@
                         <a href="{{ book.get_absolute_url }}" class="book-card-cover-link">
                             <div class="book-card-cover">
                                 {% if book.cover_image %}
-                                <img src="{{ book.cover_image.url }}" alt="Capa de {{ book.title }}" class="book-cover-image">
+                                <img src="{{ book.cover_image.url }}" alt="Capa de {{ book.title }}" class="book-cover-image" loading="lazy">
                                 {% elif book.cover_url %}
-                                <img src="{{ book.cover_url }}" alt="Capa de {{ book.title }}" class="book-cover-image">
+                                <img src="{{ book.cover_url }}" alt="Capa de {{ book.title }}" class="book-cover-image" loading="lazy">
                                 {% else %}
                                 <div class="cover-placeholder">
                                     <span>{{ book.title|slice:":2"|upper }}</span>
@@ -139,9 +139,9 @@
                             <div class="book-card-meta">
                                 <a href="{% url 'user:profile' book.owner.id %}" class="meta-item owner-meta-link">
                                     {% if book.owner.img %}
-                                    <img src="{{ book.owner.img.thumb.url }}" alt="{{ book.owner.full_name|default:book.owner.email }}" class="owner-avatar-sm">
+                                    <img src="{{ book.owner.img.thumb.url }}" alt="{{ book.owner.full_name|default:book.owner.email }}" class="owner-avatar-sm" loading="lazy">
                                     {% else %}
-                                    <i class="fas fa-user-circle"></i>
+                                    <i class="fas fa-user-circle" style="font-size:1rem;flex-shrink:0;"></i>
                                     {% endif %}
                                     <span>{{ book.owner.full_name|default:book.owner.email|truncatechars:12 }}</span>
                                 </a>

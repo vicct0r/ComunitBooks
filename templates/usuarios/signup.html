@@ -131,22 +131,22 @@
 
                             <!-- Telefone -->
                             <div class="form-group">
-                                <label for="id_telefone" class="form-label">
+                                <label for="id_phone" class="form-label">
                                     Telefone *
                                 </label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-phone input-icon"></i>
-                                    <input type="tel" 
-                                           class="form-input {% if form.telefone.errors %}input-error{% endif %}" 
-                                           id="id_telefone" 
-                                           name="telefone" 
+                                    <input type="tel"
+                                           class="form-input {% if form.phone.errors %}input-error{% endif %}"
+                                           id="id_phone"
+                                           name="phone"
                                            placeholder="(11) 99999-9999"
-                                           value="{{ form.telefone.value|default:'' }}"
+                                           value="{{ form.phone.value|default:'' }}"
                                            required>
                                 </div>
-                                {% if form.telefone.errors %}
+                                {% if form.phone.errors %}
                                 <div class="error-message">
-                                    {% for error in form.telefone.errors %}
+                                    {% for error in form.phone.errors %}
                                         {{ error }}
                                     {% endfor %}
                                 </div>
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Máscara para telefone
-    const phoneInput = document.getElementById('id_telefone');
+    const phoneInput = document.getElementById('id_phone');
     if (phoneInput) {
         phoneInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');

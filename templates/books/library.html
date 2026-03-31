@@ -92,8 +92,8 @@
                             <option value="available" {% if request.GET.status == 'available' %}selected{% endif %}>
                                 Disponível
                             </option>
-                            <option value="borrowed" {% if request.GET.status == 'borrowed' %}selected{% endif %}>
-                                Emprestado
+                            <option value="unavailable" {% if request.GET.status == 'unavailable' %}selected{% endif %}>
+                                Indisponível
                             </option>
                             <option value="reserved" {% if request.GET.status == 'reserved' %}selected{% endif %}>
                                 Reservado
@@ -107,18 +107,12 @@
                             <i class="fas fa-sort"></i>
                             Ordenar por
                         </label>
-                        <select class="filter-select" name="order_by">
-                            <option value="newest" {% if request.GET.order_by == 'newest' %}selected{% endif %}>
+                        <select class="filter-select" name="popularity">
+                            <option value="newest" {% if request.GET.popularity == 'newest' or not request.GET.popularity %}selected{% endif %}>
                                 Mais recentes
                             </option>
-                            <option value="popular" {% if request.GET.order_by == 'popular' %}selected{% endif %}>
-                                Mais populares
-                            </option>
-                            <option value="title_asc" {% if request.GET.order_by == 'title_asc' %}selected{% endif %}>
-                                Título (A-Z)
-                            </option>
-                            <option value="title_desc" {% if request.GET.order_by == 'title_desc' %}selected{% endif %}>
-                                Título (Z-A)
+                            <option value="oldest" {% if request.GET.popularity == 'oldest' %}selected{% endif %}>
+                                Mais antigos
                             </option>
                         </select>
                     </div>
@@ -131,16 +125,16 @@
                         </label>
                         <select class="filter-select" name="condition">
                             <option value="">Todas as condições</option>
-                            <option value="new" {% if request.GET.condition == 'nw' %}selected{% endif %}>
+                            <option value="new" {% if request.GET.condition == 'new' %}selected{% endif %}>
                                 Novo
                             </option>
-                            <option value="good" {% if request.GET.condition == 'gd' %}selected{% endif %}>
+                            <option value="good" {% if request.GET.condition == 'good' %}selected{% endif %}>
                                 Bom
                             </option>
-                            <option value="regular" {% if request.GET.condition == 'fr' %}selected{% endif %}>
-                                Preservado
+                            <option value="fair" {% if request.GET.condition == 'fair' %}selected{% endif %}>
+                                Desgastado
                             </option>
-                            <option value="regular" {% if request.GET.condition == 'dm' %}selected{% endif %}>
+                            <option value="damaged" {% if request.GET.condition == 'damaged' %}selected{% endif %}>
                                 Danificado
                             </option>
                         </select>
@@ -153,7 +147,7 @@
                         Aplicar filtros
                     </button>
                     
-                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.order_by or request.GET.condition %}
+                    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.condition %}
                     <a href="?" class="minimal-btn">
                         <i class="fas fa-times"></i>
                         Limpar filtros
@@ -165,7 +159,7 @@
     </section>
 
     <!-- TAGS ATIVAS -->
-    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.order_by or request.GET.condition %}
+    {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.condition %}
     <div class="active-filters">
         <div class="active-filters-header">
             <span>Filtros ativos:</span>
@@ -174,87 +168,50 @@
             {% if request.GET.title %}
             <span class="active-filter-tag">
                 Título: {{ request.GET.title }}
-                <a href="?{{ request.GET.urlencode|cut:'&title='|cut:'title='|cut:'&' }}" class="remove-filter">
+                <button type="button" class="remove-filter" data-remove-param="title">
                     <i class="fas fa-times"></i>
-                </a>
+                </button>
             </span>
             {% endif %}
-            
+
             {% if request.GET.author %}
             <span class="active-filter-tag">
                 Autor: {{ request.GET.author }}
-                <a href="?{{ request.GET.urlencode|cut:'&author='|cut:'author='|cut:'&' }}" class="remove-filter">
+                <button type="button" class="remove-filter" data-remove-param="author">
                     <i class="fas fa-times"></i>
-                </a>
+                </button>
             </span>
             {% endif %}
-            
+
             {% if request.GET.category %}
             <span class="active-filter-tag">
                 Categoria: {{ request.GET.category }}
-                <a href="?{{ request.GET.urlencode|cut:'&category='|cut:'category='|cut:'&' }}" class="remove-filter">
+                <button type="button" class="remove-filter" data-remove-param="category">
                     <i class="fas fa-times"></i>
-                </a>
+                </button>
             </span>
             {% endif %}
-            
+
             {% if request.GET.status %}
             <span class="active-filter-tag">
                 Status: {{ request.GET.status|title }}
-                <a href="?{{ request.GET.urlencode|cut:'&status='|cut:'status='|cut:'&' }}" class="remove-filter">
+                <button type="button" class="remove-filter" data-remove-param="status">
                     <i class="fas fa-times"></i>
-                </a>
+                </button>
+            </span>
+            {% endif %}
+
+            {% if request.GET.condition %}
+            <span class="active-filter-tag">
+                Condição: {{ request.GET.condition|title }}
+                <button type="button" class="remove-filter" data-remove-param="condition">
+                    <i class="fas fa-times"></i>
+                </button>
             </span>
             {% endif %}
         </div>
     </div>
     {% endif %}
-
-    <!-- NOVA SEÇÃO: CATEGORIAS POPULARES -->
-    <section class="categories-section">
-        <h2>Categorias populares</h2>
-        <div class="categories-grid">
-            <a href="?category=1" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-wizard"></i>
-                </div>
-                <div class="category-info">
-                    <h3>Fantasia</h3>
-                    <span class="category-count">142 livros</span>
-                </div>
-            </a>
-            
-            <a href="?category=2" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-heart"></i>
-                </div>
-                <div class="category-info">
-                    <h3>Romance</h3>
-                    <span class="category-count">98 livros</span>
-                </div>
-            </a>
-            
-            <a href="?category=3" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-microscope"></i>
-                </div>
-                <div class="category-info">
-                    <h3>Ficção Científica</h3>
-                    <span class="category-count">76 livros</span>
-                </div>
-            </a>
-            
-            <a href="?category=4" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-landmark"></i>
-                </div>
-                <div class="category-info">
-                    <h3>História</h3>
-                    <span class="category-count">54 livros</span>
-                </div>
-            </a>
-        </div>
-    </section>
 
     <!-- GRID DE LIVROS -->
     {% if books %}
@@ -274,25 +231,12 @@
                     {% endif %}
                     
                     <div class="book-badges">
-                        <span class="book-status {% if book.status == 'av' %}available{% elif book.status == 'un' %}borrowed{% else %}reserved{% endif %}">
-                            {% if book.status == 'av' %}
-                                <i class="fas fa-check-circle"></i> Disponível
-                            {% elif book.status == 'un' %}
-                                <i class="fas fa-clock"></i> Indisponível
-                            {% else %}
-                                <i class="fas fa-user-clock"></i> Reservado
-                            {% endif %}
+                        <span class="book-status {{ book.status }}">
+                            {{ book.get_status_display }}
                         </span>
-
                         {% if book.condition %}
-                        <span class="book-condition {% if book.condition == 'nw' %}new{% elif book.condition == 'gd' %}good{% else %}regular{% endif %}">
-                            {% if book.condition == 'nw' %}
-                                <i class="fas fa-star"></i> Novo
-                            {% elif book.condition == 'gd' %}
-                                <i class="fas fa-thumbs-up"></i> Bom
-                            {% else %}
-                                <i class="fas fa-check"></i> Regular
-                            {% endif %}
+                        <span class="book-condition {{ book.condition }}">
+                            {{ book.get_condition_display }}
                         </span>
                         {% endif %}
                     </div>
@@ -308,7 +252,7 @@
                     <div class="book-meta">
                         <span class="meta-item">
                             <i class="fas fa-user-circle"></i>
-                            {{ book.owner.first_name|default:book.owner.username|truncatechars:15 }}
+                            {{ book.owner.full_name|default:book.owner.email|truncatechars:15 }}
                         </span>
                         
                         {% if book.distance %}
@@ -350,7 +294,7 @@
         
         <div class="empty-content">
             <h2>
-                {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.order_by or request.GET.condition %}
+                {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.condition %}
                 Nenhum livro encontrado
                 {% else %}
                 Biblioteca vazia
@@ -358,7 +302,7 @@
             </h2>
             
             <p>
-                {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.order_by or request.GET.condition %}
+                {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.condition %}
                 Não encontramos livros com os filtros aplicados. Tente outros critérios de busca.
                 {% else %}
                 Ainda não há livros cadastrados na plataforma. Seja o primeiro a compartilhar!
@@ -366,7 +310,7 @@
             </p>
             
             <div class="empty-actions">
-                {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.order_by or request.GET.condition %}
+                {% if request.GET.title or request.GET.author or request.GET.category or request.GET.status or request.GET.condition %}
                 <a href="?" class="minimal-btn primary">
                     <i class="fas fa-times"></i>
                     Limpar filtros
@@ -408,10 +352,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Remove individual filter tags
-    document.querySelectorAll('.remove-filter').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = this.getAttribute('href');
+    document.querySelectorAll('.remove-filter[data-remove-param]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete(this.dataset.removeParam);
+            window.location.search = params.toString();
         });
     });
     

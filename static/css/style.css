@@ -1134,7 +1134,7 @@ main {
     color: white;
 }
 
-.book-status-badge.borrowed {
+.book-status-badge.unavailable {
     background: rgba(239, 68, 68, 0.95);
     color: white;
 }

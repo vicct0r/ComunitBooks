@@ -29,11 +29,11 @@
 
                     <div class="book-badges-overlay">
                         <span class="detail-badge condition-{{ book.condition }}">
-                            <i class="fas {% if book.condition == 'nw' %}fa-star{% elif book.condition == 'gd' %}fa-thumbs-up{% elif book.condition == 'fr' %}fa-balance-scale{% else %}fa-exclamation-triangle{% endif %}"></i>
+                            <i class="fas {% if book.condition == 'new' %}fa-star{% elif book.condition == 'good' %}fa-thumbs-up{% elif book.condition == 'fair' %}fa-balance-scale{% else %}fa-exclamation-triangle{% endif %}"></i>
                             {{ book.get_condition_display }}
                         </span>
                         <span class="detail-badge status-{{ book.status }}">
-                            <i class="fas {% if book.status == 'av' %}fa-check-circle{% elif book.status == 'un' %}fa-clock{% else %}fa-user-clock{% endif %}"></i>
+                            <i class="fas {% if book.status == 'available' %}fa-check-circle{% elif book.status == 'unavailable' %}fa-clock{% else %}fa-user-clock{% endif %}"></i>
                             {{ book.get_status_display }}
                         </span>
                     </div>
@@ -43,15 +43,15 @@
                 <div class="book-actions">
                     {% if user.is_authenticated %}
                         {% if user != book.owner %}
-                            {% if book.status == 'av' %}
+                            {% if book.status == 'available' %}
                             <a href="{% url 'orders:create' book.id %}" class="minimal-btn primary btn-block">
                                 <i class="fas fa-handshake"></i> Solicitar Empréstimo
                             </a>
-                            {% elif book.status == 'un' %}
+                            {% elif book.status == 'unavailable' %}
                             <button class="minimal-btn btn-block" disabled>
                                 <i class="fas fa-clock"></i> Indisponível
                             </button>
-                            {% elif book.status == 'rs' %}
+                            {% elif book.status == 'reserved' %}
                             <button class="minimal-btn btn-block" disabled>
                                 <i class="fas fa-user-clock"></i> Reservado
                             </button>

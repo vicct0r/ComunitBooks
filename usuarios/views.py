@@ -22,19 +22,22 @@ class UserSignupView(generic.CreateView):
 class UserProfileView(LoginRequiredMixin, generic.DetailView):
     template_name = 'usuarios/my_profile.html'
     model = get_user_model()
-    context_object_name = 'user'
+    context_object_name = 'profile_user'
     pk_url_kwarg = 'user_id'
 
     def get_queryset(self):
         return super().get_queryset().select_related('address')
 
     def get_context_data(self, **kwargs):
-        user = self.request.user
         context = super().get_context_data(**kwargs)
-        context['orders_received'] = services.orders_received(user)
-        context['loans_received'] = services.loans_received(user)
-        context['orders_submitted'] = services.orders_submitted(user)
-        context['loans_submitted'] = services.loans_submitted(user)
+        profile_user = self.object
+        logged_user = self.request.user
+        # Public stats shown on the profile header (belong to the profile owner)
+        context['orders_received'] = services.orders_received(profile_user)
+        context['loans_received'] = services.loans_received(profile_user)
+        # Private stats shown only when viewing own profile
+        context['orders_submitted'] = services.orders_submitted(logged_user)
+        context['loans_submitted'] = services.loans_submitted(logged_user)
         return context
     
 

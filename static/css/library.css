@@ -467,7 +467,7 @@
     color: #065f46;
 }
 
-.book-status.borrowed {
+.book-status.unavailable {
     color: #92400e;
 }
 

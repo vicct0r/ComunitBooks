@@ -87,13 +87,13 @@
     backdrop-filter: blur(6px);
 }
 
-.detail-badge.condition-nw { background: rgba(16, 185, 129, 0.9); }
-.detail-badge.condition-gd { background: rgba(59, 130, 246, 0.9); }
-.detail-badge.condition-fr { background: rgba(245, 158, 11, 0.9); }
-.detail-badge.condition-dm { background: rgba(239, 68, 68, 0.9); }
-.detail-badge.status-av    { background: rgba(16, 185, 129, 0.9); }
-.detail-badge.status-un    { background: rgba(245, 158, 11, 0.9); }
-.detail-badge.status-rs    { background: rgba(59, 130, 246, 0.9); }
+.detail-badge.condition-new      { background: rgba(16, 185, 129, 0.9); }
+.detail-badge.condition-good     { background: rgba(59, 130, 246, 0.9); }
+.detail-badge.condition-fair     { background: rgba(245, 158, 11, 0.9); }
+.detail-badge.condition-damaged  { background: rgba(239, 68, 68, 0.9); }
+.detail-badge.status-available   { background: rgba(16, 185, 129, 0.9); }
+.detail-badge.status-unavailable { background: rgba(245, 158, 11, 0.9); }
+.detail-badge.status-reserved    { background: rgba(59, 130, 246, 0.9); }
 
 /* ===== AÇÕES ===== */
 .book-actions {

@@ -74,7 +74,7 @@
                                     <p class="text-muted small mb-2">por {{ order.book.author }}</p>
                                     {% endif %}
                                     <span class="badge bg-light text-dark border small">
-                                        <i class="fas fa-user me-1"></i>Dono: {{ order.book.owner.get_full_name|default:order.book.owner.username }}
+                                        <i class="fas fa-user me-1"></i>Dono: {{ order.book.owner.full_name|default:order.book.owner.email }}
                                     </span>
                                 </div>
                             </div>

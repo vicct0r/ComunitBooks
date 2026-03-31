@@ -78,27 +78,16 @@ class BookManager(models.Manager):
 
 
 class Book(Base):
-    NEW = 'nw'
-    GOOD = 'gd'
-    FAIR = 'fr'
-    DAMAGED = 'dm'
-
-    AVAILABLE = 'av'
-    UNAVAILABLE = 'un'
-    RESERVED = 'rs'
-
-    CONDITION_CHOICES = (
-        (NEW, 'Novo'),
-        (GOOD, 'Bom'),
-        (FAIR, 'Desgastado'),
-        (DAMAGED, 'Danificado')
-    )
-
-    STATUS_CHOICES = (
-        (AVAILABLE, 'Disponível'),
-        (UNAVAILABLE, 'Indisponível'),
-        (RESERVED, 'Reservado'),
-    )
+    class Status(models.TextChoices):
+        AVAILABLE = 'available', 'Available'
+        UNAVAILABLE = 'unavailable', 'Unavailable'
+        RESERVED = 'reserved', 'Reserved'
+    
+    class Condition(models.TextChoices):
+        NEW = 'new', 'New'
+        GOOD = 'good', 'Good'
+        FAIR = 'fair', 'Fair'
+        DAMAGED = 'damaged', 'Damaged'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_books', on_delete=models.CASCADE)
@@ -117,8 +106,8 @@ class Book(Base):
         },
         delete_orphans=True
     )
-    condition = models.CharField(choices=CONDITION_CHOICES, max_length=7, help_text="Condição do livro")
-    status = models.CharField(choices=STATUS_CHOICES, max_length=12, default=AVAILABLE, editable=False)
+    condition = models.CharField(choices=Condition, max_length=7, help_text="Condição do livro")
+    status = models.CharField(choices=Status, max_length=12, default=Status.AVAILABLE, editable=False)
     slug = models.SlugField(max_length=255, blank=True)
     category = models.ManyToManyField('Category', related_name='books_categories', blank=True)
     favorited_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favorite_books',blank=True, editable=False)

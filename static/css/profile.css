@@ -323,6 +323,233 @@
     color: #666;
 }
 
+/* Nome + badge de score inline */
+.user-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.user-name-row h1 {
+    margin: 0;
+}
+
+.user-score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    background: #fff8e1;
+    border: 1px solid #f9a825;
+    border-radius: 20px;
+    color: #e65100;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.user-score-badge i {
+    color: #f9a825;
+    font-size: 0.85rem;
+}
+
+/* Activity grid */
+.activity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.activity-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: #f9f9f9;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1a1a1a;
+    transition: all 0.2s ease;
+}
+
+.activity-card:hover {
+    background: #f0f4ff;
+    border-color: #a8c4f5;
+    color: #0066cc;
+}
+
+.activity-card .activity-icon {
+    font-size: 1.1rem;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: 1px solid #eaeaea;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #0066cc;
+}
+
+.activity-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-count {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #1a1a1a;
+}
+
+.activity-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.2rem;
+}
+
+.activity-arrow {
+    color: #ccc;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+}
+
+.activity-card:hover .activity-arrow {
+    color: #0066cc;
+}
+
+/* Reputação na sidebar */
+.reputation-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.reputation-score {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.reputation-score i {
+    color: #f9a825;
+    font-size: 1.5rem;
+}
+
+.reputation-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1;
+}
+
+.reputation-unit {
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.reputation-desc {
+    font-size: 0.875rem;
+    color: #888;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Section header */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
+/* Profile books grid */
+.profile-books-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+
+.profile-book-card {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.profile-book-card:hover .profile-book-cover img,
+.profile-book-card:hover .cover-placeholder {
+    opacity: 0.85;
+}
+
+.profile-book-cover {
+    position: relative;
+    aspect-ratio: 2/3;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f5f5f5;
+    border: 1px solid #eaeaea;
+}
+
+.profile-book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.2s ease;
+}
+
+.profile-book-cover .cover-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border: none;
+    font-size: 1.1rem;
+}
+
+.profile-book-status {
+    position: absolute;
+    bottom: 0.3rem;
+    right: 0.3rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid white;
+}
+
+.profile-book-status.available   { background: #10b981; }
+.profile-book-status.unavailable { background: #ef4444; }
+.profile-book-status.reserved    { background: #f59e0b; }
+
+.profile-book-title {
+    font-size: 0.75rem;
+    color: #444;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+.no-books-yet {
+    font-size: 0.9rem;
+    color: #999;
+    margin: 0;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
     .header-container {
@@ -338,9 +565,21 @@
     .action-row {
         flex-direction: column;
     }
-    
+
     .action-row .minimal-btn {
         width: 100%;
         justify-content: center;
+    }
+
+    .activity-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .user-name-row h1 {
+        font-size: 1.5rem;
+    }
+
+    .profile-books-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 }

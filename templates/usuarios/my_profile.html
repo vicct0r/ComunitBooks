@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock %}
 
-{% block title %}{% if user == request.user %}Meu Perfil{% else %}{{ user.full_name|default:user.email }} - CommunityBooks{% endif %}{% endblock %}
+{% block title %}{% if profile_user == request.user %}Meu Perfil{% else %}{{ profile_user.full_name|default:profile_user.email }} - CommunityBooks{% endif %}{% endblock %}
 
 {% block content %}
 <div class="minimal-profile">
@@ -13,19 +13,25 @@
     <div class="minimal-header">
         <div class="header-container">
             <div class="user-basic">
-                {% if user.img %}
-                    <img src="{{ user.img.thumb.url }}" alt="{{ user.full_name }}" class="minimal-avatar">
+                {% if profile_user.img %}
+                    <img src="{{ profile_user.img.thumb.url }}" alt="{{ profile_user.full_name }}" class="minimal-avatar">
                 {% else %}
                     <div class="minimal-avatar-placeholder">
                         <i class="fas fa-user"></i>
                     </div>
                 {% endif %}
                 <div class="user-core">
-                    <h1>{{ user.full_name|default:user.email }}</h1>
-                    {% if user.address %}
+                    <div class="user-name-row">
+                        <h1>{{ profile_user.full_name|default:profile_user.email }}</h1>
+                        <div class="user-score-badge" title="Reputação na comunidade">
+                            <i class="fas fa-star"></i>
+                            <span>{{ profile_user.score }}</span>
+                        </div>
+                    </div>
+                    {% if profile_user.address %}
                     <div class="user-location">
                         <i class="fas fa-map-marker-alt"></i>
-                        <span>{{ user.address.bairro }}{% if user.address.bairro %}, {% endif %}{{ user.address.localidade }} — {{ user.address.estado }}</span>
+                        <span>{{ profile_user.address.bairro }}{% if profile_user.address.bairro %}, {% endif %}{{ profile_user.address.localidade }} — {{ profile_user.address.estado }}</span>
                     </div>
                     {% endif %}
                 </div>
@@ -33,16 +39,12 @@
 
             <div class="user-stats">
                 <div class="stat">
-                    <div class="number">{{ user.score }}</div>
-                    <div class="label">pontos</div>
-                </div>
-                <div class="stat">
                     <div class="number">{{ loans_received }}</div>
-                    <div class="label">empréstimos recebidos</div>
+                    <div class="label">empréstimos como dono</div>
                 </div>
                 <div class="stat">
                     <div class="number">{{ orders_received }}</div>
-                    <div class="label">pedidos recebidos</div>
+                    <div class="label">pedidos como dono</div>
                 </div>
             </div>
         </div>
@@ -53,15 +55,15 @@
         <div class="content-main">
             <!-- AÇÕES -->
             <div class="action-row">
-                {% if user == request.user %}
+                {% if profile_user == request.user %}
                 <a href="{% url 'books:create' %}" class="minimal-btn primary">
                     <i class="fas fa-plus"></i> Adicionar Livro
                 </a>
-                <a href="{% url 'user:profile_update' user.id %}" class="minimal-btn">
+                <a href="{% url 'user:profile_update' profile_user.id %}" class="minimal-btn">
                     <i class="fas fa-cog"></i> Configurar
                 </a>
                 {% else %}
-                <a href="{% url 'books:user_library' user_id=user.id %}" class="minimal-btn">
+                <a href="{% url 'books:user_library' user_id=profile_user.id %}" class="minimal-btn">
                     <i class="fas fa-book"></i> Biblioteca
                 </a>
                 {% endif %}
@@ -69,9 +71,82 @@
 
             <!-- LIVROS -->
             <section class="minimal-section">
-                <h2>Livros</h2>
-                <a href="{% url 'books:user_library' user_id=user.id %}" class="view-more">Ver biblioteca completa →</a>
+                {% with preview_books=profile_user.user_books.all|slice:":4" %}
+                {% if preview_books %}
+                <div class="profile-books-grid">
+                    {% for book in preview_books %}
+                    <a href="{{ book.get_absolute_url }}" class="profile-book-card">
+                        <div class="profile-book-cover">
+                            {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" loading="lazy">
+                            {% else %}
+                            <div class="cover-placeholder">
+                                <span>{{ book.title|slice:":2"|upper }}</span>
+                            </div>
+                            {% endif %}
+                            <span class="profile-book-status {{ book.status }}"></span>
+                        </div>
+                        <p class="profile-book-title">{{ book.title|truncatechars:22 }}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="no-books-yet">Nenhum livro cadastrado ainda.</p>
+                {% endif %}
+                {% endwith %}
             </section>
+
+            <!-- ATIVIDADE (apenas para o próprio usuário) -->
+            {% if profile_user == request.user %}
+            <section class="minimal-section">
+                <h2>Minha Atividade</h2>
+                <div class="activity-grid">
+                    <a href="{% url 'orders:submitted' %}" class="activity-card">
+                        <div class="activity-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div class="activity-info">
+                            <span class="activity-count">{{ orders_submitted }}</span>
+                            <span class="activity-label">Pedidos enviados</span>
+                        </div>
+                        <i class="fas fa-chevron-right activity-arrow"></i>
+                    </a>
+
+                    <a href="{% url 'orders:received' %}" class="activity-card">
+                        <div class="activity-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <div class="activity-info">
+                            <span class="activity-count">{{ orders_received }}</span>
+                            <span class="activity-label">Pedidos recebidos</span>
+                        </div>
+                        <i class="fas fa-chevron-right activity-arrow"></i>
+                    </a>
+
+                    <a href="{% url 'loans:submitted' %}" class="activity-card">
+                        <div class="activity-icon">
+                            <i class="fas fa-book-reader"></i>
+                        </div>
+                        <div class="activity-info">
+                            <span class="activity-count">{{ loans_submitted }}</span>
+                            <span class="activity-label">Empréstimos enviados</span>
+                        </div>
+                        <i class="fas fa-chevron-right activity-arrow"></i>
+                    </a>
+
+                    <a href="{% url 'loans:received' %}" class="activity-card">
+                        <div class="activity-icon">
+                            <i class="fas fa-hand-holding-heart"></i>
+                        </div>
+                        <div class="activity-info">
+                            <span class="activity-count">{{ loans_received }}</span>
+                            <span class="activity-label">Empréstimos recebidos</span>
+                        </div>
+                        <i class="fas fa-chevron-right activity-arrow"></i>
+                    </a>
+                </div>
+            </section>
+            {% endif %}
         </div>
 
         <div class="content-sidebar">
@@ -79,24 +154,28 @@
             <div class="info-box">
                 <h3>Informações</h3>
                 <ul class="info-list">
-                    <li><i class="fas fa-calendar"></i> Membro desde {{ user.date_joined|date:"M Y" }}</li>
-                    {% if user.address %}
-                    <li><i class="fas fa-map-pin"></i> {{ user.address.localidade }}, {{ user.address.estado }}</li>
-                    <li><i class="fas fa-globe-americas"></i> Região {{ user.address.regiao }}</li>
+                    <li><i class="fas fa-calendar"></i> Membro desde {{ profile_user.date_joined|date:"M Y" }}</li>
+                    {% if profile_user.address %}
+                    <li><i class="fas fa-map-pin"></i> {{ profile_user.address.localidade }}, {{ profile_user.address.estado }}</li>
+                    <li><i class="fas fa-globe-americas"></i> Região {{ profile_user.address.regiao }}</li>
                     {% endif %}
-                    {% if user == request.user and user.phone %}
-                    <li><i class="fas fa-phone"></i> {{ user.phone }}</li>
+                    {% if profile_user == request.user and profile_user.phone %}
+                    <li><i class="fas fa-phone"></i> {{ profile_user.phone }}</li>
                     {% endif %}
                 </ul>
             </div>
 
-            <!-- ATIVIDADE -->
+            <!-- REPUTAÇÃO -->
             <div class="info-box">
-                <h3>Atividade</h3>
-                <ul class="info-list">
-                    <li><i class="fas fa-paper-plane"></i> {{ loans_submitted }} empréstimos enviados</li>
-                    <li><i class="fas fa-inbox"></i> {{ orders_submitted }} pedidos enviados</li>
-                </ul>
+                <h3>Reputação na Comunidade</h3>
+                <div class="reputation-display">
+                    <div class="reputation-score">
+                        <i class="fas fa-star"></i>
+                        <span class="reputation-number">{{ profile_user.score }}</span>
+                        <span class="reputation-unit">pontos</span>
+                    </div>
+                    <p class="reputation-desc">Os pontos refletem sua participação e confiabilidade na comunidade.</p>
+                </div>
             </div>
         </div>
     </div>

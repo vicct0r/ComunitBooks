@@ -119,15 +119,13 @@
                             <div class="book-card-cover">
                                 {% if book.cover_image %}
                                 <img src="{{ book.cover_image.url }}" alt="Capa de {{ book.title }}" class="book-cover-image" loading="lazy">
-                                {% elif book.cover_url %}
-                                <img src="{{ book.cover_url }}" alt="Capa de {{ book.title }}" class="book-cover-image" loading="lazy">
                                 {% else %}
                                 <div class="cover-placeholder">
                                     <span>{{ book.title|slice:":2"|upper }}</span>
                                 </div>
                                 {% endif %}
-                                <div class="book-status-badge {% if book.status == 'av' %}available{% elif book.status == 'un' %}borrowed{% else %}reserved{% endif %}">
-                                    {% if book.status == 'av' %}Disponível{% elif book.status == 'un' %}Indisponível{% else %}Reservado{% endif %}
+                                <div class="book-status-badge {{ book.status }}">
+                                    {{ book.get_status_display }}
                                 </div>
                             </div>
                         </a>

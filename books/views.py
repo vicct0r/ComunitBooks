@@ -111,6 +111,9 @@ class BookUpdateView(LoginRequiredMixin, generic.UpdateView):
     fields = ['title', 'author', 'cover_image', 'condition', 'category', 'is_visible']
     pk_url_kwarg = 'book_id'
 
+    def get_queryset(self):
+        return Book.objects.filter(owner=self.request.user, id=self.kwargs.get('book_id'))
+
     def form_valid(self, form):
         messages.success(self.request, 'O livro foi atualizado com sucesso!')
         return super().form_valid(form)

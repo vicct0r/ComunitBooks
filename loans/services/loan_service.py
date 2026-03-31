@@ -18,7 +18,7 @@ def update_order_status(order: 'Order', accepted=False):
     """
     with transaction.atomic():
         order.status = Order.APPROVED if accepted else Order.DENIED
-        order.book.status = Book.RESERVED if accepted else order.book.status
+        order.book.status = Book.Status.RESERVED if accepted else order.book.status
         order.save()
         order.book.save()
 
@@ -34,7 +34,7 @@ class LoanService:
             raise ValueError('Action not allowed.')
 
         loan.status = Loan.CANCELLED
-        loan.book.status = Book.AVAILABLE
+        loan.book.status = Book.Status.AVAILABLE
         loan.save()
         loan.book.save()
         return f"O emprestimo do livro {loan.book.title} para {loan.borrower.email} foi cancelado."
@@ -48,7 +48,7 @@ class LoanService:
             raise ValueError('Action not allowed.')
 
         loan.status = Loan.ON_ROUTE
-        loan.book.status = Book.UNAVAILABLE
+        loan.book.status = Book.Status.UNAVAILABLE
         loan.save()
         loan.book.save()
         notification.sent(loan)
@@ -100,7 +100,7 @@ class LoanService:
             raise ValueError('Action not allowed.')
 
         loan.status = Loan.COMPLETED
-        loan.book.status = Book.AVAILABLE
+        loan.book.status = Book.Status.AVAILABLE
         loan.returned_date = timezone.now()
         loan.save()
         loan.book.save()
